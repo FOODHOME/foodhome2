@@ -1,0 +1,1735 @@
+import React, { useState } from 'react';
+import { useApp } from '../context/AppContext';
+import { ProductItem, PostItem, B2BInquiry } from '../types';
+import { submitToFormspree } from '../utils/formspree';
+import { 
+  X, 
+  LayoutDashboard, 
+  Type, 
+  Palette, 
+  Package, 
+  FileText, 
+  MessageSquareText, 
+  Globe2, 
+  Database, 
+  Plus, 
+  Edit3, 
+  Trash2, 
+  Check, 
+  Save, 
+  RotateCcw, 
+  Search, 
+  ExternalLink,
+  Sparkles,
+  Phone,
+  Mail,
+  Eye,
+  Sliders,
+  CheckCircle2,
+  Clock,
+  Download,
+  Upload,
+  Send,
+  Loader2,
+  Link2
+} from 'lucide-react';
+
+export const AdminDashboard: React.FC = () => {
+  const { 
+    state, 
+    isAdminOpen, 
+    setIsAdminOpen, 
+    activeAdminTab, 
+    setActiveAdminTab,
+    updateContent,
+    updateTheme,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    addPost,
+    updatePost,
+    deletePost,
+    updateInquiryStatus,
+    deleteInquiry,
+    updateSeo,
+    updateSocial,
+    updateFormspreeEndpoint,
+    resetToDefaults,
+    importData,
+    showToast
+  } = useApp();
+
+  const [formspreeEndpointInput, setFormspreeEndpointInput] = useState(
+    state.formspreeEndpoint || 'https://formspree.io/f/xoejykbn'
+  );
+  const [isTestingFormspree, setIsTestingFormspree] = useState(false);
+
+  // Local state for Content Editing
+  const [contentForm, setContentForm] = useState(state.content);
+
+  // Local state for Theme
+  const [themeForm, setThemeForm] = useState(state.theme);
+
+  // Local state for SEO
+  const [seoForm, setSeoForm] = useState(state.seo);
+
+  // Local state for Social
+  const [socialForm, setSocialForm] = useState(state.social);
+
+  // Product modal / editing
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [productForm, setProductForm] = useState<Partial<ProductItem>>({
+    name: '',
+    subtitle: '',
+    category: '보쌈무김치',
+    tag: '신규 상품',
+    weight: '5kg / 10kg',
+    storage: '냉장보관 (0~5℃)',
+    shelfLife: '제조일로부터 30일',
+    ingredients: '국내산 절임무 75%, 고춧가루, 마늘, 멸치액젓',
+    description: '',
+    imageUrl: 'https://images.unsplash.com/photo-1583032015879-67990c74900a?auto=format&fit=crop&w=800&q=80',
+    isPopular: false,
+    isRecommended: false,
+    bulkPriceGuide: '대량 주문 시 단가 별도 협의'
+  });
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+
+  // Post modal / editing
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [postForm, setPostForm] = useState<Partial<PostItem>>({
+    title: '',
+    category: '공지사항',
+    author: '운영팀',
+    content: '',
+    thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
+    tags: ['식품안전', '보쌈무김치'],
+    isPinned: false
+  });
+  const [tagInput, setTagInput] = useState('');
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+
+  // Inquiry Filter & Active note
+  const [inquiryFilter, setInquiryFilter] = useState<'전체' | '접수대기' | '샘플발송완료' | '상담완료'>('전체');
+  const [selectedInquiryNoteId, setSelectedInquiryNoteId] = useState<string | null>(null);
+  const [tempAdminMemo, setTempAdminMemo] = useState('');
+
+  if (!isAdminOpen) return null;
+
+  // Blue preset palettes
+  const bluePalettes = [
+    { name: '로열 블루 (추천)', primary: '#1e40af', accent: '#2563eb' },
+    { name: '비비드 사파이어', primary: '#2563eb', accent: '#3b82f6' },
+    { name: '딥 네이비', primary: '#0f172a', accent: '#1e3a8a' },
+    { name: '오션 블루', primary: '#0369a1', accent: '#0284c7' },
+    { name: '인디고 블루', primary: '#3730a3', accent: '#4f46e5' },
+    { name: '청결 스카이 블루', primary: '#0284c7', accent: '#38bdf8' }
+  ];
+
+  // Handlers
+  const handleSaveContent = () => {
+    updateContent(contentForm);
+  };
+
+  const handleSaveTheme = () => {
+    updateTheme(themeForm);
+  };
+
+  const handleSaveSeo = () => {
+    updateSeo(seoForm);
+    updateSocial(socialForm);
+  };
+
+  const handleOpenAddProduct = () => {
+    setEditingProductId(null);
+    setProductForm({
+      name: '',
+      subtitle: '',
+      category: '보쌈무김치',
+      tag: '신규 상품',
+      weight: '5kg / 10kg',
+      storage: '냉장보관 (0~5℃)',
+      shelfLife: '제조일로부터 30일',
+      ingredients: '국내산 절임무 75%, 고춧가루, 마늘, 멸치액젓',
+      description: '',
+      imageUrl: 'https://images.unsplash.com/photo-1583032015879-67990c74900a?auto=format&fit=crop&w=800&q=80',
+      isPopular: false,
+      isRecommended: false,
+      bulkPriceGuide: '대량 주문 시 단가 별도 협의'
+    });
+    setIsProductModalOpen(true);
+  };
+
+  const handleEditProduct = (p: ProductItem) => {
+    setEditingProductId(p.id);
+    setProductForm({ ...p });
+    setIsProductModalOpen(true);
+  };
+
+  const handleSaveProductSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!productForm.name) {
+      alert('제품명을 입력해 주세요.');
+      return;
+    }
+
+    if (editingProductId) {
+      updateProduct(editingProductId, productForm);
+    } else {
+      addProduct(productForm as Omit<ProductItem, 'id'>);
+    }
+    setIsProductModalOpen(false);
+  };
+
+  const handleOpenAddPost = () => {
+    setEditingPostId(null);
+    setPostForm({
+      title: '',
+      category: '공지사항',
+      author: '운영팀',
+      content: '',
+      thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
+      tags: ['공지', '소식'],
+      isPinned: false
+    });
+    setTagInput('공지, 소식');
+    setIsPostModalOpen(true);
+  };
+
+  const handleEditPost = (post: PostItem) => {
+    setEditingPostId(post.id);
+    setPostForm({ ...post });
+    setTagInput(post.tags.join(', '));
+    setIsPostModalOpen(true);
+  };
+
+  const handleSavePostSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!postForm.title || !postForm.content) {
+      alert('제목과 본문 내용을 입력해 주세요.');
+      return;
+    }
+
+    const parsedTags = tagInput
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
+
+    if (editingPostId) {
+      updatePost(editingPostId, {
+        ...postForm,
+        tags: parsedTags
+      });
+    } else {
+      addPost({
+        title: postForm.title || '',
+        category: postForm.category as any,
+        author: postForm.author || '푸드홈 운영팀',
+        content: postForm.content || '',
+        thumbnail: postForm.thumbnail || '',
+        tags: parsedTags,
+        isPinned: !!postForm.isPinned
+      });
+    }
+    setIsPostModalOpen(false);
+  };
+
+  const handleExportJson = () => {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `foodhome_backup_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast('백업 JSON 파일이 성공적으로 다운로드되었습니다.');
+  };
+
+  const handleImportJsonFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        importData(json);
+      } catch (err) {
+        alert('유효하지 않은 JSON 파일입니다.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleSaveFormspree = () => {
+    updateFormspreeEndpoint(formspreeEndpointInput);
+  };
+
+  const handleTestFormspree = async () => {
+    setIsTestingFormspree(true);
+    const res = await submitToFormspree(formspreeEndpointInput, {
+      상호명_매장명: '푸드홈 관리자 연동 테스트',
+      대표자_담당자명: '시스템 관리자',
+      연락처: '010-1234-5678',
+      이메일: 'admin@foodhome.co.kr',
+      업종형태: '보쌈·족발 전문점',
+      신청유형: '무료 샘플 요청',
+      월예상소진량: '월 200kg ~ 300kg',
+      상세요청사항: 'Formspree 데이터 수집 링크(https://formspree.io/f/xoejykbn) 연동 확인용 테스트 발송입니다.',
+      _subject: '[연동 테스트] 푸드홈 웹사이트 Formspree 연동 확인',
+      _replyto: 'admin@foodhome.co.kr'
+    });
+    setIsTestingFormspree(false);
+    if (res.success) {
+      showToast('Formspree로 테스트 데이터가 성공적으로 발송되었습니다!');
+    } else {
+      showToast('Formspree 전송 오류: ' + (res.message || 'URL을 확인해 주세요.'));
+    }
+  };
+
+  const pendingInquiriesCount = state.inquiries.filter(i => i.status === '접수대기').length;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200">
+      <div 
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden border border-slate-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top Header */}
+        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-black text-lg">
+              푸
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="font-extrabold text-base sm:text-lg">
+                  푸드홈 통합 관리자 대시보드
+                </h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/30 text-blue-300 border border-blue-400/30">
+                  FOODHOME ADMIN v2.0
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                콘텐츠·디자인 커스터마이징, 제품 및 게시글 관리, B2B 실시간 견적 접수
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsAdminOpen(false)}
+              className="px-3.5 py-1.5 rounded-lg bg-slate-800 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5 text-blue-400" />
+              <span>실시간 사이트 보기</span>
+            </button>
+            <button
+              onClick={() => setIsAdminOpen(false)}
+              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation Tabs Bar */}
+        <div className="bg-slate-50 border-b border-slate-200 px-6 py-2 flex items-center gap-1 overflow-x-auto shrink-0 no-scrollbar">
+          {[
+            { id: 'overview', label: '대시보드 개요', icon: LayoutDashboard },
+            { id: 'content', label: '콘텐츠 편집', icon: Type },
+            { id: 'design', label: '디자인 & 테마', icon: Palette },
+            { id: 'products', label: `제품 관리 (${state.products.length})`, icon: Package },
+            { id: 'posts', label: `게시글 & 레시피 (${state.posts.length})`, icon: FileText },
+            { 
+              id: 'inquiries', 
+              label: `B2B 샘플 문의 (${state.inquiries.length})`, 
+              icon: MessageSquareText,
+              badge: pendingInquiriesCount > 0 ? pendingInquiriesCount : undefined
+            },
+            { id: 'seo', label: 'SEO & 소셜 메타', icon: Globe2 },
+            { id: 'backup', label: '데이터 백업/복원', icon: Database },
+          ].map(tab => {
+            const Icon = tab.icon;
+            const isActive = activeAdminTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveAdminTab(tab.id)}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+                {tab.badge && (
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                    isActive ? 'bg-white text-blue-600' : 'bg-red-500 text-white animate-pulse'
+                  }`}>
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab Content Container */}
+        <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+
+          {/* 1. OVERVIEW TAB */}
+          {activeAdminTab === 'overview' && (
+            <div className="space-y-6 max-w-5xl mx-auto">
+              {/* Quick Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                    <span>미처리 샘플 문의</span>
+                    <span className="p-1 rounded bg-amber-50 text-amber-600">
+                      <Clock className="w-4 h-4" />
+                    </span>
+                  </div>
+                  <div className="text-3xl font-black text-amber-600 mt-2">
+                    {pendingInquiriesCount}건
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1">접수 즉시 유선 연락 권장</p>
+                </div>
+
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                    <span>등록 제품 수</span>
+                    <span className="p-1 rounded bg-blue-50 text-blue-600">
+                      <Package className="w-4 h-4" />
+                    </span>
+                  </div>
+                  <div className="text-3xl font-black text-slate-900 mt-2">
+                    {state.products.length}종
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1">보쌈무 및 김칫속 라인업</p>
+                </div>
+
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                    <span>소식 & 레시피 글</span>
+                    <span className="p-1 rounded bg-purple-50 text-purple-600">
+                      <FileText className="w-4 h-4" />
+                    </span>
+                  </div>
+                  <div className="text-3xl font-black text-slate-900 mt-2">
+                    {state.posts.length}편
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1">총 누적 조회수 13,000+</p>
+                </div>
+
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                    <span>전국 가맹점 공급</span>
+                    <span className="p-1 rounded bg-emerald-50 text-emerald-600">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </span>
+                  </div>
+                  <div className="text-3xl font-black text-emerald-600 mt-2">
+                    480개소
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1">재발주율 98.8% 달성</p>
+                </div>
+              </div>
+
+              {/* Quick Jump Shortcuts */}
+              <div className="bg-white p-5 rounded-xl border border-slate-200">
+                <h3 className="text-sm font-bold text-slate-900 mb-3">빠른 관리 바로가기</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <button
+                    onClick={() => setActiveAdminTab('content')}
+                    className="p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition-colors cursor-pointer"
+                  >
+                    <Type className="w-4 h-4 text-blue-600 mb-1" />
+                    <span className="text-xs font-bold block text-slate-800">문구 및 정보 수정</span>
+                    <span className="text-[10px] text-slate-500">회사 정보, 히어로 문구</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveAdminTab('design')}
+                    className="p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition-colors cursor-pointer"
+                  >
+                    <Palette className="w-4 h-4 text-blue-600 mb-1" />
+                    <span className="text-xs font-bold block text-slate-800">포인트 컬러/테마</span>
+                    <span className="text-[10px] text-slate-500">블루 톤, 폰트, 모서리</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveAdminTab('products');
+                      handleOpenAddProduct();
+                    }}
+                    className="p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition-colors cursor-pointer"
+                  >
+                    <Package className="w-4 h-4 text-blue-600 mb-1" />
+                    <span className="text-xs font-bold block text-slate-800">신규 제품 등록</span>
+                    <span className="text-[10px] text-slate-500">보쌈무/김칫속 상품 추가</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveAdminTab('posts');
+                      handleOpenAddPost();
+                    }}
+                    className="p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition-colors cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 text-blue-600 mb-1" />
+                    <span className="text-xs font-bold block text-slate-800">새 게시글 작성</span>
+                    <span className="text-[10px] text-slate-500">공지, 레시피 가이드</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Recent Inquiries Preview */}
+              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MessageSquareText className="w-4 h-4 text-blue-600" />
+                    <h3 className="text-sm font-bold text-slate-900">최근 접수된 B2B 샘플 및 견적 문의</h3>
+                  </div>
+                  <button
+                    onClick={() => setActiveAdminTab('inquiries')}
+                    className="text-xs font-bold text-blue-600 hover:underline"
+                  >
+                    전체 문의 목록 보기 →
+                  </button>
+                </div>
+
+                <div className="divide-y divide-slate-100">
+                  {state.inquiries.slice(0, 4).map((inq) => (
+                    <div key={inq.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                            inq.status === '접수대기' ? 'bg-amber-100 text-amber-800' :
+                            inq.status === '샘플발송완료' ? 'bg-blue-100 text-blue-800' :
+                            'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {inq.status}
+                          </span>
+                          <span className="text-xs font-bold text-slate-800">{inq.companyName}</span>
+                          <span className="text-xs text-slate-500">({inq.contactPerson} / {inq.phone})</span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-1 line-clamp-1">
+                          [{inq.requestType}] {inq.message || '상세 메시지 없음'}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={inq.status}
+                          onChange={(e) => updateInquiryStatus(inq.id, e.target.value as any)}
+                          className="text-xs px-2 py-1 rounded border border-slate-200 bg-white"
+                        >
+                          <option value="접수대기">접수대기</option>
+                          <option value="샘플발송완료">샘플발송완료</option>
+                          <option value="상담완료">상담완료</option>
+                          <option value="보류">보류</option>
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 2. CONTENT EDITING TAB */}
+          {activeAdminTab === 'content' && (
+            <div className="max-w-4xl mx-auto bg-white p-6 rounded-xl border border-slate-200 space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">사이트 기본 콘텐츠 & 문구 수정</h3>
+                  <p className="text-xs text-slate-500">브랜드명, 히어로 섹션 카피, 기업 연락처 정보를 자유롭게 수정할 수 있습니다.</p>
+                </div>
+                <button
+                  onClick={handleSaveContent}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700 transition-colors cursor-pointer shadow-xs"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>변경사항 저장하기</span>
+                </button>
+              </div>
+
+              {/* Brand info */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">브랜드 정체성</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">브랜드명 (국문)</label>
+                    <input
+                      type="text"
+                      value={contentForm.brandName}
+                      onChange={(e) => setContentForm({ ...contentForm, brandName: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">브랜드명 (영문/서브)</label>
+                    <input
+                      type="text"
+                      value={contentForm.brandSubName}
+                      onChange={(e) => setContentForm({ ...contentForm, brandSubName: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">브랜드 슬로건</label>
+                  <input
+                    type="text"
+                    value={contentForm.tagline}
+                    onChange={(e) => setContentForm({ ...contentForm, tagline: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                  />
+                </div>
+              </div>
+
+              {/* Hero Section Copy */}
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">히어로 섹션 문구 및 이미지</h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">메인 헤드라인 1번째 줄</label>
+                    <input
+                      type="text"
+                      value={contentForm.heroTitle}
+                      onChange={(e) => setContentForm({ ...contentForm, heroTitle: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">강조 포인트 문구 (파란색 그라데이션)</label>
+                    <input
+                      type="text"
+                      value={contentForm.heroHighlight}
+                      onChange={(e) => setContentForm({ ...contentForm, heroHighlight: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">상단 서브 타이틀 뱃지</label>
+                  <input
+                    type="text"
+                    value={contentForm.heroSubtitle}
+                    onChange={(e) => setContentForm({ ...contentForm, heroSubtitle: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">상세 설명문</label>
+                  <textarea
+                    rows={3}
+                    value={contentForm.heroDescription}
+                    onChange={(e) => setContentForm({ ...contentForm, heroDescription: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">히어로 대표 이미지 URL</label>
+                  <input
+                    type="url"
+                    value={contentForm.heroImageUrl}
+                    onChange={(e) => setContentForm({ ...contentForm, heroImageUrl: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                  />
+                </div>
+              </div>
+
+              {/* Company Details */}
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">사업자 및 고객센터 정보</h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">회사 상호명</label>
+                    <input
+                      type="text"
+                      value={contentForm.companyName}
+                      onChange={(e) => setContentForm({ ...contentForm, companyName: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">대표자명</label>
+                    <input
+                      type="text"
+                      value={contentForm.ceoName}
+                      onChange={(e) => setContentForm({ ...contentForm, ceoName: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">대표전화</label>
+                    <input
+                      type="text"
+                      value={contentForm.phone}
+                      onChange={(e) => setContentForm({ ...contentForm, phone: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">사업자등록번호</label>
+                    <input
+                      type="text"
+                      value={contentForm.businessNumber}
+                      onChange={(e) => setContentForm({ ...contentForm, businessNumber: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">통신판매업신고</label>
+                    <input
+                      type="text"
+                      value={contentForm.mailOrderNumber}
+                      onChange={(e) => setContentForm({ ...contentForm, mailOrderNumber: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">HACCP 인증번호</label>
+                    <input
+                      type="text"
+                      value={contentForm.haccpNumber}
+                      onChange={(e) => setContentForm({ ...contentForm, haccpNumber: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">제조공장 주소</label>
+                    <input
+                      type="text"
+                      value={contentForm.factoryAddress}
+                      onChange={(e) => setContentForm({ ...contentForm, factoryAddress: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">서울본부 주소</label>
+                    <input
+                      type="text"
+                      value={contentForm.hqAddress}
+                      onChange={(e) => setContentForm({ ...contentForm, hqAddress: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 flex justify-end">
+                <button
+                  onClick={handleSaveContent}
+                  className="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-xs"
+                >
+                  수정 내용 즉시 적용
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 3. DESIGN & THEME TAB */}
+          {activeAdminTab === 'design' && (
+            <div className="max-w-4xl mx-auto bg-white p-6 rounded-xl border border-slate-200 space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">디자인 & 테마 커스터마이징</h3>
+                  <p className="text-xs text-slate-500">배경은 깔끔한 화이트, 포인트 컬러(파란색 계열) 및 폰트, 카드 라운딩을 조절합니다.</p>
+                </div>
+                <button
+                  onClick={handleSaveTheme}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700 transition-colors cursor-pointer shadow-xs"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>테마 설정 저장</span>
+                </button>
+              </div>
+
+              {/* Blue Palettes */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-3">
+                  포인트 컬러 (블루 팔레트 프리셋)
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {bluePalettes.map((pal, idx) => (
+                    <button
+                      type="button"
+                      key={idx}
+                      onClick={() => setThemeForm({ ...themeForm, primaryColor: pal.primary, accentColor: pal.accent })}
+                      className={`p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
+                        themeForm.primaryColor === pal.primary
+                          ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <div 
+                        className="w-7 h-7 rounded-lg shadow-xs shrink-0" 
+                        style={{ backgroundColor: pal.primary }} 
+                      />
+                      <div>
+                        <span className="text-xs font-bold block text-slate-800">{pal.name}</span>
+                        <span className="text-[10px] text-slate-400">{pal.primary}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom Hex Inputs */}
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="text-xs font-medium text-slate-600 block mb-1">메인 포인트 HEX</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={themeForm.primaryColor}
+                        onChange={(e) => setThemeForm({ ...themeForm, primaryColor: e.target.value })}
+                        className="w-8 h-8 rounded border p-0.5 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={themeForm.primaryColor}
+                        onChange={(e) => setThemeForm({ ...themeForm, primaryColor: e.target.value })}
+                        className="w-full px-3 py-1.5 text-xs rounded border border-slate-200"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-slate-600 block mb-1">보조 강조 HEX</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={themeForm.accentColor}
+                        onChange={(e) => setThemeForm({ ...themeForm, accentColor: e.target.value })}
+                        className="w-8 h-8 rounded border p-0.5 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={themeForm.accentColor}
+                        onChange={(e) => setThemeForm({ ...themeForm, accentColor: e.target.value })}
+                        className="w-full px-3 py-1.5 text-xs rounded border border-slate-200"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Radius */}
+              <div className="pt-4 border-t border-slate-100">
+                <label className="text-xs font-bold text-slate-700 block mb-2">
+                  UI 요소 둥글기 (모서리 라운딩)
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { label: '각진 스타일', val: 'rounded-none' },
+                    { label: '기본 라운드', val: 'rounded-lg' },
+                    { label: '부드러운 곡선', val: 'rounded-xl' },
+                    { label: '동글동글한 모서리', val: 'rounded-2xl' }
+                  ].map((rad) => (
+                    <button
+                      key={rad.val}
+                      type="button"
+                      onClick={() => setThemeForm({ ...themeForm, cardRadius: rad.val as any })}
+                      className={`py-2 px-3 text-xs font-bold border rounded-lg transition-colors cursor-pointer ${
+                        themeForm.cardRadius === rad.val
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      {rad.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section Visibility Switches */}
+              <div className="pt-4 border-t border-slate-100">
+                <label className="text-xs font-bold text-slate-700 block mb-2">
+                  메인 페이지 섹션 표시 / 숨김 제어
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { key: 'stats', label: '핵심 실적 통계' },
+                    { key: 'features', label: '브랜드 스토리 & 가치' },
+                    { key: 'products', label: '제품 라인업' },
+                    { key: 'process', label: 'HACCP 6단계 공정' },
+                    { key: 'reviews', label: '고객사 추천평' },
+                    { key: 'posts', label: '소식 & 레시피' },
+                    { key: 'inquiry', label: 'B2B 견적 폼' },
+                  ].map((sec) => {
+                    const isVisible = (themeForm.sectionsVisible as any)[sec.key];
+                    return (
+                      <label 
+                        key={sec.key} 
+                        className="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-xs font-semibold text-slate-700"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isVisible}
+                          onChange={(e) => {
+                            setThemeForm({
+                              ...themeForm,
+                              sectionsVisible: {
+                                ...themeForm.sectionsVisible,
+                                [sec.key]: e.target.checked
+                              }
+                            });
+                          }}
+                          className="rounded text-blue-600 focus:ring-blue-500"
+                        />
+                        <span>{sec.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-4 flex justify-end">
+                <button
+                  onClick={handleSaveTheme}
+                  className="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-xs"
+                >
+                  테마 설정 즉시 반영
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 4. PRODUCTS MANAGEMENT TAB */}
+          {activeAdminTab === 'products' && (
+            <div className="max-w-5xl mx-auto space-y-6">
+              <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">식품 제품 라인업 관리</h3>
+                  <p className="text-xs text-slate-500">현재 등록된 총 {state.products.length}개의 상품을 관리합니다.</p>
+                </div>
+                <button
+                  onClick={handleOpenAddProduct}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700 transition-colors cursor-pointer shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ 새 제품 추가</span>
+                </button>
+              </div>
+
+              {/* Product List Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {state.products.map((p) => (
+                  <div key={p.id} className="bg-white p-4 rounded-xl border border-slate-200 flex gap-4 items-start justify-between shadow-2xs">
+                    <div className="flex gap-3">
+                      <div className="w-20 h-20 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+                            {p.category}
+                          </span>
+                          {p.tag && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+                              {p.tag}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-900 leading-snug">{p.name}</h4>
+                        <p className="text-xs text-slate-500 line-clamp-1">{p.subtitle}</p>
+                        <p className="text-[11px] text-slate-400">규격: {p.weight}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 shrink-0">
+                      <button
+                        onClick={() => handleEditProduct(p)}
+                        className="p-1.5 rounded bg-slate-100 text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                        title="수정"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`"${p.name}" 제품을 삭제하시겠습니까?`)) {
+                            deleteProduct(p.id);
+                          }
+                        }}
+                        className="p-1.5 rounded bg-slate-100 text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        title="삭제"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 5. POSTS & RECIPES MANAGEMENT TAB */}
+          {activeAdminTab === 'posts' && (
+            <div className="max-w-5xl mx-auto space-y-6">
+              <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">게시글, 공지사항 & 레시피 가이드</h3>
+                  <p className="text-xs text-slate-500">외식업 노하우, 제품 소식, 공지사항 글을 등록 및 편집합니다.</p>
+                </div>
+                <button
+                  onClick={handleOpenAddPost}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700 transition-colors cursor-pointer shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ 새 게시글 작성</span>
+                </button>
+              </div>
+
+              {/* Posts Table */}
+              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+                    <tr>
+                      <th className="p-3 pl-4">카테고리</th>
+                      <th className="p-3">제목</th>
+                      <th className="p-3">작성자</th>
+                      <th className="p-3">등록일</th>
+                      <th className="p-3">조회수</th>
+                      <th className="p-3 text-right pr-4">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {state.posts.map((post) => (
+                      <tr key={post.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="p-3 pl-4">
+                          <span className="font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+                            {post.category}
+                          </span>
+                        </td>
+                        <td className="p-3 font-semibold text-slate-800">
+                          {post.title}
+                          {post.isPinned && (
+                            <span className="ml-1 text-[10px] text-amber-600 font-bold">★고정</span>
+                          )}
+                        </td>
+                        <td className="p-3 text-slate-600">{post.author}</td>
+                        <td className="p-3 text-slate-500">{post.date}</td>
+                        <td className="p-3 text-slate-500">{post.readCount}회</td>
+                        <td className="p-3 text-right pr-4">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => handleEditPost(post)}
+                              className="p-1 rounded text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                              title="수정"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`"${post.title}" 글을 삭제하시겠습니까?`)) {
+                                  deletePost(post.id);
+                                }
+                              }}
+                              className="p-1 rounded text-slate-500 hover:text-red-600 hover:bg-red-50"
+                              title="삭제"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* 6. B2B INQUIRIES MANAGEMENT TAB */}
+          {activeAdminTab === 'inquiries' && (
+            <div className="max-w-5xl mx-auto space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">B2B 무료 샘플 및 납품 견적 문의 현황</h3>
+                  <p className="text-xs text-slate-500">외식업 사장님들의 접수 내역을 확인하고 처리 상태와 내부 메모를 관리합니다.</p>
+                </div>
+
+                {/* Filter Pills */}
+                <div className="flex items-center gap-1.5">
+                  {(['전체', '접수대기', '샘플발송완료', '상담완료'] as const).map(flt => (
+                    <button
+                      key={flt}
+                      onClick={() => setInquiryFilter(flt)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                        inquiryFilter === flt
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {flt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Formspree Endpoint Configuration Card */}
+              <div className="bg-gradient-to-r from-blue-900 to-slate-900 rounded-xl p-5 text-white shadow-md space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-black text-sm">
+                      F
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-bold">Formspree 실시간 데이터 수집 연동</h4>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                          연동 활성화됨 (ACTIVE)
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-300 mt-0.5">
+                        웹사이트에서 고객이 샘플 및 견적을 신청하면 Formspree로 즉시 수집되고 이메일 알림이 전달됩니다.
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href="https://formspree.io/forms/xoejykbn/submissions"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-blue-200 hover:text-white transition-colors flex items-center gap-1 border border-white/10"
+                  >
+                    <span>Formspree 대시보드 바로가기</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+                  <div className="relative flex-1">
+                    <Link2 className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="url"
+                      value={formspreeEndpointInput}
+                      onChange={(e) => setFormspreeEndpointInput(e.target.value)}
+                      placeholder="https://formspree.io/f/xoejykbn"
+                      className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 font-mono"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleSaveFormspree}
+                      className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      <span>엔드포인트 저장</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isTestingFormspree}
+                      onClick={handleTestFormspree}
+                      className="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer border border-slate-600 disabled:opacity-50"
+                    >
+                      {isTestingFormspree ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>테스트 발송 중...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3.5 h-3.5" />
+                          <span>연동 테스트 발송</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Inquiries Cards */}
+              <div className="space-y-4">
+                {state.inquiries
+                  .filter(i => inquiryFilter === '전체' || i.status === inquiryFilter)
+                  .map((inq) => (
+                    <div key={inq.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs space-y-4">
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-bold px-2.5 py-0.5 rounded ${
+                            inq.status === '접수대기' ? 'bg-amber-100 text-amber-800' :
+                            inq.status === '샘플발송완료' ? 'bg-blue-100 text-blue-800' :
+                            'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {inq.status}
+                          </span>
+                          <span className="text-sm font-black text-slate-900">{inq.companyName}</span>
+                          <span className="text-xs font-bold text-blue-600">[{inq.requestType}]</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-slate-400">접수일: {inq.createdAt}</span>
+                          <button
+                            onClick={() => {
+                              if (confirm('이 문의 내역을 삭제하시겠습니까?')) {
+                                deleteInquiry(inq.id);
+                              }
+                            }}
+                            className="p-1 text-slate-400 hover:text-red-600"
+                            title="삭제"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Detail Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                        <div>
+                          <span className="text-slate-400 block font-medium">담당자 성함</span>
+                          <span className="font-bold text-slate-800">{inq.contactPerson}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block font-medium">연락처</span>
+                          <a href={`tel:${inq.phone}`} className="font-bold text-blue-600 hover:underline">
+                            {inq.phone}
+                          </a>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block font-medium">업종 / 예상 소진량</span>
+                          <span className="font-semibold text-slate-700">{inq.businessType} ({inq.monthlyUsage})</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block font-medium">배송지 / 지역</span>
+                          <span className="font-semibold text-slate-700">{inq.region || '미기재'}</span>
+                        </div>
+                      </div>
+
+                      {/* Message */}
+                      {inq.message && (
+                        <div className="p-3 rounded-lg bg-slate-50 text-xs text-slate-700 border border-slate-100">
+                          <span className="font-bold block text-slate-500 mb-0.5">요청 메시지:</span>
+                          {inq.message}
+                        </div>
+                      )}
+
+                      {/* Admin Memo & Status Change */}
+                      <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center gap-2 flex-1 max-w-md">
+                          <span className="font-bold text-slate-600 shrink-0">내부 관리 메모:</span>
+                          <input
+                            type="text"
+                            defaultValue={inq.adminMemo || ''}
+                            onBlur={(e) => updateInquiryStatus(inq.id, inq.status, e.target.value)}
+                            placeholder="택배 송장번호나 통화 메모 입력 후 포커스 아웃 시 자동 저장"
+                            className="w-full px-2.5 py-1 text-xs rounded border border-slate-200 bg-white"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-500 font-medium">상태 변경:</span>
+                          <select
+                            value={inq.status}
+                            onChange={(e) => updateInquiryStatus(inq.id, e.target.value as any, inq.adminMemo)}
+                            className="px-2.5 py-1 text-xs font-bold rounded border border-slate-200 bg-white text-slate-800"
+                          >
+                            <option value="접수대기">접수대기</option>
+                            <option value="샘플발송완료">샘플발송완료</option>
+                            <option value="상담완료">상담완료</option>
+                            <option value="보류">보류</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* 7. SEO & SOCIAL MEDIA TAB */}
+          {activeAdminTab === 'seo' && (
+            <div className="max-w-4xl mx-auto space-y-6">
+              <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">검색엔진 최적화(SEO) 및 소셜 메타태그 설정</h3>
+                    <p className="text-xs text-slate-500">네이버, 구글 검색 결과 및 카카오톡 공유 시 노출되는 정보를 편집합니다.</p>
+                  </div>
+                  <button
+                    onClick={handleSaveSeo}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700 transition-colors cursor-pointer shadow-xs"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    <span>SEO 설정 저장</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      페이지 제목 (Title Tag) <span className="text-blue-600 font-normal">({seoForm.metaTitle.length}자)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={seoForm.metaTitle}
+                      onChange={(e) => setSeoForm({ ...seoForm, metaTitle: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      메타 설명 (Description Tag) <span className="text-blue-600 font-normal">({seoForm.metaDescription.length}자)</span>
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={seoForm.metaDescription}
+                      onChange={(e) => setSeoForm({ ...seoForm, metaDescription: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">검색 키워드 (Keywords)</label>
+                    <input
+                      type="text"
+                      value={seoForm.keywords}
+                      onChange={(e) => setSeoForm({ ...seoForm, keywords: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">SNS 오픈그래프 공유 이미지 URL</label>
+                    <input
+                      type="url"
+                      value={seoForm.ogImageUrl}
+                      onChange={(e) => setSeoForm({ ...seoForm, ogImageUrl: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                    />
+                  </div>
+                </div>
+
+                {/* Social Links Setup */}
+                <div className="pt-4 border-t border-slate-100 space-y-4">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">소셜 미디어 & 쇼핑몰 연동 링크</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">네이버 블로그 URL</label>
+                      <input
+                        type="url"
+                        value={socialForm.naverBlogUrl}
+                        onChange={(e) => setSocialForm({ ...socialForm, naverBlogUrl: e.target.value })}
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">카카오톡 채널 URL</label>
+                      <input
+                        type="url"
+                        value={socialForm.kakaoTalkUrl}
+                        onChange={(e) => setSocialForm({ ...socialForm, kakaoTalkUrl: e.target.value })}
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">인스타그램 URL</label>
+                      <input
+                        type="url"
+                        value={socialForm.instagramUrl}
+                        onChange={(e) => setSocialForm({ ...socialForm, instagramUrl: e.target.value })}
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">네이버 스마트스토어 URL</label>
+                      <input
+                        type="url"
+                        value={socialForm.smartStoreUrl}
+                        onChange={(e) => setSocialForm({ ...socialForm, smartStoreUrl: e.target.value })}
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Preview Cards (Naver & Kakao) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Naver Search Result Preview */}
+                <div className="bg-white p-5 rounded-xl border border-slate-200">
+                  <span className="text-xs font-bold text-emerald-600 block mb-2">
+                    네이버 / 구글 검색결과 실시간 미리보기
+                  </span>
+                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 font-sans">
+                    <span className="text-xs text-slate-500 block">https://foodhome.co.kr</span>
+                    <h5 className="text-blue-700 font-medium text-sm hover:underline cursor-pointer line-clamp-1 mt-0.5">
+                      {seoForm.metaTitle}
+                    </h5>
+                    <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
+                      {seoForm.metaDescription}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Kakao OpenGraph Preview */}
+                <div className="bg-white p-5 rounded-xl border border-slate-200">
+                  <span className="text-xs font-bold text-amber-600 block mb-2">
+                    카카오톡 / 소셜 공유 카드 실시간 미리보기
+                  </span>
+                  <div className="rounded-lg overflow-hidden border border-slate-200 max-w-xs mx-auto shadow-2xs">
+                    <div className="aspect-16/9 bg-slate-100 overflow-hidden">
+                      <img src={seoForm.ogImageUrl} alt="OpenGraph" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="p-2.5 bg-slate-50">
+                      <span className="text-[10px] text-slate-400 block">foodhome.co.kr</span>
+                      <h6 className="text-xs font-bold text-slate-900 line-clamp-1 mt-0.5">{seoForm.metaTitle}</h6>
+                      <p className="text-[11px] text-slate-600 line-clamp-2 mt-0.5">{seoForm.metaDescription}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* 8. BACKUP & RESET TAB */}
+          {activeAdminTab === 'backup' && (
+            <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl border border-slate-200 space-y-6">
+              <div className="border-b border-slate-200 pb-4">
+                <h3 className="text-base font-bold text-slate-900">데이터 백업, 복원 및 초기화</h3>
+                <p className="text-xs text-slate-500">
+                  사이트의 모든 편집 데이터(텍스트, 테마, 제품 목록, 게시글, 접수 문의)를 JSON 파일로 다운로드하거나 복원할 수 있습니다.
+                </p>
+              </div>
+
+              {/* Export */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">현재 데이터 백업 파일(JSON) 다운로드</h4>
+                  <p className="text-[11px] text-slate-500">현재까지 수정한 모든 설정을 컴퓨터에 안전하게 보관합니다.</p>
+                </div>
+                <button
+                  onClick={handleExportJson}
+                  className="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>백업 다운로드</span>
+                </button>
+              </div>
+
+              {/* Import */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">백업 JSON 파일 불러오기</h4>
+                  <p className="text-[11px] text-slate-500">기존에 다운로드한 백업 파일을 업로드하여 데이터를 복원합니다.</p>
+                </div>
+                <label className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-1.5 cursor-pointer">
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>파일 선택</span>
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportJsonFile}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              {/* Reset */}
+              <div className="p-4 rounded-xl bg-red-50/60 border border-red-200 flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-red-900">초기 샘플 데이터로 복원</h4>
+                  <p className="text-[11px] text-red-700">모든 수정 사항을 지우고 최초 제공된 푸드홈 샘플 데이터로 되돌립니다.</p>
+                </div>
+                <button
+                  onClick={resetToDefaults}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>기본값 복원</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* PRODUCT ADD/EDIT MODAL */}
+      {isProductModalOpen && (
+        <div className="fixed inset-0 z-60 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+              <h3 className="text-base font-bold text-slate-900">
+                {editingProductId ? '제품 정보 수정' : '새로운 제품 추가'}
+              </h3>
+              <button onClick={() => setIsProductModalOpen(false)} className="p-1 text-slate-400 hover:text-slate-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProductSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">제품명 *</label>
+                <input
+                  type="text"
+                  required
+                  value={productForm.name}
+                  onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                  placeholder="예: 프리미엄 남도식 보쌈무김치"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">카테고리</label>
+                  <select
+                    value={productForm.category}
+                    onChange={(e) => setProductForm({ ...productForm, category: e.target.value as any })}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                  >
+                    <option value="보쌈무김치">보쌈무김치</option>
+                    <option value="김칫속/양념">김칫속/양념</option>
+                    <option value="업소용 대용량">업소용 대용량</option>
+                    <option value="소포장/밀키트">소포장/밀키트</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">라벨 태그</label>
+                  <input
+                    type="text"
+                    value={productForm.tag}
+                    onChange={(e) => setProductForm({ ...productForm, tag: e.target.value })}
+                    placeholder="예: BEST B2B 1위"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">서브 타이틀</label>
+                <input
+                  type="text"
+                  value={productForm.subtitle}
+                  onChange={(e) => setProductForm({ ...productForm, subtitle: e.target.value })}
+                  placeholder="예: 전국 족발·보쌈 프랜차이즈 납품 시그니처"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">포장 중량</label>
+                  <input
+                    type="text"
+                    value={productForm.weight}
+                    onChange={(e) => setProductForm({ ...productForm, weight: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">보관 방법</label>
+                  <input
+                    type="text"
+                    value={productForm.storage}
+                    onChange={(e) => setProductForm({ ...productForm, storage: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">이미지 URL</label>
+                <input
+                  type="url"
+                  value={productForm.imageUrl}
+                  onChange={(e) => setProductForm({ ...productForm, imageUrl: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">상세 설명</label>
+                <textarea
+                  rows={2}
+                  value={productForm.description}
+                  onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">원재료 및 함량</label>
+                <input
+                  type="text"
+                  value={productForm.ingredients}
+                  onChange={(e) => setProductForm({ ...productForm, ingredients: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                />
+              </div>
+
+              <div className="flex items-center gap-4 pt-1">
+                <label className="flex items-center gap-1.5 cursor-pointer font-bold">
+                  <input
+                    type="checkbox"
+                    checked={productForm.isPopular}
+                    onChange={(e) => setProductForm({ ...productForm, isPopular: e.target.checked })}
+                    className="rounded text-blue-600"
+                  />
+                  <span>인기 배지 표시</span>
+                </label>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsProductModalOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-bold"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700"
+                >
+                  저장하기
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* POST ADD/EDIT MODAL */}
+      {isPostModalOpen && (
+        <div className="fixed inset-0 z-60 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+              <h3 className="text-base font-bold text-slate-900">
+                {editingPostId ? '게시글 수정' : '새 게시글 작성'}
+              </h3>
+              <button onClick={() => setIsPostModalOpen(false)} className="p-1 text-slate-400 hover:text-slate-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePostSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">제목 *</label>
+                <input
+                  type="text"
+                  required
+                  value={postForm.title}
+                  onChange={(e) => setPostForm({ ...postForm, title: e.target.value })}
+                  placeholder="예: [레시피] 보쌈 전문점 사장님들의 황금 꿀조합"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">카테고리</label>
+                  <select
+                    value={postForm.category}
+                    onChange={(e) => setPostForm({ ...postForm, category: e.target.value as any })}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                  >
+                    <option value="공지사항">공지사항</option>
+                    <option value="조리·활용 레시피">조리·활용 레시피</option>
+                    <option value="B2B 납품스토리">B2B 납품스토리</option>
+                    <option value="이벤트">이벤트</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">작성자</label>
+                  <input
+                    type="text"
+                    value={postForm.author}
+                    onChange={(e) => setPostForm({ ...postForm, author: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">썸네일 이미지 URL</label>
+                <input
+                  type="url"
+                  value={postForm.thumbnail}
+                  onChange={(e) => setPostForm({ ...postForm, thumbnail: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">태그 (쉼표로 구분)</label>
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  placeholder="예: 수육레시피, 족발맛집, 보쌈무"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">본문 내용 *</label>
+                <textarea
+                  rows={6}
+                  required
+                  value={postForm.content}
+                  onChange={(e) => setPostForm({ ...postForm, content: e.target.value })}
+                  placeholder="게시글 본문 내용을 자유롭게 입력하세요..."
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="flex items-center gap-1.5 cursor-pointer font-bold">
+                  <input
+                    type="checkbox"
+                    checked={postForm.isPinned}
+                    onChange={(e) => setPostForm({ ...postForm, isPinned: e.target.checked })}
+                    className="rounded text-blue-600"
+                  />
+                  <span>상단 추천 공지 고정</span>
+                </label>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsPostModalOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-bold"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700"
+                >
+                  게시하기
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
