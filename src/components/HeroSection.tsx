@@ -1,208 +1,196 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
-  ShieldCheck, 
+  ChevronLeft, 
+  ChevronRight, 
+  Pause, 
+  Play, 
   Sparkles, 
   ArrowRight, 
-  Truck, 
-  FileSpreadsheet, 
-  CheckCircle2, 
-  TrendingUp, 
-  Utensils 
+  Package, 
+  FileSpreadsheet,
+  ShieldCheck,
+  Truck
 } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
-  const { state, setIsSampleModalOpen, setIsAdminOpen } = useApp();
-  const { content, theme } = state;
+  const { 
+    state, 
+    setIsSampleModalOpen, 
+    setIsWholesaleModalOpen,
+    setActivePage 
+  } = useApp();
 
-  const scrollTo = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  const banners = state.content.banners && state.content.banners.length > 0 
+    ? state.content.banners 
+    : [
+        {
+          id: 'banner-1',
+          tagline: 'SINCE 1996 · 30년 전통 비법',
+          title: '보쌈의 맛을 완성하는 특별한 김치',
+          subtitle: '푸드홈 보쌈무김치',
+          description: '정성스럽게 만든 맛, 변함없는 품질. 물 생김 없이 끝까지 아삭한 특허 수분제어 절임 공법으로 전국 480여 개 외식 매장에 매일 아침 공급합니다.',
+          imageUrl: './images/banner_bossam.jpg',
+          primaryButtonText: '제품 자세히 보기',
+          primaryButtonAction: 'products' as const,
+          secondaryButtonText: '납품 문의하기',
+          secondaryButtonAction: 'inquiry' as const
+        }
+      ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+
+  // Auto slide effect
+  useEffect(() => {
+    if (!isPlaying || banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
+    }, 5500);
+    return () => clearInterval(interval);
+  }, [isPlaying, banners.length]);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % banners.length);
+  };
+
+  const handleButtonClick = (action: string) => {
+    if (action === 'products') {
+      const el = document.getElementById('products-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    } else if (action === 'sample') {
+      setIsSampleModalOpen(true);
+    } else {
+      setIsWholesaleModalOpen(true);
     }
   };
 
-  return (
-    <section className="relative overflow-hidden bg-white pt-8 pb-16 lg:pt-14 lg:pb-24 border-b border-slate-100">
-      {/* Subtle Background Glows (clean white with crisp light blue highlights) */}
-      <div 
-        className="absolute -top-32 right-0 w-[550px] h-[550px] rounded-full blur-3xl opacity-10 pointer-events-none"
-        style={{ backgroundColor: theme.primaryColor }}
-      />
-      <div 
-        className="absolute -bottom-32 left-0 w-[450px] h-[450px] rounded-full blur-3xl opacity-10 pointer-events-none"
-        style={{ backgroundColor: theme.accentColor }}
-      />
+  const current = banners[currentIndex] || banners[0];
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          {/* Left Text Column */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Top Subtitle Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-blue-200 bg-blue-50/80 text-blue-700 text-xs sm:text-sm font-bold shadow-2xs">
-              <span className="w-2 h-2 rounded-full animate-ping" style={{ backgroundColor: theme.primaryColor }} />
-              <span>{content.heroSubtitle}</span>
+  return (
+    <section className="relative w-full bg-[#1A1212] overflow-hidden select-none">
+      {/* Panoramic Banner Container (PC Height ~500px, Mobile ~400px) */}
+      <div className="relative w-full h-[430px] sm:h-[480px] lg:h-[520px]">
+        
+        {/* Background Image with Smooth Crossfade */}
+        {banners.map((slide, idx) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+            }`}
+          >
+            <img
+              src={slide.imageUrl}
+              alt={slide.title}
+              className="w-full h-full object-cover object-center transform scale-100 animate-in fade-in zoom-in-105 duration-1000"
+            />
+            {/* Natural Dark Vignette & Gradient for Sharp Text Contrast */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/25" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+          </div>
+        ))}
+
+        {/* Text & Action Layer */}
+        <div className="relative z-20 max-w-7xl mx-auto h-full px-5 sm:px-8 flex flex-col justify-center">
+          <div className="max-w-2xl space-y-4">
+            
+            {/* Tagline Pill */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[#E8B4B8] text-xs font-bold tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#B64346] animate-pulse" />
+              <span>{current.tagline}</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.2]">
-              {content.heroTitle} <br />
-              <span 
-                className="inline-block relative text-transparent bg-clip-text"
-                style={{ 
-                  backgroundImage: `linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.accentColor} 100%)` 
-                }}
-              >
-                {content.heroHighlight}
-              </span>
-            </h1>
-
-            {/* Description */}
-            <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-normal">
-              {content.heroDescription}
-            </p>
-
-            {/* Feature Badges Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 pb-2">
-              {content.heroBadges.map((badge, idx) => (
-                <div 
-                  key={idx} 
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 border border-slate-100 text-xs sm:text-sm font-semibold text-slate-700"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>{badge}</span>
-                </div>
-              ))}
+            <div className="space-y-1">
+              <p className="text-lg sm:text-2xl font-bold text-[#FAF8F5] tracking-tight">
+                {current.title}
+              </p>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]">
+                {current.subtitle}
+              </h1>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-2">
+            {/* Clean Description */}
+            <p className="text-sm sm:text-base text-slate-200/90 leading-relaxed font-normal max-w-xl">
+              {current.description}
+            </p>
+
+            {/* Action Buttons */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
-                onClick={() => setIsSampleModalOpen(true)}
-                className="px-6 py-3.5 rounded-xl font-bold text-white text-sm sm:text-base shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer"
-                style={{ backgroundColor: theme.primaryColor }}
+                onClick={() => handleButtonClick(current.primaryButtonAction || 'products')}
+                className="px-6 py-3.5 rounded-xl font-bold text-white text-xs sm:text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer"
+                style={{ backgroundColor: state.theme.primaryColor || '#872D35' }}
               >
-                <Sparkles className="w-4 h-4" />
-                <span>사업자 무료 샘플 1kg 신청</span>
+                <span>{current.primaryButtonText || '제품 자세히 보기'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <button
-                onClick={() => scrollTo('inquiry-section')}
-                className="px-5 py-3.5 rounded-xl font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 text-sm sm:text-base shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
+                onClick={() => handleButtonClick(current.secondaryButtonAction || 'inquiry')}
+                className="px-5 py-3.5 rounded-xl font-bold text-[#FAF8F5] bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-sm text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer"
               >
-                <FileSpreadsheet className="w-4 h-4 text-slate-600" />
-                <span>대량 납품 단가표 문의</span>
-              </button>
-
-              <button
-                onClick={() => scrollTo('product-section')}
-                className="px-4 py-3.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
-              >
-                전체 제품 둘러보기 →
+                <FileSpreadsheet className="w-4 h-4 text-[#E8B4B8]" />
+                <span>{current.secondaryButtonText || '납품 문의하기'}</span>
               </button>
             </div>
 
-            {/* Guarantee Note */}
-            <p className="text-xs text-slate-600 flex items-center gap-1.5 pt-1">
-              <Truck className="w-3.5 h-3.5 text-blue-600" />
-              <span>전국 일반음식점 및 프랜차이즈 본사 무료 샘플 100% 당일 발송 지원</span>
-            </p>
-          </div>
-
-          {/* Right Visual Image Column */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative mx-auto max-w-md lg:max-w-none">
-              
-              {/* Outer decorative ring */}
-              <div 
-                className="absolute -inset-2 rounded-3xl opacity-20 blur-xl"
-                style={{ backgroundColor: theme.primaryColor }}
-              />
-
-              {/* Main Image Container */}
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100 aspect-4/3 sm:aspect-square lg:aspect-4/3 group">
-                <img
-                  src={content.heroImageUrl}
-                  alt={content.brandName + ' 명품 보쌈무김치'}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading="eager"
-                />
-                
-                {/* Gradient shadow on image */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
-
-                {/* Bottom Overlay Label */}
-                <div className="absolute bottom-4 left-4 right-4 text-white p-3 rounded-xl bg-slate-900/60 backdrop-blur-md border border-white/20">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-[11px] font-bold text-blue-300 block">FOODHOME SIGNATURE</span>
-                      <h4 className="font-extrabold text-sm sm:text-base">아삭달콤 명품 보쌈무김치</h4>
-                    </div>
-                    <span className="text-xs font-semibold px-2 py-1 rounded bg-blue-600 text-white">
-                      식자재 1위
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Stat Badge 1 (Top Left) */}
-              <div className="absolute -top-4 -left-4 sm:-top-5 sm:-left-5 bg-white rounded-xl p-3 shadow-xl border border-slate-100 flex items-center gap-3 animate-bounce [animation-duration:4s]">
-                <div 
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white"
-                  style={{ backgroundColor: theme.primaryColor }}
-                >
-                  <Utensils className="w-5 h-5" />
-                </div>
-                <div>
-                  <span className="text-[11px] font-semibold text-slate-600 block">전국 외식 파트너</span>
-                  <span className="text-sm sm:text-base font-extrabold text-slate-900">480+ 매장 공급</span>
-                </div>
-              </div>
-
-              {/* Floating Stat Badge 2 (Bottom Right) */}
-              <div className="absolute -bottom-5 -right-3 sm:-bottom-6 sm:-right-4 bg-white rounded-xl p-3 shadow-xl border border-slate-100 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
-                <div>
-                  <span className="text-[11px] font-semibold text-slate-600 block">물 생김 0% 방지</span>
-                  <span className="text-sm sm:text-base font-extrabold text-slate-900">특허 수분제어 공법</span>
-                </div>
-              </div>
-
+            {/* Trust Mini Proof */}
+            <div className="pt-2 flex items-center gap-4 text-[11px] text-slate-300 font-medium">
+              <span className="flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#B64346]" />
+                식약처 HACCP 인증시설
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <Truck className="w-3.5 h-3.5 text-[#B64346]" />
+                전국 480+ 매장 당일 냉장 직배송
+              </span>
             </div>
-          </div>
 
+          </div>
         </div>
 
-        {/* Stats Row */}
-        {theme.sectionsVisible.stats && (
-          <div className="mt-16 sm:mt-20 pt-10 border-t border-slate-100">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-              {content.stats.map((stat, i) => (
-                <div key={i} className="text-center sm:text-left border-l-0 sm:border-l-2 border-slate-200 sm:pl-5">
-                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
-                    {stat.label}
-                  </span>
-                  <div className="flex items-baseline justify-center sm:justify-start gap-1 my-1">
-                    <span 
-                      className="text-3xl sm:text-4xl font-black tracking-tight"
-                      style={{ color: theme.primaryColor }}
-                    >
-                      {stat.value}
-                    </span>
-                    <span className="text-base font-bold text-slate-700">
-                      {stat.unit}
-                    </span>
-                  </div>
-                  <span className="text-xs text-slate-600">
-                    {stat.sublabel}
-                  </span>
-                </div>
-              ))}
-            </div>
+        {/* Carousel Controls (Bottom Right / Left) */}
+        {banners.length > 1 && (
+          <div className="absolute bottom-6 right-5 sm:right-8 z-30 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
+            {/* Prev Button */}
+            <button
+              onClick={handlePrev}
+              className="p-1 rounded-full text-white/80 hover:text-white transition-colors cursor-pointer"
+              aria-label="이전 배너"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {/* Page Counter / Dots */}
+            <span className="text-[11px] font-bold text-white tracking-widest px-1">
+              0{currentIndex + 1} / 0{banners.length}
+            </span>
+
+            {/* Next Button */}
+            <button
+              onClick={handleNext}
+              className="p-1 rounded-full text-white/80 hover:text-white transition-colors cursor-pointer"
+              aria-label="다음 배너"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Play/Pause Button */}
+            <button
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="p-1 rounded-full text-white/80 hover:text-white transition-colors cursor-pointer ml-0.5 border-l border-white/20 pl-1.5"
+              aria-label={isPlaying ? '자동 넘김 일시정지' : '자동 넘김 재생'}
+              title={isPlaying ? '일시정지' : '재생'}
+            >
+              {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+            </button>
           </div>
         )}
 

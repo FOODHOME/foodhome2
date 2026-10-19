@@ -161,7 +161,7 @@ export const SampleModal: React.FC = () => {
                   placeholder="예: 맛있는보쌈 본점"
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#872D35] focus:ring-1 focus:ring-[#872D35]"
                 />
               </div>
 
@@ -176,7 +176,7 @@ export const SampleModal: React.FC = () => {
                     placeholder="홍길동 대표"
                     value={formData.contactPerson}
                     onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#872D35] focus:ring-1 focus:ring-[#872D35]"
                   />
                 </div>
 
@@ -190,7 +190,7 @@ export const SampleModal: React.FC = () => {
                     placeholder="010-0000-0000"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#872D35] focus:ring-1 focus:ring-[#872D35]"
                   />
                 </div>
               </div>
@@ -204,7 +204,7 @@ export const SampleModal: React.FC = () => {
                   placeholder="매장 또는 사업장 주소"
                   value={formData.region}
                   onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#872D35] focus:ring-1 focus:ring-[#872D35]"
                 />
               </div>
 
@@ -215,7 +215,7 @@ export const SampleModal: React.FC = () => {
                 <select
                   value={formData.businessType}
                   onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#872D35] focus:ring-1 focus:ring-[#872D35]"
                 >
                   <option value="보쌈·족발 전문점">보쌈·족발 전문점</option>
                   <option value="삼겹살 / 정육식당">삼겹살 / 정육식당</option>
@@ -234,7 +234,7 @@ export const SampleModal: React.FC = () => {
                   placeholder="김칫속 샘플 동봉 희망 등 요청사항"
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#872D35] focus:ring-1 focus:ring-[#872D35]"
                 />
               </div>
 
@@ -257,8 +257,8 @@ export const SampleModal: React.FC = () => {
                 )}
               </button>
 
-              <div className="flex items-center justify-center gap-1 text-[11px] text-blue-700 font-medium">
-                <CheckCircle2 className="w-3 h-3 text-blue-600" />
+              <div className="flex items-center justify-center gap-1 text-[11px] text-stone-600 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Formspree 공식 연동: 접수 데이터가 실시간으로 수집됩니다.</span>
               </div>
             </form>

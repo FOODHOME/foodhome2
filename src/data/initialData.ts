@@ -5,14 +5,122 @@ export const initialData: AppState = {
     brandName: '푸드홈',
     brandSubName: 'FOODHOME',
     tagline: '30년 전통 비법양념과 특허 수분제어로 빚어낸 명품 보쌈무김치',
-    heroTitle: '족발·보쌈 맛집의 핵심 경쟁력,',
-    heroHighlight: '아삭함이 살아있는 명품 보쌈무김치',
+    logoUrl: '', // Default SVG logo will be displayed, or custom logo uploaded by user
+    
+    // Navigation Menus (GNB) - Editable in Admin Dashboard
+    navMenus: [
+      {
+        id: 'about',
+        name: '회사소개',
+        visible: true,
+        actionType: 'scroll',
+        target: 'footer-section',
+        submenus: [
+          { id: 'sub-about-1', label: '브랜드 스토리', actionType: 'scroll', target: 'footer-section' },
+          { id: 'sub-about-2', label: '전통과 철학', actionType: 'scroll', target: 'footer-section' },
+          { id: 'sub-about-3', label: '본사 및 공장 위치', actionType: 'scroll', target: 'footer-section' }
+        ]
+      },
+      {
+        id: 'products',
+        name: '제품소개',
+        visible: true,
+        actionType: 'scroll',
+        target: 'product-slider-section',
+        submenus: [
+          { id: 'sub-prod-1', label: '명품 보쌈무김치', actionType: 'scroll', target: 'product-slider-section' },
+          { id: 'sub-prod-2', label: '비법 보쌈김칫속', actionType: 'scroll', target: 'product-slider-section' },
+          { id: 'sub-prod-3', label: '업소용 대용량 (10kg)', actionType: 'scroll', target: 'product-slider-section' },
+          { id: 'sub-prod-4', label: '소포장 & 밀키트 (500g)', actionType: 'scroll', target: 'product-slider-section' }
+        ]
+      },
+      {
+        id: 'facility',
+        name: '제조공정',
+        visible: true,
+        actionType: 'wholesale',
+        target: '',
+        submenus: [
+          { id: 'sub-fac-1', label: 'HACCP 위생 인증 시설', actionType: 'wholesale', target: '' },
+          { id: 'sub-fac-2', label: '특허 수분제어 절임공법', actionType: 'scroll', target: 'product-slider-section' },
+          { id: 'sub-fac-3', label: '콜드체인 익일 직배송', actionType: 'scroll', target: 'action-banners-section' }
+        ]
+      },
+      {
+        id: 'wholesale',
+        name: '납품안내',
+        visible: true,
+        actionType: 'wholesale',
+        target: '',
+        submenus: [
+          { id: 'sub-who-1', label: 'B2B 대량공급 절차 안내', actionType: 'scroll', target: 'action-banners-section' },
+          { id: 'sub-who-2', label: '프랜차이즈 맞춤 OEM/PB', actionType: 'wholesale', target: '' },
+          { id: 'sub-who-3', label: '사업자 1kg 무료 샘플팩', actionType: 'sample', target: '' }
+        ]
+      },
+      {
+        id: 'cs',
+        name: '고객센터',
+        visible: true,
+        actionType: 'sample',
+        target: '',
+        submenus: [
+          { id: 'sub-cs-1', label: '사업자 무료 샘플 신청', actionType: 'sample', target: '' },
+          { id: 'sub-cs-2', label: '1:1 대량 납품·견적 상담', actionType: 'wholesale', target: '' },
+          { id: 'sub-cs-3', label: '고객센터 유선 전화연결', actionType: 'scroll', target: 'footer-section' }
+        ]
+      }
+    ],
+
+    // Multi-Slide Hero Banners
+    banners: [
+      {
+        id: 'banner-1',
+        tagline: 'SINCE 1996 · 30년 전통 비법',
+        title: '보쌈의 맛을 완성하는 특별한 김치',
+        subtitle: '푸드홈 보쌈무김치',
+        description: '정성스럽게 만든 맛, 변함없는 품질. 물 생김 없이 끝까지 아삭한 특허 수분제어 절임 공법으로 전국 480여 개 외식 매장에 매일 아침 공급합니다.',
+        imageUrl: './images/banner_bossam.jpg',
+        primaryButtonText: '제품 자세히 보기',
+        primaryButtonAction: 'products',
+        secondaryButtonText: '무료 샘플 1kg 신청',
+        secondaryButtonAction: 'sample'
+      },
+      {
+        id: 'banner-2',
+        tagline: 'CHEF\'S SIGNATURE RECIPE',
+        title: '굴보쌈과 수육의 풍미를 높이는',
+        subtitle: '감칠맛 비법 김칫속(보쌈속)',
+        description: '국내산 배와 양파를 갈아 넣은 천연 단맛과 광천 토굴 젓갈의 깊은 감칠맛. 주방의 수고를 덜어주는 명품 속양념.',
+        imageUrl: './images/banner_kimchi_paste.jpg',
+        primaryButtonText: '김칫속 라인업 보기',
+        primaryButtonAction: 'products',
+        secondaryButtonText: '납품 견적 문의하기',
+        secondaryButtonAction: 'inquiry'
+      },
+      {
+        id: 'banner-3',
+        tagline: 'B2B WHOLESALE & SUPPLY',
+        title: '전국 480개 외식 파트너의 선택',
+        subtitle: '프랜차이즈 맞춤 납품 & 식자재 공급',
+        description: '물류 편차 없는 균일한 품질, 철저한 HACCP 위생 관리. 사업자 고객님께 1kg 무료 샘플팩을 전액 무료로 배송해 드립니다.',
+        imageUrl: './images/banner_b2b.jpg',
+        primaryButtonText: '무료 샘플 신청하기',
+        primaryButtonAction: 'sample',
+        secondaryButtonText: '대량 납품 상담하기',
+        secondaryButtonAction: 'inquiry'
+      }
+    ],
+
+    // Legacy single hero fields kept for backwards-compatibility
+    heroTitle: '보쌈의 맛을 완성하는 특별한 김치',
+    heroHighlight: '푸드홈 명품 보쌈무김치',
     heroSubtitle: 'FOODHOME KOREAN TRADITIONAL RADISH KIMCHI',
-    heroDescription: '100% 국내산 제철 무와 영양 고춧가루, 광천 토굴 멸치새우젓의 황금 비율. 물 생김 없이 끝까지 아삭한 특허 절임 공법으로 전국 450여 개 프랜차이즈와 외식 매장에 매일 아침 신선 직배송합니다.',
-    heroImageUrl: 'https://images.unsplash.com/photo-1583032015879-67990c74900a?auto=format&fit=crop&w=1200&q=80',
+    heroDescription: '정성스럽게 만든 맛, 변함없는 품질. 물 생김 없이 끝까지 아삭한 특허 수분제어 절임 공법으로 전국 480여 개 외식 매장에 매일 아침 공급합니다.',
+    heroImageUrl: './images/banner_bossam.jpg',
     heroBadges: [
-      'HACCP 위해요소중점관리 인증시설',
-      '100% 국내산 엄선 계약재배 농산물',
+      '식약처 HACCP 인증시설 제조',
+      '100% 국내산 엄선 농산물 계약재배',
       '특허받은 꼬들꼬들 수분제어 절임공법',
       '전국 콜드체인 익일 직배송 시스템'
     ],
@@ -55,31 +163,99 @@ export const initialData: AppState = {
       },
       {
         title: '철저한 HACCP 클린 생산',
-        desc: '에어샤워, 자외선 살균, 3단 버블 세척, X-ray 이물 검출기 통과 등 6단계 위생 안전 시스템을 구축했습니다.',
+        desc: '에어샤워, 자외선 살균, 3단 버블 세척, X-ray 이물 검출기 통과 등 위생 안전 시스템을 구축했습니다.',
         icon: 'Award'
       },
       {
         title: '전국 냉장 콜드체인 직배송',
-        desc: '생산 즉시 전용 저온 냉장차량 및 우체국 특송을 통해 주문 다음 날 매장 주방까지 가장 신선하게 도착합니다.',
+        desc: '생산 즉시 전용 저온 냉장차량을 통해 주문 다음 날 매장 주방까지 가장 신선하게 도착합니다.',
         icon: 'Truck'
+      }
+    ],
+
+    // Facility Media Items
+    facilityItems: [
+      {
+        id: 'fac-1',
+        title: '스마트 첨단 클린룸 가공실',
+        desc: '공기 중 미세먼지와 바이러스를 차단하는 헤파필터 양압 공조 시스템 및 에어샤워 라인',
+        imageUrl: './images/facility_cleanroom.jpg',
+        videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-vegetables-being-washed-in-a-sink-42939-large.mp4',
+        category: '클린룸'
+      },
+      {
+        id: 'fac-2',
+        title: '3단 마이크로 버블 세척 라인',
+        desc: '초음파 버블 수류로 절임 전 원물 무 표면의 잔류 이물질을 3단계 완벽 세척',
+        imageUrl: './images/facility_bubble_wash.jpg',
+        category: '세척라인'
+      },
+      {
+        id: 'fac-3',
+        title: '3D X-ray & 초정밀 금속검출기',
+        desc: '포장 직전 미세 금속 이물질 및 비금속 이물까지 전수 스캔 통과',
+        imageUrl: './images/facility_xray.jpg',
+        category: '품질검사'
+      },
+      {
+        id: 'fac-4',
+        title: '2중 안심 진공포장 & 콜드체인 출하장',
+        desc: '특수 질소충전 2중 필름 실링 및 0~5℃ 저온 냉장차량 직배송 출고장',
+        imageUrl: './images/facility_packing.jpg',
+        category: '포장·물류'
+      }
+    ],
+
+    // FAQ Items
+    faqItems: [
+      {
+        id: 'faq-1',
+        question: '무료 샘플 1kg 신청 자격과 배송비는 어떻게 되나요?',
+        answer: '현재 족발, 보쌈, 삼겹살, 순대국밥 등 일반음식점을 운영 중이시거나 신규 창업을 준비 중인 사업자분이라면 누구나 신청 가능합니다. 제품값은 물론 우체국 냉장 택배비까지 푸드홈이 100% 전액 지원해 드립니다.',
+        category: '샘플신청'
+      },
+      {
+        id: 'faq-2',
+        question: '정기 납품 시 최소 발주 단위와 배송 주기는 어떻게 되나요?',
+        answer: '최소 발주 단위는 5kg 또는 10kg 박스 단위이며, 수도권 및 전국 매장으로 주 2~6회 원하시는 주기별 맞춤 직배송이 가능합니다. 매월 300kg 이상 소진하시는 대형 매장 및 프랜차이즈의 경우 특별 계약 단가가 적용됩니다.',
+        category: '납품·단가'
+      },
+      {
+        id: 'faq-3',
+        question: '푸드홈 보쌈무김치는 왜 시간이 지나도 물이 흥건해지지 않나요?',
+        answer: '푸드홈 고유의 \'특허 수분제어 절임공법\'을 적용하여 무 속 수분을 이상적인 삼투압 비율로 조절하였기 때문입니다. 보쌈 고기 접시 위에 올려두어도 고기가 젖지 않고 첫 입부터 마지막 입까지 꼬들꼬들 아삭한 식감이 유지됩니다.',
+        category: '보관·유통'
+      },
+      {
+        id: 'faq-4',
+        question: '프랜차이즈 브랜드 전용 레시피(OEM) 개발도 가능한가요?',
+        answer: '네, 가능합니다. 브랜드의 콘셉트에 따라 매운맛 강도, 단맛 배합, 규격 포장지 전용 로고 인쇄(PB 라벨링) 등 맞춤형 생산을 진행해 드립니다. 현재 전국 70여 개 이상 가맹 브랜드에 맞춤형 김치를 공급하고 있습니다.',
+        category: '납품·단가'
       }
     ]
   },
   theme: {
-    primaryColor: '#1e40af', // Blue 800
-    accentColor: '#2563eb',  // Blue 600
+    primaryColor: '#872D35', // Main Deep Burgundy
+    accentColor: '#B64346',  // Sub Red
+    darkBrown: '#332525',    // Dark Brown
+    creamWhite: '#FAF8F5',   // Cream White
+    warmGrey: '#EEEAE6',     // Warm Grey
     fontFamily: 'pretendard',
     cardRadius: 'rounded-xl',
     sectionsVisible: {
       hero: true,
-      stats: true,
-      features: true,
-      products: true,
-      process: true,
-      b2bHighlights: true,
-      reviews: true,
-      posts: true,
-      inquiry: true
+      stats: false, // Hidden on main page to keep vertical height compact
+      productSlider: true,
+      actionBanners: true,
+      productCategories: false, // Streamlined main landing page as requested
+      features: false,          // Streamlined main landing page as requested
+      products: false,          // Streamlined main landing page as requested
+      process: false,           // Streamlined main landing page as requested
+      b2bHighlights: false,     // Streamlined main landing page as requested
+      reviews: false,           // Streamlined main landing page as requested
+      faq: false,               // Streamlined main landing page as requested
+      posts: false,             // Streamlined main landing page as requested
+      inquiry: false            // Streamlined main landing page as requested
     }
   },
   products: [
@@ -94,7 +270,7 @@ export const initialData: AppState = {
       shelfLife: '제조일로부터 30일 (권장 최적소비 15일 이내)',
       ingredients: '국내산 절임무 75%, 고춧가루(국내산), 마늘(국내산), 멸치액젓, 물엿, 사과·배 퓨레, 생강, 천일염',
       description: '제철 제주 월동무를 푸드홈 고유의 수분 제어 공법으로 절여 시간이 흘러도 물러짐 없이 끝까지 아삭하고 꼬들합니다. 감칠맛 도는 은은한 단맛과 깔끔한 매콤함으로 기름진 수육, 족발과 최상의 조화를 이룹니다.',
-      imageUrl: 'https://images.unsplash.com/photo-1583032015879-67990c74900a?auto=format&fit=crop&w=800&q=80',
+      imageUrl: './images/prod_bossam_mu.jpg',
       isPopular: true,
       isRecommended: true,
       bulkPriceGuide: '대량 주문 시 납품 단가 협의 (사업자 회원 전용가 적용)'
@@ -110,7 +286,7 @@ export const initialData: AppState = {
       shelfLife: '제조일로부터 45일',
       ingredients: '국내산 배, 양파, 영양 고춧가루, 광천 토굴 멸치새우젓, 다진마늘, 매실발효액, 찹쌀풀, 볶음참깨',
       description: '신선한 굴보쌈이나 수육 접시 위에 얹어 나가는 바로 그 감칠맛 풍부한 명품 김칫속입니다. 사과·배 생과일을 갈아 넣어 인위적이지 않은 천연 단맛과 30년 비법 육수의 깊고 진한 풍미를 선사합니다.',
-      imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80',
+      imageUrl: './images/prod_kimchi_sok.jpg',
       isPopular: true,
       isRecommended: false,
       bulkPriceGuide: '10kg 이상 정기 배송 시 추가 12% 단가 할인 제공'
@@ -126,7 +302,7 @@ export const initialData: AppState = {
       shelfLife: '제조일로부터 60일',
       ingredients: '건조무(국내산) 68%, 태양초 고춧가루, 멸치육젓, 조청, 생강농축액, 대파, 볶은 통깨',
       description: '햇볕에 바싹 말린 깨끗한 국산 무를 정성껏 불려 잡내를 제거하고, 깊은 감칠맛의 남도식 양념장에 치대어 꼬들꼬들한 저작감을 극대화했습니다. 백반, 설렁탕, 칼국수집 찬으로도 인기 만점입니다.',
-      imageUrl: 'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=800&q=80',
+      imageUrl: './images/prod_mumalaengi.jpg',
       isPopular: false,
       isRecommended: true,
       bulkPriceGuide: '프랜차이즈 전용 규격 포장 및 라벨링 OEM 가능'
@@ -142,7 +318,7 @@ export const initialData: AppState = {
       shelfLife: '제조일로부터 25일',
       ingredients: '국내산 절임무 76%, 고춧가루, 액젓혼합, 양파, 마늘, 사과엑기스',
       description: '회전율이 빠른 대형 족발보쌈 전문점과 프랜차이즈 물류센터를 위한 경제형 대용량 패키지입니다. 특수 질소 충전 진공 포장으로 운송 중 팽창 및 가스 발생을 최소화하여 완벽한 품질을 유지합니다.',
-      imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+      imageUrl: './images/prod_bulk_10kg.jpg',
       isPopular: true,
       isRecommended: true,
       bulkPriceGuide: '월 정기 납품 계약 시 파격 물류비 무료 지원'
@@ -158,7 +334,7 @@ export const initialData: AppState = {
       shelfLife: '제조일로부터 30일',
       ingredients: '국내산 무, 고춧가루, 사과, 마늘, 생강, 정제염, 액젓',
       description: '배달 전문 매장에서 소분할 필요 없이 바로 손님에게 전달할 수 있는 위생적인 소포장 형태입니다. 배달 리뷰 평점을 올려주는 깔끔한 포장과 일정한 맛을 보장합니다.',
-      imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80',
+      imageUrl: './images/prod_pouch_500g.jpg',
       isPopular: false,
       isRecommended: false,
       bulkPriceGuide: '1박스(20팩) 단위 주문 가능'
@@ -174,7 +350,7 @@ export const initialData: AppState = {
       shelfLife: '제조일로부터 45일',
       ingredients: '알타리무(국내산), 멸치젓, 다시마육수, 찹쌀풀, 고춧가루',
       description: '단단하고 알싸한 토종 알타리무를 멸치다시마 비법 육수에 절여 시원하고 개운한 뒷맛이 일품입니다. 기름기 많은 고기 요리와 곁들이기에 최적화된 계절 별미 김치입니다.',
-      imageUrl: 'https://images.unsplash.com/photo-1583032015879-67990c74900a?auto=format&fit=crop&w=800&q=80',
+      imageUrl: './images/prod_altari.jpg',
       isPopular: false,
       isRecommended: false,
       bulkPriceGuide: '식자재 유통 도매상 특별 공급가 별도 문의'
@@ -183,14 +359,14 @@ export const initialData: AppState = {
   posts: [
     {
       id: 'post-1',
-      title: '[공지] 푸드홈 제2공장 클린룸 확장 준공 및 HACCP 위생 인증 갱신',
+      title: '[공지] 푸드홈 제2공장 클린룸 확장 준공 및 위생 관리 점검 완료',
       category: '공지사항',
       author: '품질관리팀',
       date: '2026-03-12',
-      content: '늘 푸드홈을 믿고 찾아주시는 전국 외식업 대표님들께 감사드립니다. 충북 진천 본사에 제2공장 첨단 자동화 클린룸 증축이 완료되었습니다. 최신 에어샤워 시스템, 4단계 마이크로 버블 세척 라인, 3D 광학 X-ray 이물질 선별기를 도입하여 하루 최대 10톤 규모의 안전하고 위생적인 보쌈무김치를 중단 없이 생산·공급할 수 있는 역량을 확보하였습니다.',
+      content: '늘 푸드홈을 믿고 찾아주시는 전국 외식업 대표님들께 감사드립니다. 충북 진천 본사에 제2공장 첨단 자동화 클린룸 증축이 완료되었습니다. 최신 에어샤워 시스템, 3단계 마이크로 버블 세척 라인, 3D 광학 X-ray 이물질 선별기를 도입하여 하루 최대 10톤 규모의 안전하고 위생적인 보쌈무김치를 중단 없이 생산·공급할 수 있는 역량을 확보하였습니다.',
       readCount: 1420,
-      thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
-      tags: ['HACCP', '품질경영', '제2공장', '위생인증'],
+      thumbnail: './images/facility_cleanroom.jpg',
+      tags: ['품질경영', '제2공장', '위생관리', '안전제조'],
       isPinned: true
     },
     {
@@ -201,7 +377,7 @@ export const initialData: AppState = {
       date: '2026-02-28',
       content: '수육을 삶을 때 된장과 통후추, 대파 뿌리와 월계수 잎 외에도 사과 반쪽과 소주 반 컵을 넣어주면 고기 속 기름기가 깔끔하게 정돈됩니다. 삶은 직후 찬 얼음물에 3초간 담갔다 썰어내면 겉은 쫄깃하고 속은 부드럽습니다. 접시 중앙에 푸드홈 보쌈무김치를 풍성하게 담고 참깨와 송송 썬 쪽파를 올려 완성해보세요.',
       readCount: 3840,
-      thumbnail: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+      thumbnail: './images/banner_bossam.jpg',
       tags: ['보쌈삶는법', '수육황금레시피', '식당노하우', '매출증대'],
       isPinned: true
     },
@@ -213,7 +389,7 @@ export const initialData: AppState = {
       date: '2026-02-14',
       content: '가맹점별로 김치 맛 편차가 심해 고민이 깊으셨던 한양왕족발 본사와 3개월간의 블라인드 테스트 및 샘플 검증을 거쳐 전 가맹점 단독 공급 협약을 체결했습니다. 주방 인건비 절감과 균일한 품질 유지로 점주 만족도 97%를 달성한 공급 혁신 사례를 소개합니다.',
       readCount: 2150,
-      thumbnail: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80',
+      thumbnail: './images/banner_b2b.jpg',
       tags: ['프랜차이즈', 'B2B공급', '한양왕족발', '인건비절감'],
       isPinned: false
     },
@@ -225,7 +401,7 @@ export const initialData: AppState = {
       date: '2026-01-20',
       content: '맛을 보지 않고는 식자재를 바꿀 수 없다는 사장님들의 마음을 깊이 이해합니다. 현재 족발, 보쌈, 삼겹살, 순대국밥 전문점을 운영 중이시거나 창업을 준비 중인 사업자분들께 푸드홈 시그니처 보쌈무김치 1kg 무료 샘플을 택배비까지 전액 지원하여 보내드립니다.',
       readCount: 5690,
-      thumbnail: 'https://images.unsplash.com/photo-1583032015879-67990c74900a?auto=format&fit=crop&w=800&q=80',
+      thumbnail: './images/prod_bossam_mu.jpg',
       tags: ['무료샘플', '사업자전용', '체험이벤트'],
       isPinned: true
     }
@@ -321,11 +497,11 @@ export const initialData: AppState = {
   ],
   seo: {
     metaTitle: '푸드홈(FOODHOME) - 대한민국 1등 보쌈무김치·김칫속 전문 제조업체',
-    metaDescription: '30년 전통 비법양념과 특허 수분제어로 빚어낸 명품 보쌈무김치, 굴보쌈 김칫속 전문 제조 푸드홈. 전국 450여 개 프랜차이즈 및 맛집 납품. 무료 샘플 신청 지원.',
+    metaDescription: '30년 전통 비법양념과 특허 수분제어로 빚어낸 명품 보쌈무김치, 굴보쌈 김칫속 전문 제조 푸드홈. 전국 480여 개 프랜차이즈 및 맛집 납품. 무료 샘플 신청 지원.',
     keywords: '푸드홈, FOODHOME, 보쌈무김치, 무김치, 김칫속, 보쌈김치, 족발무김치, 업소용김치, 외식업식자재, 보쌈식자재납품, HACCP김치',
     ogTitle: '푸드홈(FOODHOME) - 대한민국 1등 보쌈무김치·김칫속 전문 제조업체',
     ogDescription: '물 생김 없이 끝까지 아삭한 특허 수분제어 보쌈무김치. 전국 외식업 대표님을 위한 무료 1kg 샘플팩 신청 접수 중.',
-    ogImageUrl: 'https://images.unsplash.com/photo-1583032015879-67990c74900a?auto=format&fit=crop&w=1200&q=80',
+    ogImageUrl: './images/banner_bossam.jpg',
     canonicalUrl: 'https://foodhome.co.kr'
   },
   social: {
@@ -333,7 +509,7 @@ export const initialData: AppState = {
     youtubeUrl: 'https://youtube.com/@foodhome_kr',
     naverBlogUrl: 'https://blog.naver.com/foodhome_kimchi',
     kakaoTalkUrl: 'https://pf.kakao.com/_foodhome',
-    smartStoreUrl: 'https://smartstore.naver.com/foodhome',
+    smartStoreUrl: 'https://smartstore.naver.com/foodhome/products/4266908131',
     coupangUrl: 'https://coupang.com'
   },
   formspreeEndpoint: 'https://formspree.io/f/xoejykbn'

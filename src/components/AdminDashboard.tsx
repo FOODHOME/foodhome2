@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ProductItem, PostItem, B2BInquiry } from '../types';
+import { ProductItem, PostItem, B2BInquiry, NavMenuItem, NavSubmenuItem } from '../types';
+import { initialData } from '../data/initialData';
+import { FoodhomeLogo } from './FoodhomeLogo';
 import { submitToFormspree } from '../utils/formspree';
 import { 
   X, 
@@ -31,7 +33,13 @@ import {
   Upload,
   Send,
   Loader2,
-  Link2
+  Link2,
+  Menu,
+  ChevronUp,
+  ChevronDown,
+  Image as ImageIcon,
+  ArrowUpDown,
+  ListTree
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -42,6 +50,7 @@ export const AdminDashboard: React.FC = () => {
     activeAdminTab, 
     setActiveAdminTab,
     updateContent,
+    updateNavMenus,
     updateTheme,
     addProduct,
     updateProduct,
@@ -66,6 +75,25 @@ export const AdminDashboard: React.FC = () => {
 
   // Local state for Content Editing
   const [contentForm, setContentForm] = useState(state.content);
+
+  // Local state for Navigation Menus (GNB)
+  const [navMenusForm, setNavMenusForm] = useState<NavMenuItem[]>(() => {
+    return state.content.navMenus && state.content.navMenus.length > 0
+      ? state.content.navMenus
+      : initialData.content.navMenus;
+  });
+
+  // Keep navMenusForm in sync when state.content.navMenus updates
+  useEffect(() => {
+    if (state.content.navMenus && state.content.navMenus.length > 0) {
+      setNavMenusForm(state.content.navMenus);
+    }
+  }, [state.content.navMenus]);
+
+  // Keep contentForm in sync when state.content updates
+  useEffect(() => {
+    setContentForm(state.content);
+  }, [state.content]);
 
   // Local state for Theme
   const [themeForm, setThemeForm] = useState(state.theme);
@@ -116,14 +144,14 @@ export const AdminDashboard: React.FC = () => {
 
   if (!isAdminOpen) return null;
 
-  // Blue preset palettes
-  const bluePalettes = [
-    { name: '로열 블루 (추천)', primary: '#1e40af', accent: '#2563eb' },
-    { name: '비비드 사파이어', primary: '#2563eb', accent: '#3b82f6' },
-    { name: '딥 네이비', primary: '#0f172a', accent: '#1e3a8a' },
-    { name: '오션 블루', primary: '#0369a1', accent: '#0284c7' },
-    { name: '인디고 블루', primary: '#3730a3', accent: '#4f46e5' },
-    { name: '청결 스카이 블루', primary: '#0284c7', accent: '#38bdf8' }
+  // Korean food luxury red preset palettes
+  const redPalettes = [
+    { name: '명품 버건디 레드 (공식 권장)', primary: '#872D35', accent: '#B64346' },
+    { name: '전통 태양초 크림슨', primary: '#9E2A2B', accent: '#C84B4E' },
+    { name: '깊은 숙성 고추장 레드', primary: '#6E1D24', accent: '#9B323B' },
+    { name: '프리미엄 칠리 레드', primary: '#A62626', accent: '#D64040' },
+    { name: '단아한 다홍빛 로즈', primary: '#8C3B43', accent: '#B85862' },
+    { name: '모던 딥 와인', primary: '#5C1E26', accent: '#8E3B46' }
   ];
 
   // Handlers
@@ -138,6 +166,119 @@ export const AdminDashboard: React.FC = () => {
   const handleSaveSeo = () => {
     updateSeo(seoForm);
     updateSocial(socialForm);
+  };
+
+  // Menu Handlers
+  const handleSaveNavMenus = () => {
+    updateNavMenus(navMenusForm);
+  };
+
+  const handleResetNavMenus = () => {
+    if (confirm('상단 메뉴를 초기 기본값(회사소개, 제품소개, 제조공정, 납품안내, 고객센터)으로 복원하시겠습니까?')) {
+      setNavMenusForm(initialData.content.navMenus);
+      updateNavMenus(initialData.content.navMenus);
+    }
+  };
+
+  const handleUpdateMenuName = (id: string, newName: string) => {
+    setNavMenusForm(prev => prev.map(m => m.id === id ? { ...m, name: newName } : m));
+  };
+
+  const handleToggleMenuVisibility = (id: string) => {
+    setNavMenusForm(prev => prev.map(m => m.id === id ? { ...m, visible: !m.visible } : m));
+  };
+
+  const handleUpdateMenuField = (id: string, updates: Partial<NavMenuItem>) => {
+    setNavMenusForm(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m));
+  };
+
+  const handleMoveMenu = (index: number, direction: 'up' | 'down') => {
+    setNavMenusForm(prev => {
+      const copy = [...prev];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= copy.length) return prev;
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return copy;
+    });
+  };
+
+  const handleAddTopMenu = () => {
+    const newMenu: NavMenuItem = {
+      id: 'menu-' + Date.now(),
+      name: '새 메뉴',
+      visible: true,
+      actionType: 'scroll',
+      target: 'product-slider-section',
+      submenus: []
+    };
+    setNavMenusForm(prev => [...prev, newMenu]);
+  };
+
+  const handleDeleteTopMenu = (id: string) => {
+    if (confirm('해당 상단 메뉴를 삭제하시겠습니까?')) {
+      setNavMenusForm(prev => prev.filter(m => m.id !== id));
+    }
+  };
+
+  const handleAddSubmenu = (menuId: string) => {
+    const newSub: NavSubmenuItem = {
+      id: 'sub-' + Date.now(),
+      label: '세부 메뉴',
+      actionType: 'scroll',
+      target: 'product-slider-section'
+    };
+    setNavMenusForm(prev => prev.map(m => {
+      if (m.id === menuId) {
+        return { ...m, submenus: [...(m.submenus || []), newSub] };
+      }
+      return m;
+    }));
+  };
+
+  const handleUpdateSubmenu = (menuId: string, subId: string, updates: Partial<NavSubmenuItem>) => {
+    setNavMenusForm(prev => prev.map(m => {
+      if (m.id === menuId) {
+        return {
+          ...m,
+          submenus: (m.submenus || []).map(s => s.id === subId ? { ...s, ...updates } : s)
+        };
+      }
+      return m;
+    }));
+  };
+
+  const handleDeleteSubmenu = (menuId: string, subId: string) => {
+    setNavMenusForm(prev => prev.map(m => {
+      if (m.id === menuId) {
+        return {
+          ...m,
+          submenus: (m.submenus || []).filter(s => s.id !== subId)
+        };
+      }
+      return m;
+    }));
+  };
+
+  // Logo Handlers
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      setContentForm(prev => ({ ...prev, logoUrl: dataUrl }));
+      updateContent({ logoUrl: dataUrl });
+      showToast('공식 로고 이미지가 업로드되어 즉시 적용되었습니다.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleResetLogo = () => {
+    setContentForm(prev => ({ ...prev, logoUrl: '' }));
+    updateContent({ logoUrl: '' });
+    showToast('기본 공식 벡터 SVG 로고로 복원되었습니다.');
   };
 
   const handleOpenAddProduct = () => {
@@ -295,9 +436,9 @@ export const AdminDashboard: React.FC = () => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-[#2A2020] text-white px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-black text-lg">
+            <div className="w-9 h-9 rounded-xl bg-[#872D35] flex items-center justify-center font-black text-lg text-white">
               푸
             </div>
             <div>
@@ -305,11 +446,11 @@ export const AdminDashboard: React.FC = () => {
                 <h2 className="font-extrabold text-base sm:text-lg">
                   푸드홈 통합 관리자 대시보드
                 </h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/30 text-blue-300 border border-blue-400/30">
-                  FOODHOME ADMIN v2.0
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-stone-200 border border-white/20">
+                  FOODHOME ADMIN v2.5
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-stone-400">
                 콘텐츠·디자인 커스터마이징, 제품 및 게시글 관리, B2B 실시간 견적 접수
               </p>
             </div>
@@ -318,14 +459,14 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsAdminOpen(false)}
-              className="px-3.5 py-1.5 rounded-lg bg-slate-800 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg bg-stone-800 text-xs font-bold text-stone-300 hover:text-white hover:bg-stone-700 transition-colors flex items-center gap-1 cursor-pointer"
             >
-              <Eye className="w-3.5 h-3.5 text-blue-400" />
+              <Eye className="w-3.5 h-3.5 text-[#B64346]" />
               <span>실시간 사이트 보기</span>
             </button>
             <button
               onClick={() => setIsAdminOpen(false)}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-2 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -333,9 +474,10 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Navigation Tabs Bar */}
-        <div className="bg-slate-50 border-b border-slate-200 px-6 py-2 flex items-center gap-1 overflow-x-auto shrink-0 no-scrollbar">
+        <div className="bg-stone-50 border-b border-stone-200 px-6 py-2 flex items-center gap-1 overflow-x-auto shrink-0 no-scrollbar">
           {[
             { id: 'overview', label: '대시보드 개요', icon: LayoutDashboard },
+            { id: 'menus', label: '상단 메뉴(GNB) 수정', icon: Menu },
             { id: 'content', label: '콘텐츠 편집', icon: Type },
             { id: 'design', label: '디자인 & 테마', icon: Palette },
             { id: 'products', label: `제품 관리 (${state.products.length})`, icon: Package },
@@ -357,15 +499,15 @@ export const AdminDashboard: React.FC = () => {
                 onClick={() => setActiveAdminTab(tab.id)}
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
+                    ? 'bg-[#872D35] text-white shadow-2xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/70'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
                 {tab.badge && (
                   <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                    isActive ? 'bg-white text-blue-600' : 'bg-red-500 text-white animate-pulse'
+                    isActive ? 'bg-white text-[#872D35]' : 'bg-[#B64346] text-white animate-pulse'
                   }`}>
                     {tab.badge}
                   </span>
@@ -439,23 +581,32 @@ export const AdminDashboard: React.FC = () => {
               {/* Quick Jump Shortcuts */}
               <div className="bg-white p-5 rounded-xl border border-slate-200">
                 <h3 className="text-sm font-bold text-slate-900 mb-3">빠른 관리 바로가기</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                  <button
+                    onClick={() => setActiveAdminTab('menus')}
+                    className="p-3 rounded-lg border border-[#872D35]/30 bg-[#872D35]/5 hover:bg-[#872D35]/10 text-left transition-colors cursor-pointer"
+                  >
+                    <Menu className="w-4 h-4 text-[#872D35] mb-1" />
+                    <span className="text-xs font-bold block text-slate-800">상단 메뉴명 수정</span>
+                    <span className="text-[10px] text-slate-500">회사소개, 제품소개 등</span>
+                  </button>
+
                   <button
                     onClick={() => setActiveAdminTab('content')}
-                    className="p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition-colors cursor-pointer"
+                    className="p-3 rounded-lg border border-slate-200 hover:border-[#872D35] hover:bg-slate-50 text-left transition-colors cursor-pointer"
                   >
-                    <Type className="w-4 h-4 text-blue-600 mb-1" />
-                    <span className="text-xs font-bold block text-slate-800">문구 및 정보 수정</span>
-                    <span className="text-[10px] text-slate-500">회사 정보, 히어로 문구</span>
+                    <Type className="w-4 h-4 text-[#872D35] mb-1" />
+                    <span className="text-xs font-bold block text-slate-800">문구 및 로고 수정</span>
+                    <span className="text-[10px] text-slate-500">브랜드 로고, 히어로 문구</span>
                   </button>
 
                   <button
                     onClick={() => setActiveAdminTab('design')}
-                    className="p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition-colors cursor-pointer"
+                    className="p-3 rounded-lg border border-slate-200 hover:border-[#872D35] hover:bg-slate-50 text-left transition-colors cursor-pointer"
                   >
-                    <Palette className="w-4 h-4 text-blue-600 mb-1" />
+                    <Palette className="w-4 h-4 text-[#872D35] mb-1" />
                     <span className="text-xs font-bold block text-slate-800">포인트 컬러/테마</span>
-                    <span className="text-[10px] text-slate-500">블루 톤, 폰트, 모서리</span>
+                    <span className="text-[10px] text-slate-500">버건디 레드, 폰트, 모서리</span>
                   </button>
 
                   <button
@@ -463,9 +614,9 @@ export const AdminDashboard: React.FC = () => {
                       setActiveAdminTab('products');
                       handleOpenAddProduct();
                     }}
-                    className="p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition-colors cursor-pointer"
+                    className="p-3 rounded-lg border border-slate-200 hover:border-[#872D35] hover:bg-slate-50 text-left transition-colors cursor-pointer"
                   >
-                    <Package className="w-4 h-4 text-blue-600 mb-1" />
+                    <Package className="w-4 h-4 text-[#872D35] mb-1" />
                     <span className="text-xs font-bold block text-slate-800">신규 제품 등록</span>
                     <span className="text-[10px] text-slate-500">보쌈무/김칫속 상품 추가</span>
                   </button>
@@ -475,9 +626,9 @@ export const AdminDashboard: React.FC = () => {
                       setActiveAdminTab('posts');
                       handleOpenAddPost();
                     }}
-                    className="p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-left transition-colors cursor-pointer"
+                    className="p-3 rounded-lg border border-slate-200 hover:border-[#872D35] hover:bg-slate-50 text-left transition-colors cursor-pointer"
                   >
-                    <FileText className="w-4 h-4 text-blue-600 mb-1" />
+                    <FileText className="w-4 h-4 text-[#872D35] mb-1" />
                     <span className="text-xs font-bold block text-slate-800">새 게시글 작성</span>
                     <span className="text-[10px] text-slate-500">공지, 레시피 가이드</span>
                   </button>
@@ -538,6 +689,240 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
 
+          {/* GNB MENU EDITING TAB (User Request: 상단의 메뉴명 수정하는 기능) */}
+          {activeAdminTab === 'menus' && (
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* Header Card */}
+              <div className="bg-white p-6 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="p-1.5 rounded-lg bg-[#872D35]/10 text-[#872D35]">
+                      <Menu className="w-5 h-5" />
+                    </span>
+                    <h3 className="text-base font-bold text-slate-900">상단 네비게이션 메뉴 (GNB) 수정</h3>
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    홈페이지 상단 헤더의 5대 대표 메뉴명과 하위 세부 링크를 직접 수정하고 순서를 변경할 수 있습니다.
+                  </p>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={handleResetNavMenus}
+                    className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                    title="초기 기본 메뉴로 복원"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>기본값 복원</span>
+                  </button>
+                  <button
+                    onClick={handleAddTopMenu}
+                    className="px-3 py-2 rounded-lg border border-[#872D35] text-[#872D35] hover:bg-[#872D35]/5 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>새 메뉴 추가</span>
+                  </button>
+                  <button
+                    onClick={handleSaveNavMenus}
+                    className="px-4 py-2 rounded-lg bg-[#872D35] hover:bg-[#6E1D24] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    <span>상단 메뉴 저장</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Menu items list */}
+              <div className="space-y-4">
+                {navMenusForm.map((menu, mIdx) => (
+                  <div 
+                    key={menu.id} 
+                    className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-4 transition-all"
+                  >
+                    {/* Top Row: Reorder & Menu Name & Action */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        {/* Reorder Buttons */}
+                        <div className="flex flex-col gap-0.5">
+                          <button
+                            onClick={() => handleMoveMenu(mIdx, 'up')}
+                            disabled={mIdx === 0}
+                            className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                            title="위로 이동"
+                          >
+                            <ChevronUp className="w-3.5 h-3.5 text-slate-600" />
+                          </button>
+                          <button
+                            onClick={() => handleMoveMenu(mIdx, 'down')}
+                            disabled={mIdx === navMenusForm.length - 1}
+                            className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                            title="아래로 이동"
+                          >
+                            <ChevronDown className="w-3.5 h-3.5 text-slate-600" />
+                          </button>
+                        </div>
+
+                        {/* Order Badge */}
+                        <span className="w-6 h-6 rounded-md bg-[#872D35]/10 text-[#872D35] font-black text-xs flex items-center justify-center">
+                          {mIdx + 1}
+                        </span>
+
+                        {/* Menu Name Input */}
+                        <div className="flex-1 sm:w-64">
+                          <label className="text-[10px] font-bold text-slate-400 block mb-0.5">상단 메뉴명</label>
+                          <input
+                            type="text"
+                            value={menu.name}
+                            onChange={(e) => handleUpdateMenuName(menu.id, e.target.value)}
+                            placeholder="메뉴명 (예: 회사소개)"
+                            className="w-full px-3 py-1.5 text-sm font-bold text-slate-900 border border-slate-300 rounded-lg focus:border-[#872D35] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Right controls: Visibility, Action Type, Target, Delete */}
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 block mb-0.5">클릭 시 동작</label>
+                          <select
+                            value={menu.actionType || 'scroll'}
+                            onChange={(e) => handleUpdateMenuField(menu.id, { actionType: e.target.value as any })}
+                            className="text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-slate-50 font-medium"
+                          >
+                            <option value="scroll">페이지 내 스크롤 이동</option>
+                            <option value="sample">무료 샘플 1kg 모달 열기</option>
+                            <option value="wholesale">대량 납품 견적 모달 열기</option>
+                            <option value="url">외부 링크 열기</option>
+                          </select>
+                        </div>
+
+                        {(menu.actionType === 'scroll' || !menu.actionType || menu.actionType === 'url') && (
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 block mb-0.5">
+                              {menu.actionType === 'url' ? 'URL 링크' : '이동할 섹션 ID'}
+                            </label>
+                            <input
+                              type="text"
+                              value={menu.target || ''}
+                              onChange={(e) => handleUpdateMenuField(menu.id, { target: e.target.value })}
+                              placeholder={menu.actionType === 'url' ? 'https://...' : 'product-slider-section'}
+                              className="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg w-36"
+                            />
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 block mb-0.5">노출 여부</label>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleMenuVisibility(menu.id)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                              menu.visible !== false 
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                                : 'bg-slate-100 text-slate-500 border border-slate-200'
+                            }`}
+                          >
+                            {menu.visible !== false ? '헤더에 노출' : '숨김'}
+                          </button>
+                        </div>
+
+                        <div className="pt-3 sm:pt-0">
+                          <button
+                            onClick={() => handleDeleteTopMenu(menu.id)}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                            title="메뉴 삭제"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Submenus List */}
+                    <div className="bg-slate-50/70 rounded-lg p-3.5 space-y-2 border border-slate-100">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5">
+                          <ListTree className="w-3.5 h-3.5 text-[#872D35]" />
+                          하위 드롭다운 세부 메뉴 ({menu.submenus?.length || 0}개)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleAddSubmenu(menu.id)}
+                          className="text-[11px] font-bold text-[#872D35] hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>하위 항목 추가</span>
+                        </button>
+                      </div>
+
+                      {menu.submenus && menu.submenus.length > 0 ? (
+                        <div className="space-y-1.5 pt-1">
+                          {menu.submenus.map((sub) => (
+                            <div key={sub.id} className="flex flex-wrap items-center gap-2 bg-white p-2 rounded-md border border-slate-200">
+                              <span className="text-xs text-slate-400 font-bold px-1">›</span>
+                              <input
+                                type="text"
+                                value={sub.label}
+                                onChange={(e) => handleUpdateSubmenu(menu.id, sub.id, { label: e.target.value })}
+                                placeholder="하위 메뉴명"
+                                className="text-xs font-semibold px-2 py-1 border border-slate-200 rounded flex-1 min-w-[120px]"
+                              />
+                              <select
+                                value={sub.actionType}
+                                onChange={(e) => handleUpdateSubmenu(menu.id, sub.id, { actionType: e.target.value as any })}
+                                className="text-[11px] px-2 py-1 border border-slate-200 rounded bg-slate-50"
+                              >
+                                <option value="scroll">섹션 스크롤</option>
+                                <option value="sample">무료 샘플 신청</option>
+                                <option value="wholesale">대량 납품 견적</option>
+                                <option value="url">외부 링크</option>
+                              </select>
+                              {(sub.actionType === 'scroll' || sub.actionType === 'url') && (
+                                <input
+                                  type="text"
+                                  value={sub.target || ''}
+                                  onChange={(e) => handleUpdateSubmenu(menu.id, sub.id, { target: e.target.value })}
+                                  placeholder={sub.actionType === 'url' ? 'URL' : '섹션 ID'}
+                                  className="text-[11px] px-2 py-1 border border-slate-200 rounded w-28"
+                                />
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteSubmenu(menu.id, sub.id)}
+                                className="p-1 text-slate-400 hover:text-red-500 rounded cursor-pointer"
+                                title="하위 메뉴 삭제"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-slate-400 py-1 italic">
+                          등록된 하위 세부메뉴가 없습니다. (단독 메뉴 버튼으로 동작합니다)
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom Quick Save Card */}
+              <div className="bg-[#FAF8F5] p-4 rounded-xl border border-[#EEEAE6] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <p className="text-xs text-stone-600">
+                  ※ 메뉴명 및 순서를 수정한 후 <strong className="text-[#872D35]">[상단 메뉴 저장]</strong> 버튼을 누르면 웹사이트 상단 헤더와 모바일 드로어에 실시간으로 즉시 적용됩니다.
+                </p>
+                <button
+                  onClick={handleSaveNavMenus}
+                  className="px-5 py-2.5 rounded-lg bg-[#872D35] hover:bg-[#6E1D24] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shrink-0"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>상단 메뉴 저장하기</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* 2. CONTENT EDITING TAB */}
           {activeAdminTab === 'content' && (
             <div className="max-w-4xl mx-auto bg-white p-6 rounded-xl border border-slate-200 space-y-6">
@@ -548,7 +933,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
                 <button
                   onClick={handleSaveContent}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700 transition-colors cursor-pointer shadow-xs"
+                  className="px-4 py-2 bg-[#872D35] hover:bg-[#6E1D24] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>변경사항 저장하기</span>
@@ -587,6 +972,85 @@ export const AdminDashboard: React.FC = () => {
                     onChange={(e) => setContentForm({ ...contentForm, tagline: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
                   />
+                </div>
+
+                {/* Official Logo Management (User Request: 로고는 네번째 사진이고) */}
+                <div className="pt-4 border-t border-slate-100 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h5 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5 text-[#872D35]" />
+                        푸드홈 공식 로고 관리 (4번째 참고 이미지 연동)
+                      </h5>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        스마트스토어의 푸드홈 공식 로고 이미지 파일(PNG, SVG, JPG)을 직접 업로드하거나 URL을 등록할 수 있습니다.
+                      </p>
+                    </div>
+                    {contentForm.logoUrl && (
+                      <button
+                        type="button"
+                        onClick={handleResetLogo}
+                        className="text-[11px] font-bold text-[#872D35] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>기본 공식 벡터 로고로 복원</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Previews: Light (header) & Dark (footer) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div className="p-4 rounded-xl border border-slate-200 bg-white flex flex-col items-center justify-center gap-2">
+                      <span className="text-[10px] font-bold text-slate-400">상단 헤더 적용 미리보기 (밝은 배경)</span>
+                      <div className="py-2 flex items-center justify-center min-h-[50px]">
+                        <FoodhomeLogo variant="dark" height={42} />
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl border border-stone-800 bg-[#221A1A] flex flex-col items-center justify-center gap-2">
+                      <span className="text-[10px] font-bold text-stone-400">하단 푸터 적용 미리보기 (어두운 배경)</span>
+                      <div className="py-2 flex items-center justify-center min-h-[50px]">
+                        <FoodhomeLogo variant="light" height={36} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Upload Controls */}
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center pt-1">
+                    <div className="sm:col-span-5">
+                      <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                        공식 로고 파일 직접 업로드 (PNG, SVG, JPG)
+                      </label>
+                      <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-[#872D35]/40 hover:border-[#872D35] bg-[#872D35]/5 hover:bg-[#872D35]/10 text-[#872D35] text-xs font-bold cursor-pointer transition-colors">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>내 PC에서 로고 파일 선택</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    <div className="sm:col-span-7">
+                      <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                        또는 로고 이미지 URL 직접 입력
+                      </label>
+                      <input
+                        type="text"
+                        value={contentForm.logoUrl || ''}
+                        onChange={(e) => {
+                          setContentForm({ ...contentForm, logoUrl: e.target.value });
+                          updateContent({ logoUrl: e.target.value });
+                        }}
+                        placeholder="예: ./images/foodhome_logo.svg 또는 https://..."
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-stone-500">
+                    ※ 스마트스토어의 푸드홈 공식 로고 원본 파일(4번째 사진)을 업로드하시면 사이트 상단 및 푸터에 비율 왜곡 없이 100% 동일하게 반영됩니다.
+                  </p>
                 </div>
               </div>
 
@@ -749,31 +1213,31 @@ export const AdminDashboard: React.FC = () => {
               <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-900">디자인 & 테마 커스터마이징</h3>
-                  <p className="text-xs text-slate-500">배경은 깔끔한 화이트, 포인트 컬러(파란색 계열) 및 폰트, 카드 라운딩을 조절합니다.</p>
+                  <p className="text-xs text-slate-500">배경은 깨끗한 화이트, 포인트 컬러(고급스러운 붉은색/버건디 계열) 및 폰트, 카드 라운딩을 조절합니다.</p>
                 </div>
                 <button
                   onClick={handleSaveTheme}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700 transition-colors cursor-pointer shadow-xs"
+                  className="px-4 py-2 bg-[#872D35] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-[#6D242B] transition-colors cursor-pointer shadow-xs"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>테마 설정 저장</span>
                 </button>
               </div>
 
-              {/* Blue Palettes */}
+              {/* Red Palettes */}
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-3">
-                  포인트 컬러 (블루 팔레트 프리셋)
+                  포인트 컬러 (프리미엄 붉은색 팔레트 프리셋)
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {bluePalettes.map((pal, idx) => (
+                  {redPalettes.map((pal, idx) => (
                     <button
                       type="button"
                       key={idx}
                       onClick={() => setThemeForm({ ...themeForm, primaryColor: pal.primary, accentColor: pal.accent })}
                       className={`p-3 rounded-xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
                         themeForm.primaryColor === pal.primary
-                          ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20'
+                          ? 'border-[#872D35] bg-[#FAF8F5] ring-2 ring-[#872D35]/20'
                           : 'border-slate-200 hover:border-slate-300'
                       }`}
                     >

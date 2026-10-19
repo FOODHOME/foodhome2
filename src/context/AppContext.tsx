@@ -1,11 +1,25 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AppState, SiteContent, ThemeSettings, ProductItem, PostItem, ReviewItem, B2BInquiry, SeoSettings, SocialSettings } from '../types';
+import { 
+  AppState, 
+  SiteContent, 
+  ThemeSettings, 
+  ProductItem, 
+  PostItem, 
+  ReviewItem, 
+  B2BInquiry, 
+  SeoSettings, 
+  SocialSettings,
+  FacilityMediaItem,
+  NavMenuItem
+} from '../types';
 import { initialData } from '../data/initialData';
 
 interface AppContextType {
   state: AppState;
   updateContent: (newContent: Partial<SiteContent>) => void;
   updateTheme: (newTheme: Partial<ThemeSettings>) => void;
+  updateNavMenus: (menus: NavMenuItem[]) => void;
+  updateNavMenuItem: (id: string, updates: Partial<NavMenuItem>) => void;
   
   // Products
   addProduct: (product: Omit<ProductItem, 'id'>) => void;
@@ -33,21 +47,27 @@ interface AppContextType {
   importData: (imported: AppState) => boolean;
 
   // UI State
+  activePage: string;
+  setActivePage: (page: string) => void;
   isAdminOpen: boolean;
   setIsAdminOpen: (open: boolean) => void;
   activeAdminTab: string;
   setActiveAdminTab: (tab: string) => void;
   isSampleModalOpen: boolean;
   setIsSampleModalOpen: (open: boolean) => void;
+  isWholesaleModalOpen: boolean;
+  setIsWholesaleModalOpen: (open: boolean) => void;
   selectedProductForDetail: ProductItem | null;
   setSelectedProductForDetail: (product: ProductItem | null) => void;
   selectedPostForDetail: PostItem | null;
   setSelectedPostForDetail: (post: PostItem | null) => void;
+  selectedFacilityMedia: FacilityMediaItem | null;
+  setSelectedFacilityMedia: (item: FacilityMediaItem | null) => void;
   toastMessage: string | null;
   showToast: (msg: string) => void;
 }
 
-const STORAGE_KEY = 'foodhome_app_data_v2';
+const STORAGE_KEY = 'foodhome_app_data_v4';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -62,10 +82,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             return {
               ...initialData,
               ...parsed,
-              content: { ...initialData.content, ...(parsed.content || {}) },
+              content: { 
+                ...initialData.content, 
+                ...(parsed.content || {}),
+                navMenus: Array.isArray(parsed.content?.navMenus) && parsed.content.navMenus.length > 0
+                  ? parsed.content.navMenus
+                  : initialData.content.navMenus,
+                banners: Array.isArray(parsed.content?.banners) && parsed.content.banners.length > 0 
+                  ? parsed.content.banners 
+                  : initialData.content.banners,
+                facilityItems: Array.isArray(parsed.content?.facilityItems) && parsed.content.facilityItems.length > 0 
+                  ? parsed.content.facilityItems 
+                  : initialData.content.facilityItems,
+                faqItems: Array.isArray(parsed.content?.faqItems) && parsed.content.faqItems.length > 0 
+                  ? parsed.content.faqItems 
+                  : initialData.content.faqItems
+              },
               theme: { 
                 ...initialData.theme, 
                 ...(parsed.theme || {}),
+                // If previous blue was stored, default to new premium burgundy
+                primaryColor: (parsed.theme?.primaryColor === '#1e40af' || !parsed.theme?.primaryColor) 
+                  ? initialData.theme.primaryColor 
+                  : parsed.theme.primaryColor,
+                accentColor: (parsed.theme?.accentColor === '#2563eb' || !parsed.theme?.accentColor) 
+                  ? initialData.theme.accentColor 
+                  : parsed.theme.accentColor,
                 sectionsVisible: {
                   ...initialData.theme.sectionsVisible,
                   ...((parsed.theme && parsed.theme.sectionsVisible) || {})
@@ -96,17 +138,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return initialData;
   });
 
+  const [activePage, setActivePage] = useState<string>('home');
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [activeAdminTab, setActiveAdminTab] = useState('overview');
   const [isSampleModalOpen, setIsSampleModalOpen] = useState(false);
+  const [isWholesaleModalOpen, setIsWholesaleModalOpen] = useState(false);
   const [selectedProductForDetail, setSelectedProductForDetail] = useState<ProductItem | null>(null);
   const [selectedPostForDetail, setSelectedPostForDetail] = useState<PostItem | null>(null);
+  const [selectedFacilityMedia, setSelectedFacilityMedia] = useState<FacilityMediaItem | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Sync to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
     } catch (e) {
       console.error('Failed to save to localStorage:', e);
     }
@@ -136,6 +183,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       content: { ...prev.content, ...newContent }
     }));
     showToast('사이트 콘텐츠가 성공적으로 저장되었습니다.');
+  };
+
+  const updateNavMenus = (menus: NavMenuItem[]) => {
+    setState(prev => ({
+      ...prev,
+      content: { ...prev.content, navMenus: menus }
+    }));
+    showToast('상단 메뉴(GNB) 설정이 성공적으로 저장되었습니다.');
+  };
+
+  const updateNavMenuItem = (id: string, updates: Partial<NavMenuItem>) => {
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        navMenus: (prev.content.navMenus || []).map(m => m.id === id ? { ...m, ...updates } : m)
+      }
+    }));
+    showToast('메뉴 항목이 업데이트되었습니다.');
   };
 
   const updateTheme = (newTheme: Partial<ThemeSettings>) => {
@@ -225,7 +291,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ...prev,
       inquiries: [newInquiry, ...prev.inquiries]
     }));
-    showToast('B2B 샘플 및 견적 문의가 정상 접수되었습니다! 담당자가 빠르게 연락드립니다.');
+    showToast('B2B 문의가 정상 접수되었습니다! 담당자가 빠르게 연락드립니다.');
   };
 
   const updateInquiryStatus = (id: string, status: B2BInquiry['status'], adminMemo?: string) => {
@@ -280,7 +346,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const resetToDefaults = () => {
     if (window.confirm('모든 데이터를 최초 기본값(초기 샘플 데이터)으로 복원하시겠습니까? 수정한 내역이 초기화됩니다.')) {
       setState(initialData);
-      localStorage.removeItem(STORAGE_KEY);
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        //
+      }
       showToast('초기 기본 데이터로 복원되었습니다.');
     }
   };
@@ -305,6 +375,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         state,
         updateContent,
         updateTheme,
+        updateNavMenus,
+        updateNavMenuItem,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -320,16 +392,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateFormspreeEndpoint,
         resetToDefaults,
         importData,
+        activePage,
+        setActivePage,
         isAdminOpen,
         setIsAdminOpen,
         activeAdminTab,
         setActiveAdminTab,
         isSampleModalOpen,
         setIsSampleModalOpen,
+        isWholesaleModalOpen,
+        setIsWholesaleModalOpen,
         selectedProductForDetail,
         setSelectedProductForDetail,
         selectedPostForDetail,
         setSelectedPostForDetail,
+        selectedFacilityMedia,
+        setSelectedFacilityMedia,
         toastMessage,
         showToast
       }}

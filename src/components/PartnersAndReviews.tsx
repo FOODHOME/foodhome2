@@ -3,11 +3,8 @@ import { useApp } from '../context/AppContext';
 import { 
   Star, 
   Quote, 
-  Building, 
-  MapPin, 
-  BadgeCheck, 
   Store, 
-  ThumbsUp 
+  BadgeCheck 
 } from 'lucide-react';
 
 export const PartnersAndReviews: React.FC = () => {
@@ -19,36 +16,34 @@ export const PartnersAndReviews: React.FC = () => {
   ];
 
   return (
-    <section id="review-section" className="py-20 bg-white border-b border-slate-100">
+    <section id="review-section" className="py-12 bg-white border-b border-[#E8E2DC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-          <span 
-            className="text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-blue-100/70 text-blue-700"
-          >
-            PARTNER STORIES & TRUST
-          </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+        <div className="text-center max-w-3xl mx-auto mb-8 space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8E2DC] text-[11px] font-bold text-[#872D35]">
+            <span>PARTNER TESTIMONIALS</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2A2020] tracking-tight">
             전국 480여 개 외식 매장이 푸드홈을 신뢰하는 이유
           </h2>
-          <p className="text-base text-slate-600 font-normal">
-            까다로운 손님들의 입맛을 사로잡고 주방 인건비와 재료 손실을 획기적으로 줄인 실제 사장님들의 생생한 후기입니다.
+          <p className="text-xs sm:text-sm text-slate-600 font-normal">
+            손님들의 재방문을 부르고 주방 인건비와 음식물 손실을 획기적으로 줄인 실제 사장님들의 솔직한 평가입니다.
           </p>
         </div>
 
-        {/* Partner Brands Running Ticker */}
-        <div className="mb-14 p-5 rounded-2xl bg-slate-50 border border-slate-100">
-          <div className="text-center text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">
-            전국 대표 족발·보쌈 프랜차이즈 및 맛집 공급 파트너
+        {/* Partner Brands Grid/Row */}
+        <div className="mb-8 p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E2DC]">
+          <div className="text-center text-[11px] font-bold text-[#872D35] mb-2.5 uppercase tracking-wider">
+            전국 주요 납품 외식 프랜차이즈 & 지역 맛집 파트너사
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             {partnerBrands.map((brand, idx) => (
               <div 
                 key={idx}
-                className="px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 shadow-2xs flex items-center gap-1.5"
+                className="px-3 py-1 rounded-md bg-white border border-[#E8E2DC] text-xs font-bold text-stone-700 shadow-2xs flex items-center gap-1.5"
               >
-                <Store className="w-3.5 h-3.5 text-blue-600" />
+                <Store className="w-3.5 h-3.5 text-[#872D35]" />
                 <span>{brand}</span>
               </div>
             ))}
@@ -56,67 +51,39 @@ export const PartnersAndReviews: React.FC = () => {
         </div>
 
         {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {state.reviews.map((rev) => (
-            <div 
+            <div
               key={rev.id}
-              className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow relative flex flex-col justify-between"
+              className="bg-[#FAF8F5] p-5 rounded-xl border border-[#E8E2DC] flex flex-col justify-between hover:border-[#872D35] transition-colors"
             >
               <div>
-                {/* Header row with rating & location */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-1 text-amber-400">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center gap-1 text-amber-500">
                     {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-current" />
+                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
                     ))}
                   </div>
-
-                  <div className="flex items-center gap-1 text-xs text-slate-500">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{rev.location}</span>
-                  </div>
+                  <span className="text-[10px] text-slate-400 font-semibold">{rev.date}</span>
                 </div>
 
-                {/* Comment */}
-                <div className="relative mb-6">
-                  <Quote className="w-8 h-8 text-blue-100 absolute -top-3 -left-2 -z-0" />
-                  <p className="text-slate-800 text-sm sm:text-base leading-relaxed font-medium relative z-10 pl-2">
-                    "{rev.comment}"
-                  </p>
-                </div>
+                <p className="text-xs sm:text-sm text-stone-800 leading-relaxed font-normal mb-3">
+                  "{rev.comment}"
+                </p>
               </div>
 
-              {/* Author & Verification */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <div className="pt-3 border-t border-[#E8E2DC] flex items-center justify-between text-xs">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                    {rev.clientName}
-                    {rev.verifiedPartner && (
-                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">
-                        <BadgeCheck className="w-3 h-3 text-blue-600" />
-                        공식 납품처
-                      </span>
-                    )}
-                  </h4>
-                  <span className="text-xs text-slate-500">
-                    {rev.businessType}
-                  </span>
+                  <span className="font-bold text-[#2A2020] mr-2">{rev.clientName || rev.storeName}</span>
+                  <span className="text-slate-500 text-[11px]">{rev.businessType || rev.ownerName}</span>
                 </div>
-
-                <span className="text-xs text-slate-400">
-                  {rev.date}
-                </span>
+                <div className="flex items-center gap-1 text-[11px] text-[#872D35] font-semibold">
+                  <BadgeCheck className="w-3.5 h-3.5" />
+                  <span>{rev.location}</span>
+                </div>
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Review Bottom Banner */}
-        <div className="mt-12 text-center">
-          <div className="inline-flex flex-wrap items-center justify-center gap-2 px-5 py-3 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs sm:text-sm font-bold">
-            <ThumbsUp className="w-4 h-4 text-blue-600" />
-            <span>납품 매장 점주님 98.8%가 "김치 변경 후 고객 만족도와 재방문율이 눈에 띄게 상승했다"고 응답했습니다.</span>
-          </div>
         </div>
 
       </div>
