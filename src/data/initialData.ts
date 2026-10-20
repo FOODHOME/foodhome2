@@ -51,11 +51,11 @@ export const initialData: AppState = {
         id: 'wholesale',
         name: '납품안내',
         visible: true,
-        actionType: 'wholesale',
-        target: '',
+        actionType: 'page',
+        target: 'wholesale-guide',
         submenus: [
-          { id: 'sub-who-1', label: 'B2B 대량공급 절차 안내', actionType: 'wholesale', target: '' },
-          { id: 'sub-who-2', label: '프랜차이즈 맞춤 OEM/PB', actionType: 'wholesale', target: '' },
+          { id: 'sub-who-1', label: '1:1 대량 납품 견적 상담', actionType: 'page', target: 'quote-board' },
+          { id: 'sub-who-2', label: '프랜차이즈 맞춤 OEM/PB', actionType: 'page', target: 'quote-board-write' },
           { id: 'sub-who-3', label: '사업자 1kg 무료 샘플팩', actionType: 'page', target: 'sample-board-write' }
         ]
       },
@@ -67,7 +67,7 @@ export const initialData: AppState = {
         target: 'footer-section',
         submenus: [
           { id: 'sub-cs-1', label: '사업자 무료 샘플 신청', actionType: 'page', target: 'sample-board' },
-          { id: 'sub-cs-2', label: '1:1 대량 납품·견적 상담', actionType: 'wholesale', target: '' },
+          { id: 'sub-cs-2', label: '1:1 대량 납품 견적 상담', actionType: 'page', target: 'quote-board' },
           { id: 'sub-cs-3', label: '고객센터 유선 전화안내', actionType: 'scroll', target: 'footer-section' }
         ]
       }
@@ -81,11 +81,17 @@ export const initialData: AppState = {
         title: '보쌈의 맛을 완성하는 특별한 김치',
         subtitle: '푸드홈 보쌈무김치',
         description: '정성스럽게 만든 맛, 변함없는 품질. 물 생김 없이 끝까지 아삭한 특허 수분제어 절임 공법으로 전국 480여 개 외식 매장에 매일 아침 공급합니다.',
+        subDescription: '우리 가족이 먹는 안심 위생시설 제조 · 전국 당일 냉장 직배송',
         imageUrl: './images/banner_bossam.jpg',
+        mobileImageUrl: './images/banner_bossam.jpg',
         primaryButtonText: '제품 자세히 보기',
+        primaryButtonLink: 'products',
         primaryButtonAction: 'products',
         secondaryButtonText: '무료 샘플 1kg 신청',
-        secondaryButtonAction: 'sample'
+        secondaryButtonLink: 'sample-board',
+        secondaryButtonAction: 'sample',
+        order: 1,
+        isActive: true
       },
       {
         id: 'banner-2',
@@ -93,11 +99,17 @@ export const initialData: AppState = {
         title: '굴보쌈과 수육의 풍미를 높이는',
         subtitle: '감칠맛 비법 김칫속(보쌈속)',
         description: '국내산 배와 양파를 갈아 넣은 천연 단맛과 광천 토굴 젓갈의 깊은 감칠맛. 주방의 수고를 덜어주는 명품 속양념.',
+        subDescription: '100% 국내산 엄선 농산물 계약재배 · 프랜차이즈 맞춤 납품',
         imageUrl: './images/banner_kimchi_paste.jpg',
+        mobileImageUrl: './images/banner_kimchi_paste.jpg',
         primaryButtonText: '김칫속 라인업 보기',
+        primaryButtonLink: 'products',
         primaryButtonAction: 'products',
-        secondaryButtonText: '납품 견적 문의하기',
-        secondaryButtonAction: 'inquiry'
+        secondaryButtonText: '1:1 대량 납품 견적 상담',
+        secondaryButtonLink: 'quote-board',
+        secondaryButtonAction: 'quote',
+        order: 2,
+        isActive: true
       },
       {
         id: 'banner-3',
@@ -105,11 +117,17 @@ export const initialData: AppState = {
         title: '전국 480개 외식 파트너의 선택',
         subtitle: '프랜차이즈 맞춤 납품 & 식자재 공급',
         description: '물류 편차 없는 균일한 품질, 철저한 안심 위생 관리. 사업자 고객님께 1kg 무료 샘플팩을 전액 무료로 배송해 드립니다.',
+        subDescription: '식자재 원가 절감 솔루션 · 가맹점 만족도 98.8%',
         imageUrl: './images/banner_b2b.jpg',
+        mobileImageUrl: './images/banner_b2b.jpg',
         primaryButtonText: '무료 샘플 신청하기',
+        primaryButtonLink: 'sample-board',
         primaryButtonAction: 'sample',
-        secondaryButtonText: '대량 납품 상담하기',
-        secondaryButtonAction: 'inquiry'
+        secondaryButtonText: '대량 납품 견적 상담',
+        secondaryButtonLink: 'quote-board',
+        secondaryButtonAction: 'quote',
+        order: 3,
+        isActive: true
       }
     ],
 
@@ -233,7 +251,54 @@ export const initialData: AppState = {
         answer: '네, 가능합니다. 브랜드의 콘셉트에 따라 매운맛 강도, 단맛 배합, 규격 포장지 전용 로고 인쇄(PB 라벨링) 등 맞춤형 생산을 진행해 드립니다. 현재 전국 70여 개 이상 가맹 브랜드에 맞춤형 김치를 공급하고 있습니다.',
         category: '납품·단가'
       }
-    ]
+    ],
+
+    // 1. Company About Page Content
+    aboutBannerImage: './images/banner_bossam.jpg',
+    aboutTitle: '안전하고 정직한 먹거리, 푸드홈 이야기',
+    aboutDescription: '우리 가족이 안심하고 먹을 수 있는 프리미엄 보쌈무김치와 비법 김칫속을 정직한 원재료로 빚어냅니다.',
+    ceoGreeting: '안녕하십니까, 주식회사 푸드홈 대표이사 김진성입니다. 30년 전 어머니의 손맛으로 시작하여 오늘날 전국 480여 개 외식 매장의 든든한 파트너가 되기까지, 저희 푸드홈의 기준은 단 하나였습니다. "우리 가족이 안심하고 먹을 수 있는 음식만을 만든다." 고객의 식탁에 올라가는 순간까지 최고의 아삭함과 감칠맛을 약속드립니다.',
+    ceoImageUrl: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=600&q=80',
+    historyItems: [
+      { year: '1996', title: '푸드홈 식품연구소 설립', desc: '전통 비법 김치 양념 및 절임 공법 연구 개시' },
+      { year: '2010', title: '특허 수분제어 삼투압 절임공법 등록', desc: '물이 생기지 않는 꼬들꼬들 보쌈무김치 기술 특허 취득' },
+      { year: '2018', title: '충북 진천 스마트 클린 제조센터 준공', desc: '일일 4.2톤 규모의 안심 위생 자동화 생산 라인 가동' },
+      { year: '2023', title: '전국 480개 외식 파트너사 돌파', desc: '콜드체인 전국 익일 직배송 물류망 확장' }
+    ],
+    systemDescription: '최신 자동 세척설비, 3D X-ray 이물검출기, 항온항습 클린룸 시스템을 갖춘 충북 진천 제1·2공장에서 생산 후 전국 냉장 콜드체인으로 배송합니다.',
+    permitsDescription: '식품제조가공업 정식 영업등록, 영업배상책임보험 5억원 가입, 전 공정 잔류농약 및 미생물 정밀 검사 완료.',
+    locationGuide: '충청북도 진천군 덕산읍 신척산단로 128 (신척산업단지 내 푸드홈 식품가공센터)',
+
+    // 2. Manufacturing Process Page Content
+    processTitle: '푸드홈만의 4단계 안심 제조공정',
+    processSubtitle: '철저한 위생 관리와 특허 기술로 완성되는 프리미엄 품질',
+    processDescription: '엄선된 100% 국내산 무 선별부터 초음파 세척, 특허 수분제어 절임, 2중 진공 포장까지 타협 없는 원칙을 지킵니다.',
+    processSteps: [
+      { step: 1, title: '산지직송 100% 국내산 무 선별', desc: '계약재배된 단단하고 수분감 풍부한 최고급 무만을 엄선 선별합니다.', imageUrl: './images/process_step1.jpg', badge: '엄선 원물' },
+      { step: 2, title: '초음파 버블 3단계 무잔류 세척', desc: '표면의 미세 이물질과 잔류 농약을 초음파 미세기포로 완벽 세척합니다.', imageUrl: './images/process_step2.jpg', badge: '청결 세척' },
+      { step: 3, title: '특허 수분제어 저온 삼투압 절임', desc: '푸드홈만의 특허 공법으로 무 속 과잉 수분을 제어해 끝까지 아삭합니다.', imageUrl: './images/process_step3.jpg', badge: '특허 공법' },
+      { step: 4, title: '황금비율 양념 버무림 & 진공포장', desc: '광천 토굴액젓과 태양초 고춧가루로 버무려 저온 콜드체인 출하합니다.', imageUrl: './images/process_step4.jpg', badge: '안심 출하' }
+    ],
+    qualityNotice: '전 생산 라인 금속검출기 전수 검사 통과 및 0~5℃ 콜드체인 직배송',
+
+    // 3. Wholesale Guide Page Content
+    wholesaleTitle: '외식업 대량 납품 & 프랜차이즈 맞춤 공급',
+    wholesaleSubtitle: '안정적인 품질과 원가 경쟁력, 푸드홈과 함께하세요',
+    wholesaleDescription: '단일 매장부터 100개 이상 대형 프랜차이즈까지, 주방의 인건비를 절감하고 균일한 맛을 보장합니다.',
+    deliveryRegions: '수도권 및 전국 전 지역 (제주 및 도서산간 별도 문의)',
+    deliveryMethods: '전국 냉장 콜드체인 익일 직배송 / 물류센터 정기 입고',
+    deliverySteps: [
+      { step: 1, title: '샘플 신청 & 품질 검증', desc: '사업자 무료 1kg 샘플팩을 먼저 받아보시고 품질을 확인하세요.' },
+      { step: 2, title: '1:1 견적 상담 & 맞춤 단가 협의', desc: '예상 월 소진량에 따른 최적의 납품 단가를 제안해 드립니다.' },
+      { step: 3, title: '발주 주기 확정 & 정기 직배송', desc: '원하시는 요일과 주기에 맞추어 매장 냉장고까지 신선하게 공급됩니다.' }
+    ],
+    wholesaleImages: ['./images/banner_b2b.jpg', './images/banner_bossam.jpg'],
+
+    // 4. Customer Service Content
+    csNoticeTitle: '푸드홈 B2B 파트너 고객센터',
+    csNoticeDesc: '주문, 배송, 대량 견적 및 OEM 상담은 푸드홈 전담팀이 빠르고 친절하게 안내해 드립니다.',
+    sampleGuideText: '외식업 사업자등록증이 있으신 대표님께 1kg 무료 샘플팩(배송비 전액 지원)을 보내드립니다.',
+    quoteGuideText: '월 100kg 이상 정기 납품 및 프랜차이즈 PB/OEM 전용 단가 상담을 지원합니다.'
   },
   theme: {
     primaryColor: '#872D35', // Main Deep Burgundy
@@ -591,6 +656,128 @@ export const initialData: AppState = {
       adminMemo: '신규 매장 컨설팅 자료 제공 검토'
     }
   ],
+  quotes: [
+    {
+      id: 'quote-201',
+      postNumber: 15,
+      title: '수도권 직영 5개점 프랜차이즈 보쌈무김치 정기 납품 견적 문의',
+      companyName: '주식회사 정가네보쌈',
+      contactPerson: '정민호 본부장',
+      phone: '010-8291-3829',
+      email: 'minho.jung@jeonggane.co.kr',
+      region: '서울/경기 전역',
+      businessType: '프랜차이즈 본사',
+      interestedProducts: ['명품 보쌈무김치 (업소용 10kg)', '비법 보쌈김칫속 (업소용 10kg)'],
+      monthlyVolume: '월 1.5톤 내외',
+      deliverySchedule: '2026년 4월 초도 공급 희망',
+      message: '현재 5개 직영점 운영 중이며 하반기 가맹 사업 준비 중입니다. 주 3회 물류센터 입고 단가 및 냉장 배송 조건 견적 요청드립니다.',
+      attachments: [{ name: '정가네보쌈_사업자등록증.pdf', size: '1.2MB' }],
+      passwordHash: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', // 1234
+      rawPasswordHint: '1234',
+      isSecret: true,
+      status: '상담중',
+      readCount: 18,
+      createdAt: '2026-03-24',
+      adminReply: {
+        author: '푸드홈 B2B 영업본부',
+        repliedAt: '2026-03-24',
+        content: '정민호 본부장님 안녕하세요, 푸드홈 B2B 납품팀입니다. 남겨주신 물량(월 1.5톤) 기준 프랜차이즈 우대 단가표와 물류 계약서를 유선 상담 후 메일로 발송해 드렸습니다.'
+      },
+      adminMemo: '샘플 10kg 발송 및 3월 28일 본사 미팅 예정'
+    },
+    {
+      id: 'quote-202',
+      postNumber: 14,
+      title: '대전 유성구 대형 국밥·수육 전문점 김칫속 OEM 문의',
+      companyName: '유성 한우수육국밥',
+      contactPerson: '이영숙 대표',
+      phone: '010-3948-2819',
+      email: 'yslee@naver.com',
+      region: '대전 유성구',
+      businessType: '일반음식점 (보쌈·족발)',
+      interestedProducts: ['비법 보쌈김칫속 (업소용 10kg)'],
+      monthlyVolume: '월 500kg',
+      deliverySchedule: '즉시 납품 희망',
+      message: '수육에 곁들일 겉절이용 비법 양념속을 매장에서 직접 담그기 어려워 외주 납품받고자 합니다. 맵기 조절 가능 여부와 단가 상담 원합니다.',
+      attachments: [],
+      passwordHash: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', // 1234
+      rawPasswordHint: '1234',
+      isSecret: true,
+      status: '견적완료',
+      readCount: 12,
+      createdAt: '2026-03-22',
+      adminReply: {
+        author: '푸드홈 B2B 영업본부',
+        repliedAt: '2026-03-23',
+        content: '이영숙 대표님, 푸드홈의 표준 김칫속과 함께 수육용 맞춤 샘플팩 2종을 발송해 드렸습니다. 매장 방문 상담 일정도 확정되었습니다.'
+      },
+      adminMemo: '월 500kg 계약 완료, 매주 화/금 정기 배송'
+    },
+    {
+      id: 'quote-203',
+      postNumber: 13,
+      title: '대구 동구 고깃집 신규 오픈 보쌈무김치 대량 견적 요청',
+      companyName: '동구 솥뚜껑삼겹살',
+      contactPerson: '박찬우',
+      phone: '010-7712-9901',
+      email: 'cw.park@gmail.com',
+      region: '대구 동구',
+      businessType: '고깃집 (삼겹살·갈비)',
+      interestedProducts: ['명품 보쌈무김치 (업소용 10kg)'],
+      monthlyVolume: '월 200kg 예상',
+      deliverySchedule: '4월 15일 오픈',
+      message: '신규 오픈하는 삼겹살 전문점입니다. 밑반찬으로 푸드홈 보쌈무김치를 사용하고 싶어 최소 발주량과 공급 단가 문의드립니다.',
+      attachments: [],
+      passwordHash: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', // 1234
+      rawPasswordHint: '1234',
+      isSecret: true,
+      status: '접수완료',
+      readCount: 7,
+      createdAt: '2026-03-21'
+    }
+  ],
+  formConfig: {
+    sampleFormFields: [
+      { id: 'f-s-1', name: 'title', label: '신청 제목', type: 'text', required: true, order: 1, enabled: true, placeholder: '예: [서울 강남] 보쌈 전문점 1kg 무료 샘플 신청합니다' },
+      { id: 'f-s-2', name: 'storeName', label: '상호명 (사업체명)', type: 'text', required: true, order: 2, enabled: true, placeholder: '운영 중이신 매장 상호명 입력' },
+      { id: 'f-s-3', name: 'contactPerson', label: '담당자 / 대표자 성함', type: 'text', required: true, order: 3, enabled: true, placeholder: '성함 입력' },
+      { id: 'f-s-4', name: 'phone', label: '휴대전화 연락처', type: 'tel', required: true, order: 4, enabled: true, placeholder: '010-0000-0000 (배송 안내용)' },
+      { id: 'f-s-5', name: 'address', label: '샘플 수령 주소', type: 'text', required: true, order: 5, enabled: true, placeholder: '도로명 주소 및 상세주소 정확히 입력' },
+      { id: 'f-s-6', name: 'selectedProducts', label: '신청 희망 샘플 품목', type: 'checkbox', required: true, order: 6, enabled: true },
+      { id: 'f-s-7', name: 'message', label: '요청 사항 및 매장 소개', type: 'textarea', required: false, order: 7, enabled: true, placeholder: '현재 운영 형태, 예상 소진량 등을 적어주시면 맞춤 상담에 도움됩니다.' },
+      { id: 'f-s-8', name: 'password', label: '게시글 열람 비밀번호 (4자리 이상)', type: 'password', required: true, order: 8, enabled: true, placeholder: '비공개 글 열람용 비밀번호' }
+    ],
+    sampleProductOptions: [
+      '명품 보쌈무김치 1kg (대표 인기품목)',
+      '비법 보쌈김칫속(보쌈속) 1kg',
+      '업소용 특제 굴보쌈 양념 500g',
+      '특허 수분제어 맞춤 절임무 1kg'
+    ],
+    sampleStatuses: ['접수대기', '접수완료', '답변완료', '배송준비', '배송완료', '상담완료'],
+    samplePrivacyText: '개인정보보호법에 의거하여 무료 샘플 발송 및 B2B 상담 목적으로만 성함, 연락처, 주소를 수집하며, 발송 완료 3개월 후 안전하게 파기됩니다.',
+    quoteFormFields: [
+      { id: 'f-q-1', name: 'title', label: '상담 제목', type: 'text', required: true, order: 1, enabled: true, placeholder: '예: [경기 안양] 3개 매장 보쌈무김치 정기 납품 단가 견적 요청' },
+      { id: 'f-q-2', name: 'companyName', label: '업체명 / 상호명', type: 'text', required: true, order: 2, enabled: true, placeholder: '사업자등록 상호명 또는 매장명' },
+      { id: 'f-q-3', name: 'contactPerson', label: '담당자 성함', type: 'text', required: true, order: 3, enabled: true, placeholder: '담당자명 및 직책' },
+      { id: 'f-q-4', name: 'phone', label: '연락처', type: 'tel', required: true, order: 4, enabled: true, placeholder: '010-0000-0000' },
+      { id: 'f-q-5', name: 'email', label: '이메일 주소', type: 'email', required: false, order: 5, enabled: true, placeholder: '견적서 수신용 이메일' },
+      { id: 'f-q-6', name: 'region', label: '납품 희망 지역', type: 'text', required: false, order: 6, enabled: true, placeholder: '예: 서울 전역, 경기 일산, 전국 등' },
+      { id: 'f-q-7', name: 'businessType', label: '업종 형태', type: 'select', required: false, order: 7, enabled: true, options: ['일반음식점 (보쌈·족발)', '고깃집 (삼겹살·갈비)', '국밥·해장국 전문점', '프랜차이즈 본사/직영', '단체급식·케이터링', '식자재 유통업체', '기타'] },
+      { id: 'f-q-8', name: 'interestedProducts', label: '관심 제품', type: 'checkbox', required: true, order: 8, enabled: true },
+      { id: 'f-q-9', name: 'monthlyVolume', label: '예상 월 납품 수량', type: 'text', required: false, order: 9, enabled: true, placeholder: '예: 월 100kg, 월 500kg, 1톤 이상 등' },
+      { id: 'f-q-10', name: 'deliverySchedule', label: '희망 납품 일정', type: 'text', required: false, order: 10, enabled: true, placeholder: '예: 2026년 4월 초, 즉시 납품 등' },
+      { id: 'f-q-11', name: 'message', label: '상담 내용', type: 'textarea', required: false, order: 11, enabled: true, placeholder: '필요하신 공급 규격, 맵기 강도, 특별 요청사항을 적어주세요.' },
+      { id: 'f-q-12', name: 'password', label: '게시글 비밀번호 (4자리 이상)', type: 'password', required: true, order: 12, enabled: true, placeholder: '견적 및 답변 열람용 비밀번호' }
+    ],
+    quoteProductOptions: [
+      '명품 보쌈무김치 (업소용 10kg)',
+      '비법 보쌈김칫속 (업소용 10kg)',
+      '수제 절임무 벌크 (20kg)',
+      '프랜차이즈 맞춤 OEM/PB 전용 레시피'
+    ],
+    quoteStatuses: ['접수완료', '상담중', '견적완료'],
+    quotePrivacyText: '대량 납품 견적 산출 및 유선 안내를 위해 입력하신 정보를 수집 및 처리하며 관련 법령에 따라 철저히 비공개 보호됩니다.'
+  },
   seo: {
     metaTitle: '푸드홈(FOODHOME) - 대한민국 1등 보쌈무김치·김칫속 전문 제조업체',
     metaDescription: '30년 전통 비법양념과 특허 수분제어로 빚어낸 명품 보쌈무김치, 굴보쌈 김칫속 전문 제조 푸드홈. 전국 480여 개 프랜차이즈 및 맛집 납품. 무료 샘플 신청 지원.',

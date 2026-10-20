@@ -4,11 +4,17 @@ export interface BannerSlide {
   title: string;
   subtitle: string;
   description: string;
+  subDescription?: string;
   imageUrl: string;
+  mobileImageUrl?: string;
   primaryButtonText: string;
-  primaryButtonAction: 'products' | 'inquiry' | 'sample';
+  primaryButtonLink?: string;
+  primaryButtonAction: 'products' | 'inquiry' | 'sample' | 'quote' | 'page' | 'url';
   secondaryButtonText: string;
-  secondaryButtonAction: 'products' | 'inquiry' | 'sample';
+  secondaryButtonLink?: string;
+  secondaryButtonAction: 'products' | 'inquiry' | 'sample' | 'quote' | 'page' | 'url';
+  order?: number;
+  isActive?: boolean;
 }
 
 export interface FacilityMediaItem {
@@ -30,7 +36,7 @@ export interface FaqItem {
 export interface NavSubmenuItem {
   id: string;
   label: string;
-  actionType: 'scroll' | 'sample' | 'wholesale' | 'url' | 'page';
+  actionType: 'scroll' | 'sample' | 'wholesale' | 'url' | 'page' | 'quote';
   target: string;
 }
 
@@ -38,10 +44,30 @@ export interface NavMenuItem {
   id: string;
   name: string;
   link?: string;
-  actionType?: 'scroll' | 'sample' | 'wholesale' | 'url' | 'page';
+  actionType?: 'scroll' | 'sample' | 'wholesale' | 'url' | 'page' | 'quote';
   target?: string;
   visible: boolean;
   submenus: NavSubmenuItem[];
+}
+
+export interface HistoryItem {
+  year: string;
+  title: string;
+  desc: string;
+}
+
+export interface ProcessStepItem {
+  step: number;
+  title: string;
+  desc: string;
+  imageUrl: string;
+  badge?: string;
+}
+
+export interface WholesaleStepItem {
+  step: number;
+  title: string;
+  desc: string;
 }
 
 export interface SiteContent {
@@ -83,6 +109,7 @@ export interface SiteContent {
   email: string;
   csHours: string;
   lunchHours: string;
+  footerNotice?: string;
 
   // Story & Brand Info
   storyTitle: string;
@@ -98,6 +125,40 @@ export interface SiteContent {
   // Facility & FAQ
   facilityItems: FacilityMediaItem[];
   faqItems: FaqItem[];
+
+  // 1. Company About Page Content
+  aboutBannerImage?: string;
+  aboutTitle?: string;
+  aboutDescription?: string;
+  ceoGreeting?: string;
+  ceoImageUrl?: string;
+  historyItems?: HistoryItem[];
+  systemDescription?: string;
+  permitsDescription?: string;
+  locationGuide?: string;
+
+  // 2. Manufacturing Process Page Content
+  processTitle?: string;
+  processSubtitle?: string;
+  processDescription?: string;
+  processSteps?: ProcessStepItem[];
+  qualityNotice?: string;
+
+  // 3. Wholesale Guide Page Content
+  wholesaleTitle?: string;
+  wholesaleSubtitle?: string;
+  wholesaleDescription?: string;
+  deliveryRegions?: string;
+  deliveryMethods?: string;
+  deliverySteps?: WholesaleStepItem[];
+  wholesaleImages?: string[];
+  wholesaleFaqs?: { question: string; answer: string }[];
+
+  // 4. Customer Service Content
+  csNoticeTitle?: string;
+  csNoticeDesc?: string;
+  sampleGuideText?: string;
+  quoteGuideText?: string;
 }
 
 export interface ThemeSettings {
@@ -112,6 +173,7 @@ export interface ThemeSettings {
     hero: boolean;
     stats: boolean;
     productSlider: boolean;
+    sampleRealtimeStatus?: boolean;
     actionBanners: boolean;
     productCategories: boolean;
     features: boolean;
@@ -129,7 +191,7 @@ export interface ProductItem {
   id: string;
   name: string;
   subtitle: string;
-  category: '보쌈무김치' | '김칫속/양념' | '업소용 대용량' | '소포장/밀키트';
+  category: '보쌈무김치' | '김칫속/양념' | '업소용 대용량' | '소포장/밀키트' | string;
   tag: string;
   weight: string;
   storage: string;
@@ -139,13 +201,17 @@ export interface ProductItem {
   imageUrl: string;
   isPopular?: boolean;
   isRecommended?: boolean;
+  order?: number;
+  visible?: boolean;
+  features?: string[];
+  specs?: string;
   bulkPriceGuide: string;
 }
 
 export interface PostItem {
   id: string;
   title: string;
-  category: '공지사항' | '조리·활용 레시피' | 'B2B 납품스토리' | '이벤트';
+  category: '공지사항' | '조리·활용 레시피' | 'B2B 납품스토리' | '이벤트' | string;
   author: string;
   date: string;
   content: string;
@@ -180,7 +246,7 @@ export interface B2BInquiry {
   monthlyUsage: string;
   region: string;
   message: string;
-  status: '접수대기' | '접수완료' | '답변완료' | '배송준비' | '배송완료' | '샘플발송완료' | '상담완료' | '보류' | '접수' | '완료';
+  status: '접수대기' | '접수완료' | '답변완료' | '배송준비' | '배송완료' | '샘플발송완료' | '상담완료' | '보류' | '접수' | '완료' | string;
   createdAt: string;
   adminMemo?: string;
 
@@ -199,6 +265,60 @@ export interface B2BInquiry {
     repliedAt: string;
     author: string;
   };
+}
+
+// 1:1 대량 납품 견적 상담 Inquiry interface
+export interface QuoteInquiry {
+  id: string;
+  postNumber: number;
+  title: string;
+  companyName: string; // 업체명 / 상호명 (필수)
+  contactPerson: string; // 담당자 성함 (필수)
+  phone: string; // 연락처 (필수)
+  email?: string; // 이메일
+  region?: string; // 납품 희망 지역
+  businessType?: string; // 업종 형태
+  interestedProducts: string[]; // 관심 제품
+  monthlyVolume?: string; // 예상 월 납품 수량
+  deliverySchedule?: string; // 희망 납품 일정
+  message: string; // 상담 내용
+  attachments?: { name: string; url?: string; size?: string }[];
+  passwordHash?: string; // 게시글 비밀번호 (SHA-256 해시)
+  rawPasswordHint?: string; // For mock verification fallback
+  isSecret: boolean;
+  status: '접수완료' | '상담중' | '견적완료' | string;
+  readCount: number;
+  createdAt: string;
+  adminReply?: {
+    content: string;
+    repliedAt: string;
+    author: string;
+  };
+  adminMemo?: string;
+}
+
+// Form builder field & config definitions
+export interface FormFieldItem {
+  id: string;
+  name: string;
+  label: string;
+  type: 'text' | 'tel' | 'email' | 'textarea' | 'checkbox' | 'select' | 'password';
+  required: boolean;
+  order: number;
+  enabled: boolean;
+  placeholder?: string;
+  options?: string[];
+}
+
+export interface FormConfig {
+  sampleFormFields: FormFieldItem[];
+  sampleProductOptions: string[];
+  sampleStatuses: string[];
+  samplePrivacyText: string;
+  quoteFormFields: FormFieldItem[];
+  quoteProductOptions: string[];
+  quoteStatuses: string[];
+  quotePrivacyText: string;
 }
 
 export interface SeoSettings {
@@ -227,6 +347,8 @@ export interface AppState {
   posts: PostItem[];
   reviews: ReviewItem[];
   inquiries: B2BInquiry[];
+  quotes: QuoteInquiry[];
+  formConfig: FormConfig;
   seo: SeoSettings;
   social: SocialSettings;
   formspreeEndpoint: string;

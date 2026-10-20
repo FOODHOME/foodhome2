@@ -4,8 +4,7 @@ import { Sparkles, Truck, Store, ArrowRight, ExternalLink, ShieldCheck, PhoneCal
 
 export const ActionBannersSection: React.FC = () => {
   const { 
-    setIsSampleModalOpen, 
-    setIsWholesaleModalOpen,
+    setActivePage,
     state 
   } = useApp();
 
@@ -41,7 +40,10 @@ export const ActionBannersSection: React.FC = () => {
             <div className="mt-5 pt-3 border-t border-white/15 flex items-center justify-between">
               <span className="text-[11px] text-stone-300 font-medium">배송비 0원 · 즉시 발송</span>
               <button
-                onClick={() => setIsSampleModalOpen(true)}
+                onClick={() => {
+                  setActivePage('sample-board-write');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-[#872D35] hover:bg-stone-100 text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
                 <span>신청하기</span>
@@ -74,10 +76,13 @@ export const ActionBannersSection: React.FC = () => {
             <div className="mt-5 pt-3 border-t border-white/15 flex items-center justify-between">
               <span className="text-[11px] text-stone-300 font-medium">전국 직배송 · 맞춤 단가 협의</span>
               <button
-                onClick={() => setIsWholesaleModalOpen(true)}
+                onClick={() => {
+                  setActivePage('quote-board-write');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#B64346] hover:bg-[#872D35] text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
-                <span>납품 상담</span>
+                <span>1:1 견적 상담</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

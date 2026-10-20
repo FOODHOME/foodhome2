@@ -151,14 +151,21 @@ export const Header: React.FC = () => {
       return;
     }
 
+    if (target === 'quote-board' || target === 'quote-board-write' || menuId === 'quote-board') {
+      setActivePage(target || 'quote-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (actionType === 'sample') {
       setActivePage('sample-board');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    if (actionType === 'wholesale') {
-      setIsWholesaleModalOpen(true);
+    if (actionType === 'quote' || actionType === 'wholesale') {
+      setActivePage('quote-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -273,24 +280,12 @@ export const Header: React.FC = () => {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2.5">
-          {/* Admin Dashboard Trigger */}
-          <button
-            onClick={() => setIsAdminOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg border border-[#EEEAE6] bg-[#FAF8F5] text-[#554343] hover:bg-white hover:border-[#D3C9C4] transition-all cursor-pointer shadow-2xs"
-            title="웹사이트 관리자 대시보드"
-          >
-            <Settings className="w-3.5 h-3.5 text-[#872D35]" />
-            <span className="hidden sm:inline">관리자</span>
-            {pendingInquiriesCount > 0 && (
-              <span className="inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] font-extrabold rounded-full bg-[#B64346] text-white animate-pulse">
-                {pendingInquiriesCount}
-              </span>
-            )}
-          </button>
-
           {/* Primary CTA: Free Sample Request */}
           <button
-            onClick={() => setIsSampleModalOpen(true)}
+            onClick={() => {
+              setActivePage('sample-board-write');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className="flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-bold text-white rounded-xl shadow-sm hover:opacity-95 hover:shadow-md transition-all cursor-pointer"
             style={{ backgroundColor: state.theme.primaryColor || '#872D35' }}
           >
@@ -338,18 +333,26 @@ export const Header: React.FC = () => {
 
           <div className="pt-2 flex flex-col gap-2">
             <button
-              onClick={() => { setMobileMenuOpen(false); setIsSampleModalOpen(true); }}
-              className="w-full py-2.5 rounded-lg text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setActivePage('sample-board-write');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="w-full py-2.5 rounded-lg text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
               style={{ backgroundColor: state.theme.primaryColor || '#872D35' }}
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>사업자 무료 샘플 1kg 신청</span>
             </button>
             <button
-              onClick={() => { setMobileMenuOpen(false); setIsWholesaleModalOpen(true); }}
-              className="w-full py-2.5 rounded-lg border border-[#EEEAE6] bg-[#FAF8F5] text-[#332525] font-bold text-xs flex items-center justify-center gap-1.5"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setActivePage('quote-board-write');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="w-full py-2.5 rounded-lg border border-[#EEEAE6] bg-[#FAF8F5] text-[#332525] font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>B2B 대량 납품 및 OEM 견적 문의</span>
+              <span>1:1 대량 납품 및 견적 상담</span>
             </button>
           </div>
         </div>

@@ -7,6 +7,9 @@ import {
   PostItem, 
   ReviewItem, 
   B2BInquiry, 
+  QuoteInquiry,
+  BannerSlide,
+  FormConfig,
   SeoSettings, 
   SocialSettings,
   FacilityMediaItem,
@@ -18,6 +21,8 @@ import {
   getSavedSupabaseConfig, 
   saveSupabaseConfig, 
   isSiteAdmin,
+  hashPassword,
+  verifyQuotePasswordWithHash,
   SupabaseConfig 
 } from '../lib/supabase';
 
@@ -97,6 +102,31 @@ interface AppContextType {
   }) => Promise<{ success: boolean; id?: string }>;
   updateSamplePostReply: (id: string, reply: string, status?: B2BInquiry['status']) => void;
   verifyPostPassword: (postId: string, passwordInput: string) => boolean;
+
+  // 1:1 Quote Inquiries Helpers
+  addQuoteInquiry: (quote: {
+    title: string;
+    companyName: string;
+    contactPerson: string;
+    phone: string;
+    email?: string;
+    region?: string;
+    businessType?: string;
+    interestedProducts: string[];
+    monthlyVolume?: string;
+    deliverySchedule?: string;
+    message: string;
+    attachments?: { name: string; url?: string; size?: string }[];
+    password: string;
+  }) => Promise<{ success: boolean; id?: string }>;
+  updateQuoteStatus: (id: string, status: string, adminMemo?: string) => void;
+  updateQuoteReply: (id: string, reply: string, status?: string) => void;
+  deleteQuoteInquiry: (id: string) => void;
+  verifyQuotePassword: (quoteId: string, passwordInput: string) => Promise<boolean>;
+
+  // Main Banner & Form Config
+  updateBanners: (banners: BannerSlide[]) => void;
+  updateFormConfig: (config: Partial<FormConfig>) => void;
 }
 
 const STORAGE_KEY = 'foodhome_app_data_v4';
@@ -157,6 +187,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               inquiries: Array.isArray(parsed.inquiries)
                 ? parsed.inquiries
                 : initialData.inquiries,
+              quotes: Array.isArray(parsed.quotes) && parsed.quotes.length > 0
+                ? parsed.quotes
+                : initialData.quotes,
+              formConfig: parsed.formConfig
+                ? { ...initialData.formConfig, ...parsed.formConfig }
+                : initialData.formConfig,
               seo: { ...initialData.seo, ...(parsed.seo || {}) },
               social: { ...initialData.social, ...(parsed.social || {}) },
               formspreeEndpoint: parsed.formspreeEndpoint || initialData.formspreeEndpoint || 'https://formspree.io/f/xoejykbn'
@@ -600,6 +636,166 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return post.password.trim() === passwordInput.trim();
   };
 
+  // Main Banners Manager
+  const updateBanners = (banners: BannerSlide[]) => {
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        banners
+      }
+    }));
+    showToast('메인 배너가 성공적으로 수정되었습니다.');
+  };
+
+  // Form Config Manager
+  const updateFormConfig = (newConfig: Partial<FormConfig>) => {
+    setState(prev => ({
+      ...prev,
+      formConfig: {
+        ...prev.formConfig,
+        ...newConfig
+      }
+    }));
+    showToast('신청서 양식 설정이 저장되었습니다.');
+  };
+
+  // 1:1 Quote Inquiries Handlers
+  const addQuoteInquiry = async (quote: {
+    title: string;
+    companyName: string;
+    contactPerson: string;
+    phone: string;
+    email?: string;
+    region?: string;
+    businessType?: string;
+    interestedProducts: string[];
+    monthlyVolume?: string;
+    deliverySchedule?: string;
+    message: string;
+    attachments?: { name: string; url?: string; size?: string }[];
+    password: string;
+  }): Promise<{ success: boolean; id?: string }> => {
+    const newId = `quote-${Date.now()}`;
+    const nextPostNumber = (state.quotes && state.quotes.length > 0)
+      ? Math.max(...state.quotes.map(q => q.postNumber || 0)) + 1
+      : 1;
+
+    const passwordHash = await hashPassword(quote.password);
+
+    const newQuote: QuoteInquiry = {
+      id: newId,
+      postNumber: nextPostNumber,
+      title: quote.title,
+      companyName: quote.companyName,
+      contactPerson: quote.contactPerson,
+      phone: quote.phone,
+      email: quote.email,
+      region: quote.region,
+      businessType: quote.businessType,
+      interestedProducts: quote.interestedProducts,
+      monthlyVolume: quote.monthlyVolume,
+      deliverySchedule: quote.deliverySchedule,
+      message: quote.message,
+      attachments: quote.attachments || [],
+      passwordHash,
+      rawPasswordHint: quote.password,
+      isSecret: true,
+      status: '접수완료',
+      readCount: 1,
+      createdAt: new Date().toISOString().slice(0, 10)
+    };
+
+    setState(prev => ({
+      ...prev,
+      quotes: [newQuote, ...(prev.quotes || [])]
+    }));
+
+    // If Supabase is connected, attempt sync to database
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        await client.from('quote_inquiries').insert([
+          {
+            title: quote.title,
+            company_name: quote.companyName,
+            contact_person: quote.contactPerson,
+            phone: quote.phone,
+            email: quote.email,
+            region: quote.region,
+            business_type: quote.businessType,
+            interested_products: quote.interestedProducts,
+            monthly_volume: quote.monthlyVolume,
+            delivery_schedule: quote.deliverySchedule,
+            message: quote.message,
+            attachments: quote.attachments || [],
+            password_hash: passwordHash,
+            status: '접수완료',
+            is_secret: true
+          }
+        ]);
+      } catch (err) {
+        console.warn('Supabase quote submission background sync:', err);
+      }
+    }
+
+    showToast('대량 납품 견적 상담이 성공적으로 접수되었습니다.');
+    return { success: true, id: newId };
+  };
+
+  const updateQuoteStatus = (id: string, status: string, adminMemo?: string) => {
+    setState(prev => ({
+      ...prev,
+      quotes: (prev.quotes || []).map(q => {
+        if (q.id === id) {
+          return {
+            ...q,
+            status,
+            ...(adminMemo !== undefined ? { adminMemo } : {})
+          };
+        }
+        return q;
+      })
+    }));
+    showToast(`견적 상담 상태가 '${status}'(으)로 변경되었습니다.`);
+  };
+
+  const updateQuoteReply = (id: string, reply: string, status?: string) => {
+    setState(prev => ({
+      ...prev,
+      quotes: (prev.quotes || []).map(q => {
+        if (q.id === id) {
+          return {
+            ...q,
+            status: status || q.status || '상담중',
+            adminReply: {
+              content: reply,
+              repliedAt: new Date().toISOString().slice(0, 10),
+              author: '푸드홈 관리자'
+            }
+          };
+        }
+        return q;
+      })
+    }));
+    showToast('관리자 답변이 등록되었습니다.');
+  };
+
+  const deleteQuoteInquiry = (id: string) => {
+    setState(prev => ({
+      ...prev,
+      quotes: (prev.quotes || []).filter(q => q.id !== id)
+    }));
+    showToast('견적 상담글이 삭제되었습니다.');
+  };
+
+  const verifyQuotePassword = async (quoteId: string, passwordInput: string): Promise<boolean> => {
+    if (isAdminLoggedIn) return true;
+    const target = (state.quotes || []).find(q => q.id === quoteId);
+    if (!target) return false;
+    return verifyQuotePasswordWithHash(passwordInput, target.passwordHash, target.rawPasswordHint);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -638,6 +834,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addSamplePost,
         updateSamplePostReply,
         verifyPostPassword,
+        addQuoteInquiry,
+        updateQuoteStatus,
+        updateQuoteReply,
+        deleteQuoteInquiry,
+        verifyQuotePassword,
+        updateBanners,
+        updateFormConfig,
         activeAdminTab,
         setActiveAdminTab,
         isSampleModalOpen,

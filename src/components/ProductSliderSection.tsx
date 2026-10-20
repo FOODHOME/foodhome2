@@ -158,7 +158,10 @@ export const ProductSliderSection: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={() => setIsSampleModalOpen(true)}
+                    onClick={() => {
+                      setActivePage('sample-board-write');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     className="flex items-center justify-center gap-1 px-3 py-2 text-xs font-bold rounded-lg text-white bg-[#872D35] hover:bg-[#6D242B] transition-colors shadow-2xs cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5" />

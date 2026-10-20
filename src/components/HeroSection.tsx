@@ -60,12 +60,17 @@ export const HeroSection: React.FC = () => {
 
   const handleButtonClick = (action: string) => {
     if (action === 'products') {
-      const el = document.getElementById('products-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      setActivePage('products');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (action === 'sample') {
-      setIsSampleModalOpen(true);
+      setActivePage('sample-board-write');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (action === 'quote' || action === 'inquiry' || action === 'wholesale') {
+      setActivePage('quote-board-write');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      setIsWholesaleModalOpen(true);
+      setActivePage('products');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -84,11 +89,16 @@ export const HeroSection: React.FC = () => {
               idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
             }`}
           >
-            <img
-              src={slide.imageUrl}
-              alt={slide.title}
-              className="w-full h-full object-cover object-center transform scale-100 animate-in fade-in zoom-in-105 duration-1000"
-            />
+            <picture>
+              {slide.mobileImageUrl && (
+                <source media="(max-width: 640px)" srcSet={slide.mobileImageUrl} />
+              )}
+              <img
+                src={slide.imageUrl}
+                alt={slide.title}
+                className="w-full h-full object-cover object-center transform scale-100 animate-in fade-in zoom-in-105 duration-1000"
+              />
+            </picture>
             {/* Natural Dark Vignette & Gradient for Sharp Text Contrast */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/25" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
@@ -132,19 +142,19 @@ export const HeroSection: React.FC = () => {
               </button>
 
               <button
-                onClick={() => handleButtonClick(current.secondaryButtonAction || 'inquiry')}
+                onClick={() => handleButtonClick(current.secondaryButtonAction || 'quote')}
                 className="px-5 py-3.5 rounded-xl font-bold text-[#FAF8F5] bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-sm text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer"
               >
                 <FileSpreadsheet className="w-4 h-4 text-[#E8B4B8]" />
-                <span>{current.secondaryButtonText || '납품 문의하기'}</span>
+                <span>{current.secondaryButtonText || '1:1 대량 납품 견적 상담'}</span>
               </button>
             </div>
 
-            {/* Trust Mini Proof */}
-            <div className="pt-2 flex items-center gap-4 text-[11px] text-slate-300 font-medium">
+            {/* SubDescription / Trust Mini Proof */}
+            <div className="pt-2 flex items-center gap-3 text-[11px] text-slate-300 font-medium">
               <span className="flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                우리 가족 안심 위생시설
+                {current.subDescription || '우리 가족 안심 위생시설 제조'}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
