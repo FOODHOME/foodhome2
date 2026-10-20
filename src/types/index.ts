@@ -30,7 +30,7 @@ export interface FaqItem {
 export interface NavSubmenuItem {
   id: string;
   label: string;
-  actionType: 'scroll' | 'sample' | 'wholesale' | 'url';
+  actionType: 'scroll' | 'sample' | 'wholesale' | 'url' | 'page';
   target: string;
 }
 
@@ -38,7 +38,7 @@ export interface NavMenuItem {
   id: string;
   name: string;
   link?: string;
-  actionType?: 'scroll' | 'sample' | 'wholesale' | 'url';
+  actionType?: 'scroll' | 'sample' | 'wholesale' | 'url' | 'page';
   target?: string;
   visible: boolean;
   submenus: NavSubmenuItem[];
@@ -180,9 +180,25 @@ export interface B2BInquiry {
   monthlyUsage: string;
   region: string;
   message: string;
-  status: '접수대기' | '샘플발송완료' | '상담완료' | '보류';
+  status: '접수대기' | '접수완료' | '답변완료' | '배송준비' | '배송완료' | '샘플발송완료' | '상담완료' | '보류' | '접수' | '완료';
   createdAt: string;
   adminMemo?: string;
+
+  // Sample Board specific fields
+  postNumber?: number;
+  title?: string;
+  writer?: string;
+  storeName?: string;
+  address?: string;
+  selectedProducts?: string[];
+  password?: string;
+  isSecret?: boolean;
+  readCount?: number;
+  adminReply?: {
+    content: string;
+    repliedAt: string;
+    author: string;
+  };
 }
 
 export interface SeoSettings {

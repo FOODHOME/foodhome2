@@ -46,7 +46,7 @@ export const ManufacturingProcess: React.FC = () => {
       title: 'X-ray 이물질·금속 검출',
       desc: '포장 직전 3D X-ray 투시 검사기와 초정밀 금속검출기를 통과시켜 1mm 이하의 미세 이물질까지 전수 검사합니다.',
       icon: <ScanLine className="w-4 h-4 text-[#872D35]" />,
-      highlight: '식약처 HACCP 공정 규격'
+      highlight: '엄격한 청결 위생 공정 규격'
     },
     {
       step: '06',
@@ -65,13 +65,13 @@ export const ManufacturingProcess: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#E8E2DC] text-[11px] font-bold text-[#872D35]">
             <ShieldCheck className="w-3.5 h-3.5 text-[#872D35]" />
-            <span>HACCP 클린 스마트 팩토리</span>
+            <span>청결 안심 위생 스마트 팩토리</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2A2020] tracking-tight">
             한치의 타협도 없는 6단계 안심 위생 제조공정
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-normal">
-            식약처 기준을 뛰어넘는 엄격한 품질 관리로 480개 외식 파트너 매장의 믿음을 지킵니다.
+            우리 가족이 먹는다는 철저한 품질 관리로 480개 외식 파트너 매장의 믿음을 지킵니다.
           </p>
         </div>
 
@@ -117,7 +117,7 @@ export const ManufacturingProcess: React.FC = () => {
               <span className="text-[10px] font-bold text-[#872D35] uppercase tracking-wider block">FACILITY GALLERY</span>
               <h4 className="text-sm font-bold text-[#2A2020]">푸드홈 첨단 위생 가공 설비</h4>
             </div>
-            <span className="text-[11px] text-slate-500 font-medium">충북 진천군 HACCP 공식 인증공장</span>
+            <span className="text-[11px] text-slate-500 font-medium">충북 진천군 푸드홈 제1·2 식품가공공장</span>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

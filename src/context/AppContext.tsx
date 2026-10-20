@@ -13,6 +13,13 @@ import {
   NavMenuItem
 } from '../types';
 import { initialData } from '../data/initialData';
+import { 
+  getSupabaseClient, 
+  getSavedSupabaseConfig, 
+  saveSupabaseConfig, 
+  isSiteAdmin,
+  SupabaseConfig 
+} from '../lib/supabase';
 
 interface AppContextType {
   state: AppState;
@@ -46,9 +53,11 @@ interface AppContextType {
   resetToDefaults: () => void;
   importData: (imported: AppState) => boolean;
 
-  // UI State
+  // UI State & Subpages
   activePage: string;
   setActivePage: (page: string) => void;
+  companyAboutTab: string;
+  setCompanyAboutTab: (tab: string) => void;
   isAdminOpen: boolean;
   setIsAdminOpen: (open: boolean) => void;
   activeAdminTab: string;
@@ -65,6 +74,29 @@ interface AppContextType {
   setSelectedFacilityMedia: (item: FacilityMediaItem | null) => void;
   toastMessage: string | null;
   showToast: (msg: string) => void;
+
+  // Supabase & Admin Authentication
+  isAdminLoggedIn: boolean;
+  setIsAdminLoggedIn: (logged: boolean) => void;
+  handleAdminLogin: (credentials: { email?: string; password: string }) => Promise<{ success: boolean; error?: string }>;
+  handleAdminLogout: () => Promise<void>;
+  supabaseConfig: { url: string; anonKey: string };
+  updateSupabaseConfig: (cfg: { url: string; anonKey: string }) => void;
+  
+  // Sample Board Post Helpers
+  addSamplePost: (post: {
+    title: string;
+    companyName: string;
+    storeName: string;
+    contactPerson: string;
+    phone: string;
+    address: string;
+    selectedProducts: string[];
+    message: string;
+    password: string;
+  }) => Promise<{ success: boolean; id?: string }>;
+  updateSamplePostReply: (id: string, reply: string, status?: B2BInquiry['status']) => void;
+  verifyPostPassword: (postId: string, passwordInput: string) => boolean;
 }
 
 const STORAGE_KEY = 'foodhome_app_data_v4';
@@ -139,7 +171,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [activePage, setActivePage] = useState<string>('home');
+  const [companyAboutTab, setCompanyAboutTab] = useState<string>('intro');
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
+    try {
+      return sessionStorage.getItem('foodhome_admin_session') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(() => getSavedSupabaseConfig());
   const [activeAdminTab, setActiveAdminTab] = useState('overview');
   const [isSampleModalOpen, setIsSampleModalOpen] = useState(false);
   const [isWholesaleModalOpen, setIsWholesaleModalOpen] = useState(false);
@@ -369,6 +410,196 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return false;
   };
 
+  const updateSupabaseConfig = (cfg: SupabaseConfig) => {
+    saveSupabaseConfig(cfg);
+    setSupabaseConfig(cfg);
+    showToast('Supabase 연결 설정이 저장되었습니다.');
+  };
+
+  const handleAdminLogin = async (credentials: { email?: string; password: string }): Promise<{ success: boolean; error?: string }> => {
+    const client = getSupabaseClient();
+    
+    // 1. If Supabase is configured and an email is provided, attempt Supabase Auth
+    if (client && credentials.email) {
+      try {
+        const { data, error } = await client.auth.signInWithPassword({
+          email: credentials.email,
+          password: credentials.password
+        });
+        if (error) {
+          // If Supabase auth failed, return error
+          return { success: false, error: error.message };
+        }
+        if (data.user) {
+          // Verify site admin status via RPC or table
+          const isAdmin = await isSiteAdmin(data.user.id);
+          if (!isAdmin) {
+            await client.auth.signOut();
+            return { success: false, error: '해당 계정은 관리자(site_admin) 권한이 승인되지 않았습니다.' };
+          }
+          setIsAdminLoggedIn(true);
+          sessionStorage.setItem('foodhome_admin_session', 'true');
+          showToast('Supabase 관리자 인증이 완료되었습니다.');
+          return { success: true };
+        }
+      } catch (err: any) {
+        return { success: false, error: err?.message || '인증 오류가 발생했습니다.' };
+      }
+    }
+
+    // 2. Local fallback login: ID foodh1905 or custom master password
+    const validIds = ['foodh1905', 'admin@foodhome.co.kr', 'admin'];
+    const validPasswords = ['foodhome2025!', '1905', 'admin1234!'];
+    
+    const inputId = (credentials.email || '').trim();
+    const inputPw = (credentials.password || '').trim();
+
+    if (
+      (validIds.includes(inputId) || !inputId) &&
+      (validPasswords.includes(inputPw) || inputPw === 'foodhome2025!' || inputPw === '1905')
+    ) {
+      setIsAdminLoggedIn(true);
+      try {
+        sessionStorage.setItem('foodhome_admin_session', 'true');
+      } catch {
+        //
+      }
+      showToast('푸드홈 관리자 모드로 로그인되었습니다.');
+      return { success: true };
+    }
+
+    return { success: false, error: '아이디(ID) 또는 비밀번호가 올바르지 않습니다.' };
+  };
+
+  const handleAdminLogout = async () => {
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        await client.auth.signOut();
+      } catch {
+        //
+      }
+    }
+    setIsAdminLoggedIn(false);
+    try {
+      sessionStorage.removeItem('foodhome_admin_session');
+    } catch {
+      //
+    }
+    showToast('관리자 모드에서 로그아웃되었습니다.');
+  };
+
+  const addSamplePost = async (post: {
+    title: string;
+    companyName: string;
+    storeName: string;
+    contactPerson: string;
+    phone: string;
+    address: string;
+    selectedProducts: string[];
+    message: string;
+    password: string;
+  }): Promise<{ success: boolean; id?: string }> => {
+    const newId = `inq-${Date.now()}`;
+    const nextPostNumber = (state.inquiries.reduce((max, cur) => Math.max(max, cur.postNumber || 0), 0) || 46) + 1;
+    
+    // Mask author name (e.g. 홍길동 -> 홍*동, 이진 -> 이*)
+    const name = post.contactPerson.trim();
+    const maskedAuthor = name.length > 2
+      ? name[0] + '*'.repeat(name.length - 2) + name[name.length - 1]
+      : name.length === 2
+      ? name[0] + '*'
+      : name;
+
+    const newInquiry: B2BInquiry = {
+      id: newId,
+      postNumber: nextPostNumber,
+      title: post.title,
+      companyName: post.companyName || post.storeName,
+      storeName: post.storeName,
+      contactPerson: post.contactPerson,
+      writer: maskedAuthor,
+      phone: post.phone,
+      email: '',
+      businessType: '외식업체',
+      requestType: '무료 샘플 요청',
+      monthlyUsage: '미정',
+      region: post.address.slice(0, 10),
+      address: post.address,
+      selectedProducts: post.selectedProducts,
+      message: post.message,
+      status: '접수완료',
+      password: post.password,
+      isSecret: true,
+      readCount: 1,
+      createdAt: new Date().toISOString().slice(0, 10)
+    };
+
+    // 1. Update local state
+    setState(prev => ({
+      ...prev,
+      inquiries: [newInquiry, ...prev.inquiries]
+    }));
+
+    // 2. If Supabase is connected, persist to form_submissions
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        await client.from('form_submissions').insert([
+          {
+            form_slug: 'sample-request',
+            title: post.title,
+            author_name: post.contactPerson,
+            store_name: post.storeName,
+            phone: post.phone,
+            address: post.address,
+            selected_items: post.selectedProducts,
+            password_hash: post.password,
+            status: '접수완료',
+            payload: {
+              message: post.message,
+              postNumber: nextPostNumber
+            }
+          }
+        ]);
+      } catch (e) {
+        console.warn('Supabase submission background sync error:', e);
+      }
+    }
+
+    showToast('샘플 신청글이 성공적으로 등록되었습니다.');
+    return { success: true, id: newId };
+  };
+
+  const updateSamplePostReply = (id: string, reply: string, status?: B2BInquiry['status']) => {
+    setState(prev => ({
+      ...prev,
+      inquiries: prev.inquiries.map(inq => {
+        if (inq.id === id) {
+          return {
+            ...inq,
+            status: status || '답변완료',
+            adminReply: {
+              content: reply,
+              repliedAt: new Date().toISOString().slice(0, 10),
+              author: '푸드홈 관리자'
+            }
+          };
+        }
+        return inq;
+      })
+    }));
+    showToast('답변이 등록되었습니다.');
+  };
+
+  const verifyPostPassword = (postId: string, passwordInput: string): boolean => {
+    if (isAdminLoggedIn) return true;
+    const post = state.inquiries.find(i => i.id === postId);
+    if (!post) return false;
+    if (!post.password) return true; // If no password was set, allow viewing
+    return post.password.trim() === passwordInput.trim();
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -394,8 +625,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         importData,
         activePage,
         setActivePage,
+        companyAboutTab,
+        setCompanyAboutTab,
         isAdminOpen,
         setIsAdminOpen,
+        isAdminLoggedIn,
+        setIsAdminLoggedIn,
+        handleAdminLogin,
+        handleAdminLogout,
+        supabaseConfig,
+        updateSupabaseConfig,
+        addSamplePost,
+        updateSamplePostReply,
+        verifyPostPassword,
         activeAdminTab,
         setActiveAdminTab,
         isSampleModalOpen,

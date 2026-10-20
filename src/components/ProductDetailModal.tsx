@@ -69,7 +69,7 @@ export const ProductDetailModal: React.FC = () => {
               
               <div className="pt-2 text-xs text-emerald-700 font-semibold flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>식약처 HACCP 인증 시설 제조 / 무방부제·무화학색소</span>
+                <span>우리 가족이 먹는 안심 위생시설 제조 / 무방부제·무화학색소</span>
               </div>
             </div>
           </div>

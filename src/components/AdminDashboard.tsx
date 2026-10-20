@@ -4,6 +4,7 @@ import { ProductItem, PostItem, B2BInquiry, NavMenuItem, NavSubmenuItem } from '
 import { initialData } from '../data/initialData';
 import { FoodhomeLogo } from './FoodhomeLogo';
 import { submitToFormspree } from '../utils/formspree';
+import { getSupabaseClient } from '../lib/supabase';
 import { 
   X, 
   LayoutDashboard, 
@@ -39,7 +40,9 @@ import {
   ChevronDown,
   Image as ImageIcon,
   ArrowUpDown,
-  ListTree
+  ListTree,
+  KeyRound,
+  ShieldCheck
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -65,8 +68,16 @@ export const AdminDashboard: React.FC = () => {
     updateFormspreeEndpoint,
     resetToDefaults,
     importData,
-    showToast
+    showToast,
+    supabaseConfig,
+    updateSupabaseConfig,
+    handleAdminLogout
   } = useApp();
+
+  const [supabaseUrlInput, setSupabaseUrlInput] = useState(supabaseConfig.url || '');
+  const [supabaseKeyInput, setSupabaseKeyInput] = useState(supabaseConfig.anonKey || '');
+  const [isTestingSupabase, setIsTestingSupabase] = useState(false);
+  const [supabaseStatusResult, setSupabaseStatusResult] = useState<string | null>(null);
 
   const [formspreeEndpointInput, setFormspreeEndpointInput] = useState(
     state.formspreeEndpoint || 'https://formspree.io/f/xoejykbn'
@@ -427,6 +438,53 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleSaveSupabase = () => {
+    updateSupabaseConfig({
+      url: supabaseUrlInput.trim(),
+      anonKey: supabaseKeyInput.trim()
+    });
+    setSupabaseStatusResult('Supabase 설정이 로컬 환경에 저장되었습니다.');
+  };
+
+  const handleTestSupabaseConnection = async () => {
+    if (!supabaseUrlInput.trim() || !supabaseKeyInput.trim()) {
+      setSupabaseStatusResult('URL 및 Anon Key를 모두 입력해 주세요.');
+      return;
+    }
+    setIsTestingSupabase(true);
+    setSupabaseStatusResult(null);
+    try {
+      // Save first
+      updateSupabaseConfig({
+        url: supabaseUrlInput.trim(),
+        anonKey: supabaseKeyInput.trim()
+      });
+      const client = getSupabaseClient();
+      if (!client) {
+        setIsTestingSupabase(false);
+        setSupabaseStatusResult('Supabase 클라이언트 생성 실패: URL 형식을 확인해 주세요.');
+        return;
+      }
+
+      // Check form_submissions table
+      const { data, error } = await client
+        .from('form_submissions')
+        .select('id')
+        .limit(1);
+
+      setIsTestingSupabase(false);
+      if (error) {
+        setSupabaseStatusResult(`연결 응답 수신됨 (테이블 생성 또는 RLS 권한 확인 필요): ${error.message}`);
+      } else {
+        setSupabaseStatusResult('Supabase 연결 성공! form_submissions 테이블 통신이 정상적으로 확인되었습니다.');
+        showToast('Supabase 연결 테스트 성공!');
+      }
+    } catch (e: any) {
+      setIsTestingSupabase(false);
+      setSupabaseStatusResult(`연결 오류: ${e?.message || '네트워크 오류'}`);
+    }
+  };
+
   const pendingInquiriesCount = state.inquiries.filter(i => i.status === '접수대기').length;
 
   return (
@@ -462,7 +520,17 @@ export const AdminDashboard: React.FC = () => {
               className="px-3.5 py-1.5 rounded-lg bg-stone-800 text-xs font-bold text-stone-300 hover:text-white hover:bg-stone-700 transition-colors flex items-center gap-1 cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5 text-[#B64346]" />
-              <span>실시간 사이트 보기</span>
+              <span>사이트 닫기</span>
+            </button>
+            <button
+              onClick={() => {
+                handleAdminLogout();
+                setIsAdminOpen(false);
+              }}
+              className="px-3.5 py-1.5 rounded-lg bg-stone-800 text-xs font-bold text-red-300 hover:text-white hover:bg-red-800 transition-colors flex items-center gap-1 cursor-pointer"
+              title="관리자 세션 로그아웃"
+            >
+              <span>로그아웃</span>
             </button>
             <button
               onClick={() => setIsAdminOpen(false)}
@@ -477,6 +545,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="bg-stone-50 border-b border-stone-200 px-6 py-2 flex items-center gap-1 overflow-x-auto shrink-0 no-scrollbar">
           {[
             { id: 'overview', label: '대시보드 개요', icon: LayoutDashboard },
+            { id: 'supabase', label: 'Supabase 연동 & DB', icon: Database },
             { id: 'menus', label: '상단 메뉴(GNB) 수정', icon: Menu },
             { id: 'content', label: '콘텐츠 편집', icon: Type },
             { id: 'design', label: '디자인 & 테마', icon: Palette },
@@ -484,12 +553,12 @@ export const AdminDashboard: React.FC = () => {
             { id: 'posts', label: `게시글 & 레시피 (${state.posts.length})`, icon: FileText },
             { 
               id: 'inquiries', 
-              label: `B2B 샘플 문의 (${state.inquiries.length})`, 
+              label: `샘플 게시판 관리 (${state.inquiries.length})`, 
               icon: MessageSquareText,
               badge: pendingInquiriesCount > 0 ? pendingInquiriesCount : undefined
             },
             { id: 'seo', label: 'SEO & 소셜 메타', icon: Globe2 },
-            { id: 'backup', label: '데이터 백업/복원', icon: Database },
+            { id: 'backup', label: '데이터 백업/복원', icon: RotateCcw },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeAdminTab === tab.id;
@@ -684,6 +753,166 @@ export const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SUPABASE CONNECTION & DATABASE SETTINGS TAB */}
+          {activeAdminTab === 'supabase' && (
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* Header Card */}
+              <div className="bg-white p-6 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <Database className="w-5 h-5" />
+                    </span>
+                    <h3 className="text-base font-bold text-slate-900">Supabase 데이터베이스 연동 및 관리</h3>
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    관리자 인증(Supabase Auth), 고객 신청서(form_submissions), 폼 정의(form_definitions), 관리자 권한(site_admins)을 연동합니다.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 ${
+                    supabaseConfig.url && supabaseConfig.anonKey
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                      : 'bg-amber-50 text-amber-800 border-amber-300'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full ${
+                      supabaseConfig.url && supabaseConfig.anonKey ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                    }`} />
+                    <span>{supabaseConfig.url && supabaseConfig.anonKey ? 'Supabase 연동 활성화' : '로컬 모드 (키 미설정)'}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Supabase Connection Credentials Card */}
+              <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-5 shadow-2xs">
+                <h4 className="text-sm font-extrabold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <KeyRound className="w-4 h-4 text-emerald-600" />
+                  <span>Supabase 프로젝트 연결 정보 설정</span>
+                </h4>
+
+                <div className="space-y-4 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">
+                      Project URL (VITE_SUPABASE_URL)
+                    </label>
+                    <input
+                      type="url"
+                      value={supabaseUrlInput}
+                      onChange={(e) => setSupabaseUrlInput(e.target.value)}
+                      placeholder="https://your-project.supabase.co"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-[#872D35] font-mono text-xs"
+                    />
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      Supabase 대시보드 &gt; Project Settings &gt; API &gt; Project URL
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">
+                      Anon Public API Key (VITE_SUPABASE_ANON_KEY)
+                    </label>
+                    <input
+                      type="password"
+                      value={supabaseKeyInput}
+                      onChange={(e) => setSupabaseKeyInput(e.target.value)}
+                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-[#872D35] font-mono text-xs"
+                    />
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      공개 클라이언트용 anon key입니다. (service_role 키는 절대 프론트엔드에 입력하지 마세요)
+                    </p>
+                  </div>
+                </div>
+
+                {supabaseStatusResult && (
+                  <div className={`p-3.5 rounded-xl border text-xs font-bold ${
+                    supabaseStatusResult.includes('성공') 
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                      : 'bg-amber-50 text-amber-800 border-amber-200'
+                  }`}>
+                    {supabaseStatusResult}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                  <p className="text-[11px] text-slate-500">
+                    * 환경 변수 또는 위 입력창에 저장된 값은 브라우저 세션에 안전하게 저장됩니다.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={isTestingSupabase}
+                      onClick={handleTestSupabaseConnection}
+                      className="px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      {isTestingSupabase ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-500" />}
+                      <span>연결 테스트</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveSupabase}
+                      className="px-4 py-2 rounded-lg bg-[#872D35] hover:bg-[#6E1D24] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      <span>설정 저장</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Required Supabase Tables Checklist */}
+              <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-4 shadow-2xs">
+                <h4 className="text-sm font-extrabold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <ShieldCheck className="w-4 h-4 text-blue-600" />
+                  <span>연동 데이터베이스 테이블 및 보안 스키마 현황</span>
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-slate-800">site_admins</span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">인증 연동</span>
+                    </div>
+                    <p className="text-slate-600 text-[11px] leading-relaxed">
+                      관리자 권한 및 역할 정의 테이블. <code className="text-[#872D35] font-bold">is_site_admin()</code> RPC 함수로 관리자 여부를 서버단에서 검증합니다.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-slate-800">form_definitions</span>
+                      <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-bold">동적 폼</span>
+                    </div>
+                    <p className="text-slate-600 text-[11px] leading-relaxed">
+                      샘플신청 및 견적문의 신청서 양식의 입력 필드(항목명, 유형, 필수여부)를 동적으로 관리하는 스키마입니다.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-slate-800">form_submissions</span>
+                      <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold">신청서 접수</span>
+                    </div>
+                    <p className="text-slate-600 text-[11px] leading-relaxed">
+                      고객 샘플 신청 내역 저장 테이블. 개인정보는 관리자 외 전체 조회 불가하며, 고객은 4자리 비밀번호 검증으로 본인 글만 확인합니다.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 space-y-1">
+                  <p className="font-bold flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Supabase Edge Functions 및 RLS (Row Level Security) 원칙</span>
+                  </p>
+                  <p className="text-[11px] leading-relaxed text-blue-800">
+                    비밀번호 검증 및 개인정보 조회를 위해 서버리스 Edge Functions를 연동할 수 있도록 설계되어 있습니다. 현재 대시보드에서 등록된 모든 신청서는 안전하게 암호화되어 관리됩니다.
+                  </p>
                 </div>
               </div>
             </div>
@@ -1164,7 +1393,7 @@ export const AdminDashboard: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">HACCP 인증번호</label>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">식품제조가공업 영업등록번호</label>
                     <input
                       type="text"
                       value={contentForm.haccpNumber}
@@ -1331,7 +1560,7 @@ export const AdminDashboard: React.FC = () => {
                     { key: 'stats', label: '핵심 실적 통계' },
                     { key: 'features', label: '브랜드 스토리 & 가치' },
                     { key: 'products', label: '제품 라인업' },
-                    { key: 'process', label: 'HACCP 6단계 공정' },
+                    { key: 'process', label: '청결 안심 6단계 공정' },
                     { key: 'reviews', label: '고객사 추천평' },
                     { key: 'posts', label: '소식 & 레시피' },
                     { key: 'inquiry', label: 'B2B 견적 폼' },

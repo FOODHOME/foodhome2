@@ -41,12 +41,12 @@ export const Footer: React.FC = () => {
             {/* Quick Badges */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-stone-300">
               <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/10">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#B64346]" />
-                식약처 HACCP 인증
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                우리 가족 안심 먹거리
               </span>
               <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/10">
                 <Truck className="w-3.5 h-3.5 text-[#B64346]" />
-                전국 콜드체인 직배송
+                전국 콜드체인 익일 직배송
               </span>
             </div>
 
@@ -158,7 +158,7 @@ export const Footer: React.FC = () => {
 
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             <span><strong>공장 및 연구소</strong>: {content.factoryAddress}</span>
-            <span><strong>HACCP 인증번호</strong>: {content.haccpNumber}</span>
+            <span><strong>영업등록</strong>: {content.haccpNumber}</span>
           </div>
 
           <div className="pt-3 border-t border-[#3D3131] mt-3 flex flex-col sm:flex-row items-center justify-between text-stone-500 gap-2">

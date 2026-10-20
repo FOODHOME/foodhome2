@@ -76,7 +76,7 @@ export const StorySection: React.FC = () => {
               </div>
               <div className="flex items-center gap-2 text-xs font-semibold text-[#332525]">
                 <CheckCircle2 className="w-4 h-4 text-[#872D35] shrink-0" />
-                <span>식약처 HACCP 인증 전용 생산라인</span>
+                <span>우리 가족 안심 먹거리 전용 생산라인</span>
               </div>
             </div>
           </div>

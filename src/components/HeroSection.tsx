@@ -143,8 +143,8 @@ export const HeroSection: React.FC = () => {
             {/* Trust Mini Proof */}
             <div className="pt-2 flex items-center gap-4 text-[11px] text-slate-300 font-medium">
               <span className="flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#B64346]" />
-                식약처 HACCP 인증시설
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                우리 가족 안심 위생시설
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">

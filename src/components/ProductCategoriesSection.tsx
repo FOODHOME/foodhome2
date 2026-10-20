@@ -14,7 +14,7 @@ export const ProductCategoriesSection: React.FC = () => {
       description: '물 생김 없이 끝까지 아삭하고 꼬들한 특허 절임 공법의 푸드홈 대표 시그니처',
       imageUrl: './images/prod_bossam_mu.jpg',
       categoryKey: '보쌈무김치',
-      features: ['특허 수분제어 공법', '100% 국내산 제철무', '안심 HACCP 인증']
+      features: ['특허 수분제어 공법', '100% 국내산 제철무', '안심 위생시설 제조']
     },
     {
       id: 'cat-2',

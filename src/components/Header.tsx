@@ -21,7 +21,8 @@ export const Header: React.FC = () => {
     setIsSampleModalOpen, 
     setIsWholesaleModalOpen,
     setActivePage,
-    activePage
+    activePage,
+    setCompanyAboutTab
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -34,7 +35,7 @@ export const Header: React.FC = () => {
     setMobileMenuOpen(false);
     setActiveDropdown(null);
 
-    if (sectionId) {
+    if (sectionId && page === 'home') {
       setTimeout(() => {
         const el = document.getElementById(sectionId);
         if (el) {
@@ -61,37 +62,38 @@ export const Header: React.FC = () => {
           id: 'about',
           name: '회사소개',
           visible: true,
-          actionType: 'scroll' as const,
-          target: 'footer-section',
+          actionType: 'page' as const,
+          target: 'about',
           submenus: [
-            { id: 'sub-about-1', label: '브랜드 스토리', actionType: 'scroll' as const, target: 'footer-section' },
-            { id: 'sub-about-2', label: '전통과 철학', actionType: 'scroll' as const, target: 'footer-section' },
-            { id: 'sub-about-3', label: '본사 및 공장 위치', actionType: 'scroll' as const, target: 'footer-section' }
+            { id: 'sub-about-1', label: '회사소개 & CEO 인사말', actionType: 'page' as const, target: 'about-intro' },
+            { id: 'sub-about-2', label: '생산 & 물류시스템', actionType: 'page' as const, target: 'about-system' },
+            { id: 'sub-about-3', label: '인허가사항', actionType: 'page' as const, target: 'about-permits' },
+            { id: 'sub-about-4', label: '오시는 길', actionType: 'page' as const, target: 'about-location' }
           ]
         },
         {
           id: 'products',
           name: '제품소개',
           visible: true,
-          actionType: 'scroll' as const,
-          target: 'product-slider-section',
+          actionType: 'page' as const,
+          target: 'products',
           submenus: [
-            { id: 'sub-prod-1', label: '명품 보쌈무김치', actionType: 'scroll' as const, target: 'product-slider-section' },
-            { id: 'sub-prod-2', label: '비법 보쌈김칫속', actionType: 'scroll' as const, target: 'product-slider-section' },
-            { id: 'sub-prod-3', label: '업소용 대용량 (10kg)', actionType: 'scroll' as const, target: 'product-slider-section' },
-            { id: 'sub-prod-4', label: '소포장 & 밀키트 (500g)', actionType: 'scroll' as const, target: 'product-slider-section' }
+            { id: 'sub-prod-1', label: '명품 보쌈무김치', actionType: 'page' as const, target: 'products' },
+            { id: 'sub-prod-2', label: '비법 보쌈김칫속', actionType: 'page' as const, target: 'products' },
+            { id: 'sub-prod-3', label: '업소용 대용량 (10kg)', actionType: 'page' as const, target: 'products' },
+            { id: 'sub-prod-4', label: '소포장 & 밀키트 (500g)', actionType: 'page' as const, target: 'products' }
           ]
         },
         {
-          id: 'facility',
-          name: '제조공정',
+          id: 'sample-board',
+          name: '샘플신청',
           visible: true,
-          actionType: 'wholesale' as const,
-          target: '',
+          actionType: 'page' as const,
+          target: 'sample-board',
           submenus: [
-            { id: 'sub-fac-1', label: 'HACCP 위생 인증 시설', actionType: 'wholesale' as const, target: '' },
-            { id: 'sub-fac-2', label: '특허 수분제어 절임공법', actionType: 'scroll' as const, target: 'product-slider-section' },
-            { id: 'sub-fac-3', label: '콜드체인 익일 직배송', actionType: 'scroll' as const, target: 'action-banners-section' }
+            { id: 'sub-sample-1', label: '샘플신청 게시판', actionType: 'page' as const, target: 'sample-board' },
+            { id: 'sub-sample-2', label: '신청글 작성하기', actionType: 'page' as const, target: 'sample-board-write' },
+            { id: 'sub-sample-3', label: '샘플 발송 현황 조회', actionType: 'page' as const, target: 'sample-board' }
           ]
         },
         {
@@ -101,37 +103,65 @@ export const Header: React.FC = () => {
           actionType: 'wholesale' as const,
           target: '',
           submenus: [
-            { id: 'sub-who-1', label: 'B2B 대량공급 절차 안내', actionType: 'scroll' as const, target: 'action-banners-section' },
+            { id: 'sub-who-1', label: 'B2B 대량공급 절차 안내', actionType: 'wholesale' as const, target: '' },
             { id: 'sub-who-2', label: '프랜차이즈 맞춤 OEM/PB', actionType: 'wholesale' as const, target: '' },
-            { id: 'sub-who-3', label: '사업자 1kg 무료 샘플팩', actionType: 'sample' as const, target: '' }
+            { id: 'sub-who-3', label: '사업자 1kg 무료 샘플팩', actionType: 'page' as const, target: 'sample-board-write' }
           ]
         },
         {
           id: 'cs',
           name: '고객센터',
           visible: true,
-          actionType: 'sample' as const,
-          target: '',
+          actionType: 'scroll' as const,
+          target: 'footer-section',
           submenus: [
-            { id: 'sub-cs-1', label: '사업자 무료 샘플 신청', actionType: 'sample' as const, target: '' },
+            { id: 'sub-cs-1', label: '사업자 무료 샘플 신청', actionType: 'page' as const, target: 'sample-board' },
             { id: 'sub-cs-2', label: '1:1 대량 납품·견적 상담', actionType: 'wholesale' as const, target: '' },
-            { id: 'sub-cs-3', label: '고객센터 유선 전화연결', actionType: 'scroll' as const, target: 'footer-section' }
+            { id: 'sub-cs-3', label: '고객센터 유선 전화안내', actionType: 'scroll' as const, target: 'footer-section' }
           ]
         }
       ];
 
-  const handleMenuAction = (actionType?: string, target?: string, fallbackTarget?: string) => {
+  const handleMenuAction = (actionType?: string, target?: string, fallbackTarget?: string, menuId?: string) => {
     setActiveDropdown(null);
     setMobileMenuOpen(false);
 
-    if (actionType === 'sample') {
-      setIsSampleModalOpen(true);
+    // Route to subpage or tab
+    if (target === 'about' || menuId === 'about' || target?.startsWith('about-')) {
+      if (target?.startsWith('about-')) {
+        const tab = target.replace('about-', '');
+        setCompanyAboutTab(tab);
+      } else {
+        setCompanyAboutTab('intro');
+      }
+      setActivePage('about');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+
+    if (target === 'products' || menuId === 'products') {
+      setActivePage('products');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (target === 'sample-board' || target === 'sample-board-write' || menuId === 'sample-board') {
+      setActivePage(target || 'sample-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (actionType === 'sample') {
+      setActivePage('sample-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (actionType === 'wholesale') {
       setIsWholesaleModalOpen(true);
       return;
     }
+
     if (actionType === 'url' && target) {
       if (target.startsWith('http')) {
         window.open(target, '_blank');
@@ -152,16 +182,12 @@ export const Header: React.FC = () => {
   return (
     <header className="sticky top-0 z-40 bg-white/98 backdrop-blur-md border-b border-[#EEEAE6] shadow-2xs">
       {/* Top Thin Information Bar */}
-      <div className="bg-[#332525] text-[#D8CDC9] text-[11px] py-1.5 px-4 sm:px-8 border-b border-[#443333]">
+      <div className="bg-[#2A2020] text-[#D8CDC9] text-[11px] py-2 px-4 sm:px-8 border-b border-[#3D2E2E]">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1 font-semibold text-[#E8B4B8]">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#B64346]" />
-              식약처 HACCP 인증 공식 제조원
-            </span>
-            <span className="hidden md:inline text-[#554343]">|</span>
-            <span className="hidden md:inline text-[#C0B2AE]">
-              전국 족발·보쌈 외식업소 매일 아침 콜드체인 직배송
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 font-bold text-white tracking-wide text-xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              우리 가족이 먹을 수 있는 안전한 푸드를 제공하는 푸드홈 입니다.
             </span>
           </div>
 
@@ -216,7 +242,7 @@ export const Header: React.FC = () => {
                 onMouseLeave={() => setActiveDropdown(null)}
               >
                 <button
-                  onClick={() => handleMenuAction(item.actionType, item.target, item.id === 'about' ? 'footer-section' : item.id === 'products' ? 'product-slider-section' : item.id === 'wholesale' ? 'action-banners-section' : undefined)}
+                  onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id)}
                   className="text-sm font-bold text-[#332525] group-hover:text-[#872D35] flex items-center gap-1 transition-colors py-2"
                 >
                   <span>{item.name}</span>
@@ -231,7 +257,7 @@ export const Header: React.FC = () => {
                     {item.submenus.map((sub) => (
                       <button
                         key={sub.id}
-                        onClick={() => handleMenuAction(sub.actionType, sub.target)}
+                        onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id)}
                         className="w-full text-left px-4 py-2.5 text-xs font-semibold text-[#554343] hover:text-[#872D35] hover:bg-[#FAF8F5] transition-colors flex items-center justify-between group/sub"
                       >
                         <span>{sub.label}</span>
@@ -289,7 +315,7 @@ export const Header: React.FC = () => {
           {navMenus.map((item) => (
             <div key={item.id} className="border-b border-[#FAF8F5] pb-2">
               <button
-                onClick={() => handleMenuAction(item.actionType, item.target, item.id === 'about' ? 'footer-section' : item.id === 'products' ? 'product-slider-section' : item.id === 'wholesale' ? 'action-banners-section' : undefined)}
+                onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id)}
                 className="text-xs font-black text-[#872D35] uppercase tracking-wider block mb-1 hover:underline text-left cursor-pointer"
               >
                 {item.name}
@@ -299,7 +325,7 @@ export const Header: React.FC = () => {
                   {item.submenus.map((sub) => (
                     <button
                       key={sub.id}
-                      onClick={() => handleMenuAction(sub.actionType, sub.target)}
+                      onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id)}
                       className="text-left py-1 text-xs text-[#554343] hover:text-[#872D35] font-medium cursor-pointer"
                     >
                       {sub.label}
