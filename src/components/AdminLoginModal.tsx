@@ -96,7 +96,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
                   setEmailOrId(e.target.value);
                   setErrorMessage(null);
                 }}
-                placeholder="ID (예: foodh1905) 또는 Supabase Auth 이메일"
+                placeholder="관리자 ID 또는 이메일"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:outline-none focus:border-[#872D35] bg-stone-50"
               />
             </div>
@@ -126,17 +126,6 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
               {errorMessage}
             </div>
           )}
-
-          {/* Quick Demo Helper Hint */}
-          <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-[11px] text-stone-600 space-y-1">
-            <div className="flex items-center gap-1 font-bold text-stone-800">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#872D35]" />
-              <span>로그인 안내</span>
-            </div>
-            <p>
-              Supabase Auth 가입 계정 또는 기본 관리자 계정(ID: <strong className="font-mono text-stone-900">foodh1905</strong>, PW: <strong className="font-mono text-stone-900">foodhome2025!</strong>)으로 즉시 로그인하실 수 있습니다.
-            </p>
-          </div>
 
           <button
             type="submit"
