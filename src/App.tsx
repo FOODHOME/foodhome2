@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
 import { ProductSliderSection } from './components/ProductSliderSection';
+import { RealtimeSampleStatusSection } from './components/RealtimeSampleStatusSection';
 import { ActionBannersSection } from './components/ActionBannersSection';
 import { ProductCategoriesSection } from './components/ProductCategoriesSection';
 import { ProductSection } from './components/ProductSection';
@@ -19,15 +20,14 @@ import { SampleInquirySection } from './components/SampleInquirySection';
 import { Footer } from './components/Footer';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { PostDetailModal } from './components/PostDetailModal';
-import { SampleModal } from './components/SampleModal';
-import { WholesaleModal } from './components/WholesaleModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { CompanyAboutPage } from './components/CompanyAboutPage';
 import { ProductsPage } from './components/ProductsPage';
 import { SampleBoardPage } from './components/SampleBoardPage';
+import { QuoteBoardPage } from './components/QuoteBoardPage';
 import { Toast } from './components/Toast';
-import { Settings, Sparkles, ArrowUp } from 'lucide-react';
+import { Sparkles, ArrowUp } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   const { 
@@ -36,16 +36,13 @@ const MainContent: React.FC = () => {
     setActivePage,
     isAdminOpen, 
     setIsAdminOpen, 
-    isAdminLoggedIn,
-    setIsSampleModalOpen 
+    isAdminLoggedIn
   } = useApp();
   const { theme } = state;
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const pendingInquiriesCount = state.inquiries.filter(i => i.status === '접수대기' || i.status === '접수완료').length;
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#2A2020]">
@@ -58,12 +55,18 @@ const MainContent: React.FC = () => {
         {activePage === 'products' && <ProductsPage />}
         {activePage === 'sample-board' && <SampleBoardPage initialViewMode="list" />}
         {activePage === 'sample-board-write' && <SampleBoardPage initialViewMode="write" />}
+        {activePage === 'quote-board' && <QuoteBoardPage initialViewMode="list" />}
+        {activePage === 'quote-board-write' && <QuoteBoardPage initialViewMode="write" />}
         
         {/* Home Page Flow */}
         {(activePage === 'home' || !activePage) && (
           <>
             {theme.sectionsVisible.hero && <HeroSection />}
             {theme.sectionsVisible.productSlider && <ProductSliderSection />}
+            
+            {/* Realtime Sample Status Section inserted between Product Slider & Action Banners */}
+            <RealtimeSampleStatusSection />
+
             {theme.sectionsVisible.actionBanners && <ActionBannersSection />}
             {theme.sectionsVisible.productCategories && <ProductCategoriesSection />}
             {theme.sectionsVisible.products && <ProductSection />}
@@ -82,10 +85,8 @@ const MainContent: React.FC = () => {
       {/* Modals & Overlays */}
       <ProductDetailModal />
       <PostDetailModal />
-      <SampleModal />
-      <WholesaleModal />
 
-      {/* Admin Auth Modal or Dashboard */}
+      {/* Admin Auth Modal or Dashboard (Accessible ONLY via Footer Button) */}
       {isAdminOpen && (
         isAdminLoggedIn ? (
           <AdminDashboard />
@@ -95,28 +96,6 @@ const MainContent: React.FC = () => {
       )}
 
       <Toast />
-
-      {/* Floating Bottom Action Bar (Admin Mode Toggle) */}
-      <div className="fixed bottom-5 left-5 z-40 flex items-center gap-2">
-        <button
-          onClick={() => setIsAdminOpen(true)}
-          className="flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-[#2A2020]/95 hover:bg-[#2A2020] text-white text-xs font-bold shadow-xl border border-stone-700/80 backdrop-blur-md transition-all hover:scale-105 cursor-pointer group"
-          title="웹사이트 관리자 모드 열기"
-        >
-          <div className="w-5 h-5 rounded-full bg-[#872D35] flex items-center justify-center text-white">
-            <Settings className="w-3.5 h-3.5 group-hover:rotate-90 transition-transform" />
-          </div>
-          <span>관리자 모드</span>
-          {isAdminLoggedIn && (
-            <span className="w-2 h-2 rounded-full bg-emerald-400" title="로그인됨" />
-          )}
-          {pendingInquiriesCount > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full bg-[#B64346] text-white text-[10px] font-extrabold animate-pulse">
-              {pendingInquiriesCount}
-            </span>
-          )}
-        </button>
-      </div>
 
       {/* Floating Scroll to Top & Quick Sample CTA (Bottom Right) */}
       <div className="fixed bottom-5 right-5 z-40 flex items-center gap-2">

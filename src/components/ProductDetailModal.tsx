@@ -14,7 +14,7 @@ export const ProductDetailModal: React.FC = () => {
   const { 
     selectedProductForDetail, 
     setSelectedProductForDetail, 
-    setIsSampleModalOpen,
+    setActivePage,
     state 
   } = useApp();
 
@@ -144,7 +144,8 @@ export const ProductDetailModal: React.FC = () => {
             <button
               onClick={() => {
                 setSelectedProductForDetail(null);
-                setIsSampleModalOpen(true);
+                setActivePage('sample-board-write');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               className="px-5 py-2 text-xs font-bold text-white rounded-lg shadow-2xs hover:bg-[#6D242B] transition-colors flex items-center gap-1.5 cursor-pointer bg-[#872D35]"
             >

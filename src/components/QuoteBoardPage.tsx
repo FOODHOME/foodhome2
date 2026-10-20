@@ -467,7 +467,9 @@ export const QuoteBoardPage: React.FC<QuoteBoardPageProps> = ({ initialViewMode 
                           {quote.title}
                         </span>
                         {quote.attachments && quote.attachments.length > 0 && (
-                          <Paperclip className="w-3 h-3 text-stone-400 shrink-0" title="첨부파일 있음" />
+                          <span title="첨부파일 있음" className="inline-flex items-center">
+                            <Paperclip className="w-3 h-3 text-stone-400 shrink-0" />
+                          </span>
                         )}
                         {quote.adminReply && (
                           <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 shrink-0">

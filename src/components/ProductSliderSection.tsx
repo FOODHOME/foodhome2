@@ -6,7 +6,7 @@ export const ProductSliderSection: React.FC = () => {
   const { 
     state, 
     setSelectedProductForDetail, 
-    setIsSampleModalOpen 
+    setActivePage 
   } = useApp();
 
   const sliderRef = useRef<HTMLDivElement>(null);

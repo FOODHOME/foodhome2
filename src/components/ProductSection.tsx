@@ -17,7 +17,7 @@ export const ProductSection: React.FC = () => {
   const { 
     state, 
     setSelectedProductForDetail, 
-    setIsSampleModalOpen,
+    setActivePage,
     setIsWholesaleModalOpen,
     setIsAdminOpen,
     setActiveAdminTab
@@ -188,7 +188,10 @@ export const ProductSection: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={() => setIsSampleModalOpen(true)}
+                    onClick={() => {
+                      setActivePage('sample-board-write');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold text-white bg-[#872D35] hover:bg-[#6D242B] transition-colors shadow-2xs cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5" />

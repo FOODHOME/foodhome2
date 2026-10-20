@@ -5,6 +5,13 @@ import { initialData } from '../data/initialData';
 import { FoodhomeLogo } from './FoodhomeLogo';
 import { submitToFormspree } from '../utils/formspree';
 import { getSupabaseClient } from '../lib/supabase';
+import { MainBannerManager } from './admin/MainBannerManager';
+import { QuoteInquiriesManager } from './admin/QuoteInquiriesManager';
+import { ContentManager } from './admin/ContentManager';
+import { FormConfigManager } from './admin/FormConfigManager';
+import { SiteInfoManager } from './admin/SiteInfoManager';
+import { AdminAccountManager } from './admin/AdminAccountManager';
+import { DatabaseSqlManager } from './admin/DatabaseSqlManager';
 import { 
   X, 
   LayoutDashboard, 
@@ -545,18 +552,28 @@ export const AdminDashboard: React.FC = () => {
         <div className="bg-stone-50 border-b border-stone-200 px-6 py-2 flex items-center gap-1 overflow-x-auto shrink-0 no-scrollbar">
           {[
             { id: 'overview', label: '대시보드 개요', icon: LayoutDashboard },
-            { id: 'supabase', label: 'Supabase 연동 & DB', icon: Database },
-            { id: 'menus', label: '상단 메뉴(GNB) 수정', icon: Menu },
-            { id: 'content', label: '콘텐츠 편집', icon: Type },
-            { id: 'design', label: '디자인 & 테마', icon: Palette },
-            { id: 'products', label: `제품 관리 (${state.products.length})`, icon: Package },
-            { id: 'posts', label: `게시글 & 레시피 (${state.posts.length})`, icon: FileText },
+            { id: 'banners', label: `메인 배너 관리 (${(state.content.banners || []).length})`, icon: ImageIcon },
+            { 
+              id: 'quotes', 
+              label: `대량 견적상담 관리 (${(state.quotes || []).length})`, 
+              icon: MessageSquareText,
+              badge: (state.quotes || []).filter(q => q.status === '접수완료' || q.status === '상담중').length || undefined
+            },
             { 
               id: 'inquiries', 
               label: `샘플 게시판 관리 (${state.inquiries.length})`, 
               icon: MessageSquareText,
               badge: pendingInquiriesCount > 0 ? pendingInquiriesCount : undefined
             },
+            { id: 'all_content', label: '홈페이지 전체내용 직접수정', icon: Type },
+            { id: 'menus', label: '상단 메뉴(GNB) 수정', icon: Menu },
+            { id: 'form_config', label: '견적신청폼 항목 설정', icon: Sliders },
+            { id: 'products', label: `제품 관리 (${state.products.length})`, icon: Package },
+            { id: 'posts', label: `게시글 & 레시피 (${state.posts.length})`, icon: FileText },
+            { id: 'site_info', label: '회사 기본정보 관리', icon: Globe2 },
+            { id: 'design', label: '디자인 & 테마', icon: Palette },
+            { id: 'admin_security', label: '관리자 보안/계정', icon: ShieldCheck },
+            { id: 'supabase', label: 'Supabase 연동 & DB', icon: Database },
             { id: 'seo', label: 'SEO & 소셜 메타', icon: Globe2 },
             { id: 'backup', label: '데이터 백업/복원', icon: RotateCcw },
           ].map(tab => {
@@ -755,6 +772,48 @@ export const AdminDashboard: React.FC = () => {
                   ))}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* MAIN BANNER MANAGER TAB */}
+          {activeAdminTab === 'banners' && (
+            <div className="max-w-6xl mx-auto">
+              <MainBannerManager />
+            </div>
+          )}
+
+          {/* 1:1 QUOTE INQUIRIES TAB */}
+          {activeAdminTab === 'quotes' && (
+            <div className="max-w-6xl mx-auto">
+              <QuoteInquiriesManager />
+            </div>
+          )}
+
+          {/* ALL PAGES CONTENT MANAGER TAB */}
+          {activeAdminTab === 'all_content' && (
+            <div className="max-w-6xl mx-auto">
+              <ContentManager />
+            </div>
+          )}
+
+          {/* QUOTE FORM CONFIG TAB */}
+          {activeAdminTab === 'form_config' && (
+            <div className="max-w-5xl mx-auto">
+              <FormConfigManager />
+            </div>
+          )}
+
+          {/* SITE INFO TAB */}
+          {activeAdminTab === 'site_info' && (
+            <div className="max-w-5xl mx-auto">
+              <SiteInfoManager />
+            </div>
+          )}
+
+          {/* ADMIN SECURITY / ACCOUNT TAB */}
+          {activeAdminTab === 'admin_security' && (
+            <div className="max-w-4xl mx-auto">
+              <AdminAccountManager />
             </div>
           )}
 
