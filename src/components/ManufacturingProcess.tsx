@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 
 export const ManufacturingProcess: React.FC = () => {
+  const { state } = useApp();
+  const cfg = state.content.mainSections?.find(s => s.id === 'process');
+
   const steps = [
     {
       step: '01',
@@ -65,13 +68,13 @@ export const ManufacturingProcess: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#E8E2DC] text-[11px] font-bold text-[#872D35]">
             <ShieldCheck className="w-3.5 h-3.5 text-[#872D35]" />
-            <span>청결 안심 위생 스마트 팩토리</span>
+            <span>{cfg?.badge || '청결 안심 위생 스마트 팩토리'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2A2020] tracking-tight">
-            한치의 타협도 없는 6단계 안심 위생 제조공정
+            {cfg?.title || '한치의 타협도 없는 6단계 안심 위생 제조공정'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-normal">
-            우리 가족이 먹는다는 철저한 품질 관리로 480개 외식 파트너 매장의 믿음을 지킵니다.
+            {cfg?.description || '우리 가족이 먹는다는 철저한 품질 관리로 480개 외식 파트너 매장의 믿음을 지킵니다.'}
           </p>
         </div>
 

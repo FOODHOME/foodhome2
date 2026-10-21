@@ -14,6 +14,7 @@ import {
 
 export const SampleInquirySection: React.FC = () => {
   const { addInquiry, state, showToast } = useApp();
+  const cfg = state.content.mainSections?.find(s => s.id === 'inquiry');
 
   const [formData, setFormData] = useState<{
     companyName: string;
@@ -111,17 +112,20 @@ export const SampleInquirySection: React.FC = () => {
           <div className="lg:col-span-5 space-y-4">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8E2DC] text-[11px] font-bold text-[#872D35]">
               <Sparkles className="w-3.5 h-3.5 text-[#872D35]" />
-              <span>B2B WHOLESALE & SAMPLE</span>
+              <span>{cfg?.badge || 'B2B WHOLESALE & SAMPLE'}</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2A2020] tracking-tight leading-snug">
-              외식업 사장님을 위한 <br />
-              <span className="text-[#872D35]">무료 샘플 1kg</span> & 맞춤 견적
+              {cfg?.title || (
+                <>
+                  외식업 사장님을 위한 <br />
+                  <span className="text-[#872D35]">무료 샘플 1kg</span> & 맞춤 견적
+                </>
+              )}
             </h2>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-              식자재는 맛과 아삭함을 직접 경험해보셔야 결정하실 수 있습니다. 
-              현재 매장을 운영 중이신 사업자 또는 창업 예정자분들께 푸드홈 명품 보쌈무김치 1kg 무료 샘플팩과 규격 단가표를 전액 무료로 배송해 드립니다.
+              {cfg?.description || '식자재는 맛과 아삭함을 직접 경험해보셔야 결정하실 수 있습니다. 현재 매장을 운영 중이신 사업자 또는 창업 예정자분들께 푸드홈 명품 보쌈무김치 1kg 무료 샘플팩과 규격 단가표를 전액 무료로 배송해 드립니다.'}
             </p>
 
             {/* Benefits list */}

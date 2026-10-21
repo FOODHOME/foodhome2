@@ -46,6 +46,55 @@ const MainContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Dynamically render main sections based on admin saved order and visibility
+  const mainSectionsList = React.useMemo(() => {
+    if (state.content.mainSections && state.content.mainSections.length > 0) {
+      return [...state.content.mainSections].sort((a, b) => (a.order || 0) - (b.order || 0));
+    }
+    return [
+      { id: 'hero', visible: theme.sectionsVisible?.hero !== false },
+      { id: 'productSlider', visible: theme.sectionsVisible?.productSlider !== false },
+      { id: 'sampleRealtimeStatus', visible: true },
+      { id: 'actionBanners', visible: theme.sectionsVisible?.actionBanners !== false },
+      { id: 'productCategories', visible: theme.sectionsVisible?.productCategories !== false },
+      { id: 'products', visible: theme.sectionsVisible?.products !== false },
+      { id: 'features', visible: theme.sectionsVisible?.features !== false },
+      { id: 'process', visible: theme.sectionsVisible?.process !== false },
+      { id: 'reviews', visible: theme.sectionsVisible?.reviews !== false },
+      { id: 'posts', visible: theme.sectionsVisible?.posts !== false },
+      { id: 'inquiry', visible: theme.sectionsVisible?.inquiry !== false }
+    ];
+  }, [state.content.mainSections, theme.sectionsVisible]);
+
+  const renderSectionById = (id: string) => {
+    switch (id) {
+      case 'hero':
+        return <HeroSection key="hero" />;
+      case 'productSlider':
+        return <ProductSliderSection key="productSlider" />;
+      case 'sampleRealtimeStatus':
+        return <RealtimeSampleStatusSection key="sampleRealtimeStatus" />;
+      case 'actionBanners':
+        return <ActionBannersSection key="actionBanners" />;
+      case 'productCategories':
+        return <ProductCategoriesSection key="productCategories" />;
+      case 'products':
+        return <ProductSection key="products" />;
+      case 'features':
+        return <StorySection key="features" />;
+      case 'process':
+        return <ManufacturingProcess key="process" />;
+      case 'reviews':
+        return <PartnersAndReviews key="reviews" />;
+      case 'posts':
+        return <BlogNoticeSection key="posts" />;
+      case 'inquiry':
+        return <SampleInquirySection key="inquiry" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#2A2020]">
       {/* Global Header */}
@@ -63,23 +112,12 @@ const MainContent: React.FC = () => {
         {activePage === 'faq-board' && <FaqBoardPage />}
         {activePage === 'posts' && <BlogNoticeSection />}
         
-        {/* Home Page Flow */}
+        {/* Home Page Flow: Dynamic order and visibility configured via Admin MainSectionsManager */}
         {(activePage === 'home' || !activePage) && (
           <>
-            {theme.sectionsVisible.hero && <HeroSection />}
-            {theme.sectionsVisible.productSlider && <ProductSliderSection />}
-            
-            {/* Realtime Sample Status Section inserted between Product Slider & Action Banners */}
-            <RealtimeSampleStatusSection />
-
-            {theme.sectionsVisible.actionBanners && <ActionBannersSection />}
-            {theme.sectionsVisible.productCategories && <ProductCategoriesSection />}
-            {theme.sectionsVisible.products && <ProductSection />}
-            {theme.sectionsVisible.features && <StorySection />}
-            {theme.sectionsVisible.process && <ManufacturingProcess />}
-            {theme.sectionsVisible.reviews && <PartnersAndReviews />}
-            {theme.sectionsVisible.posts && <BlogNoticeSection />}
-            {theme.sectionsVisible.inquiry && <SampleInquirySection />}
+            {mainSectionsList
+              .filter(sec => sec.visible !== false)
+              .map(sec => renderSectionById(sec.id))}
           </>
         )}
       </main>

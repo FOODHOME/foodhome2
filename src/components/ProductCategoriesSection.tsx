@@ -4,6 +4,7 @@ import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 
 export const ProductCategoriesSection: React.FC = () => {
   const { state } = useApp();
+  const cfg = state.content.mainSections?.find(s => s.id === 'productCategories');
 
   const categories = [
     {
@@ -64,13 +65,13 @@ export const ProductCategoriesSection: React.FC = () => {
         {/* Section Heading */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8E2DC] text-[11px] font-bold text-[#872D35] mb-2.5">
-            <span>FOOD CATEGORIES</span>
+            <span>{cfg?.badge || 'FOOD CATEGORIES'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2A2020] tracking-tight">
-            전문 외식업소를 위한 4대 제품 라인업
+            {cfg?.title || '전문 외식업소를 위한 4대 제품 라인업'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-2">
-            업종과 주방 운영 형태에 맞춰 최적화된 패키지와 레시피를 제안합니다.
+            {cfg?.description || '업종과 주방 운영 형태에 맞춰 최적화된 패키지와 레시피를 제안합니다.'}
           </p>
         </div>
 

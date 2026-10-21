@@ -9,9 +9,12 @@ import {
   CheckCircle2
 } from 'lucide-react';
 
-export const StorySection: React.FC = () => {
+import { MainSectionConfig } from '../types';
+
+export const StorySection: React.FC<{ config?: MainSectionConfig }> = ({ config }) => {
   const { state } = useApp();
   const { content } = state;
+  const cfg = config || state.content.mainSections?.find(s => s.id === 'features');
 
   const renderIcon = (name: string) => {
     switch (name) {
@@ -35,13 +38,13 @@ export const StorySection: React.FC = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8E2DC] text-[11px] font-bold text-[#872D35]">
-            <span>BRAND HERITAGE & PHILOSOPHY</span>
+            <span>{cfg?.badge || 'BRAND HERITAGE & PHILOSOPHY'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2A2020] tracking-tight">
-            {content.storyTitle}
+            {cfg?.title || content.storyTitle}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-medium">
-            {content.storySubtitle}
+            {cfg?.description || cfg?.subtitle || content.storySubtitle}
           </p>
         </div>
 

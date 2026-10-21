@@ -43,6 +43,7 @@ export const ProductSection: React.FC = () => {
     : state.products.filter(p => p.category === activeCategory);
 
   const smartStoreUrl = state.social.smartStoreUrl || 'https://smartstore.naver.com/foodhome/products/4266908131';
+  const cfg = state.content.mainSections?.find(s => s.id === 'products');
 
   return (
     <section id="products-section" className="py-12 bg-white border-b border-[#E8E2DC]">
@@ -54,14 +55,14 @@ export const ProductSection: React.FC = () => {
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-2 h-2 rounded-full bg-[#872D35]" />
               <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">
-                PRODUCT CATALOG
+                {cfg?.badge || 'PRODUCT CATALOG'}
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2A2020] tracking-tight">
-              외식업소 맞춤형 명품 보쌈김치 & 비법 김칫속
+              {cfg?.title || '외식업소 맞춤형 명품 보쌈김치 & 비법 김칫속'}
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl font-normal">
-              물 생김 없이 끝까지 아삭한 보쌈무김치부터 굴보쌈·수육의 풍미를 극대화하는 감칠맛 비법 김칫속까지, 전국 480개 매장의 맛을 책임집니다.
+              {cfg?.description || '물 생김 없이 끝까지 아삭한 보쌈무김치부터 굴보쌈·수육의 풍미를 극대화하는 감칠맛 비법 김칫속까지, 전국 480개 매장의 맛을 책임집니다.'}
             </p>
           </div>
 
@@ -77,7 +78,7 @@ export const ProductSection: React.FC = () => {
 
             <button
               onClick={() => {
-                setActiveAdminTab('products');
+                setActiveAdminTab('all_content');
                 setIsAdminOpen(true);
               }}
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg border border-[#E8E2DC] bg-stone-50 text-slate-600 hover:bg-stone-100 transition-colors shadow-2xs cursor-pointer"

@@ -7,8 +7,11 @@ import {
   BadgeCheck 
 } from 'lucide-react';
 
-export const PartnersAndReviews: React.FC = () => {
+import { MainSectionConfig } from '../types';
+
+export const PartnersAndReviews: React.FC<{ config?: MainSectionConfig }> = ({ config }) => {
   const { state } = useApp();
+  const cfg = config || state.content.mainSections?.find(s => s.id === 'reviews');
 
   const partnerBrands = [
     '한양왕족발', '도담보쌈 본점', '원조 장충동할매족발', '제주흑돈명가', 
@@ -22,13 +25,13 @@ export const PartnersAndReviews: React.FC = () => {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8E2DC] text-[11px] font-bold text-[#872D35]">
-            <span>PARTNER TESTIMONIALS</span>
+            <span>{cfg?.badge || 'PARTNER TESTIMONIALS'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2A2020] tracking-tight">
-            전국 480여 개 외식 매장이 푸드홈을 신뢰하는 이유
+            {cfg?.title || '전국 480여 개 외식 매장이 푸드홈을 신뢰하는 이유'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-normal">
-            손님들의 재방문을 부르고 주방 인건비와 음식물 손실을 획기적으로 줄인 실제 사장님들의 솔직한 평가입니다.
+            {cfg?.description || '손님들의 재방문을 부르고 주방 인건비와 음식물 손실을 획기적으로 줄인 실제 사장님들의 솔직한 평가입니다.'}
           </p>
         </div>
 

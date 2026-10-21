@@ -68,10 +68,8 @@ export const SUB_MENU_OPTIONS: Record<string, { id: string; label: string }[]> =
 export const AVAILABLE_BOARDS = [
   { id: 'notice-board', label: '공지사항 게시판' },
   { id: 'faq-board', label: '자주하는 질문 (FAQ) 게시판' },
-  { id: 'recipe-board', label: '레시피 게시판' },
-  { id: 'event-board', label: '이벤트 게시판' },
   { id: 'quote-board', label: '1:1 대량 납품 견적 상담' },
-  { id: 'sample-board', label: '사업자 무료 샘플 신청 게시판' }
+  { id: 'sample-board', label: '사업자 무료 샘플 신청' }
 ];
 
 export const GnbMenuManager: React.FC = () => {
@@ -361,7 +359,7 @@ export const GnbMenuManager: React.FC = () => {
                 </div>
 
                 {/* If Page Selected */}
-                {menu.actionType === 'page' && (
+                {(menu.actionType || 'page') === 'page' && (
                   <>
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 block mb-0.5">이동할 페이지</label>
@@ -395,7 +393,7 @@ export const GnbMenuManager: React.FC = () => {
                 )}
 
                 {/* If Board Selected */}
-                {menu.actionType === 'board' && (
+                {(menu.actionType || 'page') === 'board' && (
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 block mb-0.5">이동할 게시판</label>
                     <select
@@ -410,8 +408,28 @@ export const GnbMenuManager: React.FC = () => {
                   </div>
                 )}
 
+                {/* If Quote Selected */}
+                {(menu.actionType || 'page') === 'quote' && (
+                  <div className="flex items-end">
+                    <span className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" />
+                      대량 납품 견적상담 이동
+                    </span>
+                  </div>
+                )}
+
+                {/* If Sample Selected */}
+                {(menu.actionType || 'page') === 'sample' && (
+                  <div className="flex items-end">
+                    <span className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      무료 샘플 신청 이동
+                    </span>
+                  </div>
+                )}
+
                 {/* If Section Selected */}
-                {menu.actionType === 'section' && (
+                {(menu.actionType || 'page') === 'section' && (
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 block mb-0.5">이동할 섹션</label>
                     <select
@@ -427,7 +445,7 @@ export const GnbMenuManager: React.FC = () => {
                 )}
 
                 {/* If External Link Selected */}
-                {menu.actionType === 'external' && (
+                {(menu.actionType || 'page') === 'external' && (
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 block mb-0.5">외부 URL 주소</label>
                     <input
@@ -557,7 +575,7 @@ export const GnbMenuManager: React.FC = () => {
                         </select>
 
                         {/* If Page Selected */}
-                        {sub.actionType === 'page' && (
+                        {(sub.actionType || 'page') === 'page' && (
                           <>
                             <select
                               value={sub.target || 'about'}
@@ -585,7 +603,7 @@ export const GnbMenuManager: React.FC = () => {
                         )}
 
                         {/* If Board Selected */}
-                        {sub.actionType === 'board' && (
+                        {(sub.actionType || 'page') === 'board' && (
                           <select
                             value={sub.target || 'notice-board'}
                             onChange={(e) => handleUpdateSubmenu(menu.id, sub.id, { target: e.target.value })}
@@ -597,8 +615,22 @@ export const GnbMenuManager: React.FC = () => {
                           </select>
                         )}
 
+                        {/* If Quote Selected */}
+                        {(sub.actionType || 'page') === 'quote' && (
+                          <span className="text-[10px] font-bold px-2 py-1 rounded bg-rose-50 text-rose-700 border border-rose-200">
+                            견적상담
+                          </span>
+                        )}
+
+                        {/* If Sample Selected */}
+                        {(sub.actionType || 'page') === 'sample' && (
+                          <span className="text-[10px] font-bold px-2 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                            샘플신청
+                          </span>
+                        )}
+
                         {/* If Section Selected */}
-                        {sub.actionType === 'section' && (
+                        {(sub.actionType || 'page') === 'section' && (
                           <select
                             value={sub.target || 'product-slider-section'}
                             onChange={(e) => handleUpdateSubmenu(menu.id, sub.id, { target: e.target.value })}
@@ -611,7 +643,7 @@ export const GnbMenuManager: React.FC = () => {
                         )}
 
                         {/* If External Link Selected */}
-                        {sub.actionType === 'external' && (
+                        {(sub.actionType || 'page') === 'external' && (
                           <input
                             type="text"
                             value={sub.target || ''}

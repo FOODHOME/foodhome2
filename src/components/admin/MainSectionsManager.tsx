@@ -21,30 +21,43 @@ import {
 export const MainSectionsManager: React.FC = () => {
   const { state, updateMainSections, setActiveAdminTab, showToast } = useApp();
 
-  const sections: MainSectionConfig[] = state.content.mainSections && state.content.mainSections.length > 0
-    ? state.content.mainSections
-    : [
-        { id: 'hero', name: '메인 상단 슬라이드 배너', badge: 'HERO BANNER', title: '메인 비주얼 배너', description: '메인 화면 최상단 롤링 배너 슬라이더', visible: true, order: 1 },
-        { id: 'productSlider', name: '대표 제품 슬라이더', badge: 'SIGNATURE PRODUCT SLIDER', title: '푸드홈 대표 제품 둘러보기', description: '30년 전통 비법과 특허 수분제어 공법으로 빚어낸 명품 보쌈무김치 & 비법 김칫속', visible: true, order: 2 },
-        { id: 'sampleRealtimeStatus', name: '실시간 샘플 접수 현황 바', badge: 'REALTIME STATUS', title: '전국 외식업소 실시간 무료 샘플 접수 현황', description: '매일 아침 갓 담근 신선한 김치만을 보내드립니다', visible: true, order: 3 },
-        { id: 'actionBanners', name: 'B2B 퀵 서비스 액션 배너', badge: 'B2B QUICK ACTIONS', title: '외식업 대표님을 위한 푸드홈 전용 지원 서비스', description: '안심 샘플 신청부터 대량 정기 납품까지 원스톱으로 지원합니다', visible: true, order: 4 },
-        { id: 'productCategories', name: '제품 카테고리 안내', badge: 'FOOD CATEGORIES', title: '전문 외식업소를 위한 4대 제품 라인업', description: '업종과 주방 운영 형태에 맞춰 최적화된 패키지와 레시피를 제안합니다.', visible: true, order: 5 },
-        { id: 'products', name: '대표 제품 카탈로그 목록', badge: 'PRODUCT CATALOG', title: '푸드홈 전체 제품 카탈로그', description: '원재료 타협 없이 100% 국산 농산물로 정직하게 제조합니다.', visible: true, order: 6 },
-        { id: 'features', name: '30년 전통 비법 & 브랜드 스토리', badge: 'BRAND HERITAGE & PHILOSOPHY', title: '30년 전통 비법과 타협 없는 원칙', description: '시간이 흘러도 물 생김 없는 특허 수분제어 절임 공법', visible: true, order: 7 },
-        { id: 'process', name: '안심 위생 제조 공정', badge: 'CLEAN AUTOMATION PROCESS', title: '엄격한 기준의 스마트 클린 제조 시스템', description: '산지 계약재배 입고부터 에어샤워, 금속검출기 통과까지 철저하게 관리합니다.', visible: true, order: 8 },
-        { id: 'reviews', name: '외식업 파트너 후기 & 신뢰 지표', badge: 'PARTNER STORIES', title: '전국 480여 개 외식 파트너의 생생한 찬사', description: '고기 맛을 살려주는 보쌈무김치와 김칫속으로 매장 객단가가 상승했습니다.', visible: true, order: 9 },
-        { id: 'inquiry', name: '하단 1kg 무료 샘플 간편 신청', badge: 'FREE 1KG SAMPLE', title: '직접 맛을 보시고 결정하세요. 1kg 무료 샘플팩 신청 접수 중', description: '사업자등록증을 보유하신 모든 외식업 대표님께 푸드홈 시그니처 보쌈무김치를 무료로 발송해 드립니다.', buttonText: '무료 샘플 1kg 신청하기', buttonLink: 'sample-board-write', visible: true, order: 10 }
-      ];
+  const defaultSections: MainSectionConfig[] = [
+    { id: 'hero', name: '메인 상단 슬라이드 배너', badge: 'HERO BANNER', title: '메인 비주얼 배너', description: '메인 화면 최상단 롤링 배너 슬라이더', visible: true, order: 1 },
+    { id: 'productSlider', name: '대표 제품 슬라이더', badge: 'SIGNATURE PRODUCT SLIDER', title: '푸드홈 대표 제품 둘러보기', description: '30년 전통 비법과 특허 수분제어 공법으로 빚어낸 명품 보쌈무김치 & 비법 김칫속', visible: true, order: 2 },
+    { id: 'sampleRealtimeStatus', name: '실시간 샘플 접수 현황 바', badge: 'REALTIME STATUS', title: '전국 외식업소 실시간 무료 샘플 접수 현황', description: '매일 아침 갓 담근 신선한 김치만을 보내드립니다', visible: true, order: 3 },
+    { id: 'actionBanners', name: 'B2B 퀵 서비스 액션 배너', badge: 'B2B QUICK ACTIONS', title: '외식업 대표님을 위한 푸드홈 전용 지원 서비스', description: '안심 샘플 신청부터 대량 정기 납품까지 원스톱으로 지원합니다', visible: true, order: 4 },
+    { id: 'productCategories', name: '제품 카테고리 안내', badge: 'FOOD CATEGORIES', title: '전문 외식업소를 위한 4대 제품 라인업', description: '업종과 주방 운영 형태에 맞춰 최적화된 패키지와 레시피를 제안합니다.', visible: true, order: 5 },
+    { id: 'products', name: '대표 제품 카탈로그 목록', badge: 'PRODUCT CATALOG', title: '푸드홈 전체 제품 카탈로그', description: '원재료 타협 없이 100% 국산 농산물로 정직하게 제조합니다.', visible: true, order: 6 },
+    { id: 'features', name: '30년 전통 비법 & 브랜드 스토리', badge: 'BRAND HERITAGE & PHILOSOPHY', title: '30년 전통 비법과 타협 없는 원칙', description: '시간이 흘러도 물 생김 없는 특허 수분제어 절임 공법', visible: true, order: 7 },
+    { id: 'process', name: '안심 위생 제조 공정', badge: 'CLEAN AUTOMATION PROCESS', title: '엄격한 기준의 스마트 클린 제조 시스템', description: '산지 계약재배 입고부터 에어샤워, 금속검출기 통과까지 철저하게 관리합니다.', visible: true, order: 8 },
+    { id: 'reviews', name: '고객사 추천평 (외식업 파트너 후기)', badge: 'PARTNER REVIEWS', title: '전국 480여 개 외식 파트너의 생생한 찬사', description: '고기 맛을 살려주는 보쌈무김치와 김칫속으로 매장 객단가가 상승했습니다.', visible: true, order: 9 },
+    { id: 'posts', name: '공지사항 & 외식 레시피 가이드', badge: 'NEWS & NOTICES', title: '푸드홈 공지사항 & 외식 레시피 가이드', description: '위생안전 소식부터 보쌈 매장 사장님들을 위한 조리 꿀팁, 프랜차이즈 납품 소식을 전합니다.', visible: true, order: 10 },
+    { id: 'inquiry', name: '하단 1kg 무료 샘플 간편 신청', badge: 'FREE 1KG SAMPLE', title: '직접 맛을 보시고 결정하세요. 1kg 무료 샘플팩 신청 접수 중', description: '사업자등록증을 보유하신 모든 외식업 대표님께 푸드홈 시그니처 보쌈무김치를 무료로 발송해 드립니다.', buttonText: '무료 샘플 1kg 신청하기', buttonLink: 'sample-board-write', visible: true, order: 11 }
+  ];
 
-  const [localSections, setLocalSections] = useState<MainSectionConfig[]>(sections);
+  const getMergedSections = (): MainSectionConfig[] => {
+    if (!state.content.mainSections || state.content.mainSections.length === 0) {
+      return defaultSections;
+    }
+    const existing = [...state.content.mainSections];
+    let maxOrder = Math.max(...existing.map(s => s.order || 0), 0);
+    defaultSections.forEach(defSec => {
+      const found = existing.some(s => s.id === defSec.id);
+      if (!found) {
+        maxOrder += 1;
+        existing.push({ ...defSec, order: maxOrder });
+      }
+    });
+    return existing.sort((a, b) => (a.order || 0) - (b.order || 0));
+  };
+
+  const [localSections, setLocalSections] = useState<MainSectionConfig[]>(getMergedSections);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   // Sync with state if changed
   React.useEffect(() => {
-    if (state.content.mainSections && state.content.mainSections.length > 0) {
-      setLocalSections(state.content.mainSections);
-    }
+    setLocalSections(getMergedSections());
   }, [state.content.mainSections]);
 
   const handleToggleVisible = (id: string, e?: React.MouseEvent) => {

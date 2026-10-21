@@ -7,7 +7,8 @@ import {
   Eye, 
   Search, 
   ArrowRight,
-  Plus
+  Plus,
+  Megaphone
 } from 'lucide-react';
 
 export const BlogNoticeSection: React.FC = () => {
@@ -62,13 +63,13 @@ export const BlogNoticeSection: React.FC = () => {
           {/* Quick Write in Admin */}
           <button
             onClick={() => {
-              setActiveAdminTab('posts');
+              setActiveAdminTab('notices');
               setIsAdminOpen(true);
             }}
             className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg border border-[#E8E2DC] bg-white text-[#332525] hover:bg-stone-100 transition-colors shadow-2xs self-start md:self-auto cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5 text-[#872D35]" />
-            <span>게시글 관리/작성</span>
+            <Megaphone className="w-3.5 h-3.5 text-[#872D35]" />
+            <span>공지사항 관리</span>
           </button>
         </div>
 

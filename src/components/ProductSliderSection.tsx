@@ -2,15 +2,18 @@ import React, { useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { ChevronLeft, ChevronRight, Sparkles, Eye, Package, ArrowRight } from 'lucide-react';
 
-export const ProductSliderSection: React.FC = () => {
+import { MainSectionConfig } from '../types';
+
+export const ProductSliderSection: React.FC<{ config?: MainSectionConfig }> = ({ config }) => {
   const { 
     state, 
     setSelectedProductForDetail, 
     setActivePage 
   } = useApp();
 
+  const cfg = config || state.content.mainSections?.find(s => s.id === 'productSlider');
   const sliderRef = useRef<HTMLDivElement>(null);
-  const products = state.products;
+  const products = state.products.filter(p => p.visible !== false);
 
   const scroll = (direction: 'left' | 'right') => {
     if (sliderRef.current) {
@@ -40,14 +43,14 @@ export const ProductSliderSection: React.FC = () => {
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-2 h-2 rounded-full bg-[#872D35]" />
               <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">
-                SIGNATURE PRODUCT SLIDER
+                {cfg?.badge || 'SIGNATURE PRODUCT SLIDER'}
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2A2020] tracking-tight">
-              푸드홈 대표 제품 둘러보기
+              {cfg?.title || '푸드홈 대표 제품 둘러보기'}
             </h2>
             <p className="text-sm text-slate-600 mt-1">
-              30년 전통 비법과 특허 수분제어 공법으로 빚어낸 명품 보쌈무김치 & 비법 김칫속
+              {cfg?.description || '30년 전통 비법과 특허 수분제어 공법으로 빚어낸 명품 보쌈무김치 & 비법 김칫속'}
             </p>
           </div>
 

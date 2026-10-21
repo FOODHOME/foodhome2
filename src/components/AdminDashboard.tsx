@@ -864,15 +864,15 @@ export const AdminDashboard: React.FC = () => {
 
                 <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
                   <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-                    <span>소식 & 레시피 글</span>
+                    <span>공지 & FAQ 게시물</span>
                     <span className="p-1 rounded bg-purple-50 text-purple-600">
                       <FileText className="w-4 h-4" />
                     </span>
                   </div>
                   <div className="text-3xl font-black text-slate-900 mt-2">
-                    {state.posts.length}편
+                    {state.posts.filter(p => p.category === '공지사항').length + (state.content.faqItems || []).length}건
                   </div>
-                  <p className="text-[11px] text-slate-500 mt-1">총 누적 조회수 13,000+</p>
+                  <p className="text-[11px] text-slate-500 mt-1">공지사항 및 자주하는질문</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
@@ -898,50 +898,44 @@ export const AdminDashboard: React.FC = () => {
                     className="p-3 rounded-lg border border-[#872D35]/30 bg-[#872D35]/5 hover:bg-[#872D35]/10 text-left transition-colors cursor-pointer"
                   >
                     <Menu className="w-4 h-4 text-[#872D35] mb-1" />
-                    <span className="text-xs font-bold block text-slate-800">상단 메뉴명 수정</span>
-                    <span className="text-[10px] text-slate-500">회사소개, 제품소개 등</span>
+                    <span className="text-xs font-bold block text-slate-800">상단 메뉴 관리</span>
+                    <span className="text-[10px] text-slate-500">GNB 메뉴 순서/동작</span>
                   </button>
 
                   <button
-                    onClick={() => setActiveAdminTab('content')}
+                    onClick={() => setActiveAdminTab('all_content')}
                     className="p-3 rounded-lg border border-slate-200 hover:border-[#872D35] hover:bg-slate-50 text-left transition-colors cursor-pointer"
                   >
                     <Type className="w-4 h-4 text-[#872D35] mb-1" />
-                    <span className="text-xs font-bold block text-slate-800">문구 및 로고 수정</span>
-                    <span className="text-[10px] text-slate-500">브랜드 로고, 히어로 문구</span>
+                    <span className="text-xs font-bold block text-slate-800">상단 메뉴 콘텐츠</span>
+                    <span className="text-[10px] text-slate-500">회사·제품·제조·납품</span>
                   </button>
 
                   <button
-                    onClick={() => setActiveAdminTab('design')}
+                    onClick={() => setActiveAdminTab('main_sections')}
                     className="p-3 rounded-lg border border-slate-200 hover:border-[#872D35] hover:bg-slate-50 text-left transition-colors cursor-pointer"
                   >
-                    <Palette className="w-4 h-4 text-[#872D35] mb-1" />
-                    <span className="text-xs font-bold block text-slate-800">포인트 컬러/테마</span>
-                    <span className="text-[10px] text-slate-500">버건디 레드, 폰트, 모서리</span>
+                    <Layout className="w-4 h-4 text-[#872D35] mb-1" />
+                    <span className="text-xs font-bold block text-slate-800">메인페이지 섹션</span>
+                    <span className="text-[10px] text-slate-500">섹션 순서/표시/문구</span>
                   </button>
 
                   <button
-                    onClick={() => {
-                      setActiveAdminTab('products');
-                      handleOpenAddProduct();
-                    }}
+                    onClick={() => setActiveAdminTab('site_info')}
                     className="p-3 rounded-lg border border-slate-200 hover:border-[#872D35] hover:bg-slate-50 text-left transition-colors cursor-pointer"
                   >
-                    <Package className="w-4 h-4 text-[#872D35] mb-1" />
-                    <span className="text-xs font-bold block text-slate-800">신규 제품 등록</span>
-                    <span className="text-[10px] text-slate-500">보쌈무/김칫속 상품 추가</span>
+                    <Building2 className="w-4 h-4 text-[#872D35] mb-1" />
+                    <span className="text-xs font-bold block text-slate-800">회사 기본 정보</span>
+                    <span className="text-[10px] text-slate-500">사업자·연락처·로고</span>
                   </button>
 
                   <button
-                    onClick={() => {
-                      setActiveAdminTab('posts');
-                      handleOpenAddPost();
-                    }}
+                    onClick={() => setActiveAdminTab('notices')}
                     className="p-3 rounded-lg border border-slate-200 hover:border-[#872D35] hover:bg-slate-50 text-left transition-colors cursor-pointer"
                   >
-                    <FileText className="w-4 h-4 text-[#872D35] mb-1" />
-                    <span className="text-xs font-bold block text-slate-800">새 게시글 작성</span>
-                    <span className="text-[10px] text-slate-500">공지, 레시피 가이드</span>
+                    <Megaphone className="w-4 h-4 text-[#872D35] mb-1" />
+                    <span className="text-xs font-bold block text-slate-800">공지사항 관리</span>
+                    <span className="text-[10px] text-slate-500">새 공지 등록/수정</span>
                   </button>
                 </div>
               </div>
@@ -1015,7 +1009,7 @@ export const AdminDashboard: React.FC = () => {
           )}
 
           {/* ALL PAGES CONTENT MANAGER TAB */}
-          {(activeAdminTab === 'all_content' || activeAdminTab === 'content' || activeAdminTab === 'products') && (
+          {activeAdminTab === 'all_content' && (
             <div className="max-w-6xl mx-auto">
               <ContentManager />
             </div>
@@ -1628,46 +1622,21 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Section Visibility Switches */}
-              <div className="pt-4 border-t border-slate-100">
-                <label className="text-xs font-bold text-slate-700 block mb-2">
-                  메인 페이지 섹션 표시 / 숨김 제어
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[
-                    { key: 'stats', label: '핵심 실적 통계' },
-                    { key: 'features', label: '브랜드 스토리 & 가치' },
-                    { key: 'products', label: '제품 라인업' },
-                    { key: 'process', label: '청결 안심 6단계 공정' },
-                    { key: 'reviews', label: '고객사 추천평' },
-                    { key: 'posts', label: '소식 & 레시피' },
-                    { key: 'inquiry', label: 'B2B 견적 폼' },
-                  ].map((sec) => {
-                    const isVisible = (themeForm.sectionsVisible as any)[sec.key];
-                    return (
-                      <label 
-                        key={sec.key} 
-                        className="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-xs font-semibold text-slate-700"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isVisible}
-                          onChange={(e) => {
-                            setThemeForm({
-                              ...themeForm,
-                              sectionsVisible: {
-                                ...themeForm.sectionsVisible,
-                                [sec.key]: e.target.checked
-                              }
-                            });
-                          }}
-                          className="rounded text-blue-600 focus:ring-blue-500"
-                        />
-                        <span>{sec.label}</span>
-                      </label>
-                    );
-                  })}
+              {/* Guidance for Main Sections */}
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between p-4 bg-stone-50 rounded-xl border border-stone-200">
+                <div>
+                  <span className="text-xs font-bold text-stone-800 block">메인페이지 섹션 표시 및 순서 설정 안내</span>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    메인 페이지의 각 섹션별 노출/숨김, 순서 변경 및 문구 수정은 <strong>'메인페이지 섹션 관리'</strong> 독립 메뉴에서 통합 관리됩니다.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveAdminTab('main_sections')}
+                  className="px-3.5 py-1.5 rounded-lg bg-[#872D35] text-white text-xs font-bold hover:bg-[#6D242B] cursor-pointer shrink-0"
+                >
+                  섹션 관리 바로가기
+                </button>
               </div>
 
               <div className="pt-4 flex justify-end">
