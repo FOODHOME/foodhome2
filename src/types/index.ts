@@ -30,22 +30,26 @@ export interface FaqItem {
   id: string;
   question: string;
   answer: string;
-  category: '샘플신청' | '납품·단가' | '보관·유통' | '배송안내';
+  category: '샘플신청' | '납품·단가' | '보관·유통' | '배송안내' | string;
+  visible?: boolean;
+  order?: number;
 }
 
 export interface NavSubmenuItem {
   id: string;
   label: string;
-  actionType: 'scroll' | 'sample' | 'wholesale' | 'url' | 'page' | 'quote';
+  actionType: 'page' | 'section' | 'scroll' | 'board' | 'quote' | 'sample' | 'external' | 'url' | 'wholesale';
   target: string;
+  subTarget?: string;
 }
 
 export interface NavMenuItem {
   id: string;
   name: string;
   link?: string;
-  actionType?: 'scroll' | 'sample' | 'wholesale' | 'url' | 'page' | 'quote';
+  actionType?: 'page' | 'section' | 'scroll' | 'board' | 'quote' | 'sample' | 'external' | 'url' | 'wholesale';
   target?: string;
+  subTarget?: string;
   visible: boolean;
   submenus: NavSubmenuItem[];
 }

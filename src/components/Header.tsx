@@ -115,20 +115,30 @@ export const Header: React.FC = () => {
           actionType: 'scroll' as const,
           target: 'footer-section',
           submenus: [
-            { id: 'sub-cs-1', label: '사업자 무료 샘플 신청', actionType: 'page' as const, target: 'sample-board' },
-            { id: 'sub-cs-2', label: '1:1 대량 납품·견적 상담', actionType: 'wholesale' as const, target: '' },
-            { id: 'sub-cs-3', label: '고객센터 유선 전화안내', actionType: 'scroll' as const, target: 'footer-section' }
+            { id: 'sub-cs-1', label: '공지사항', actionType: 'board' as const, target: 'notice-board' },
+            { id: 'sub-cs-2', label: '자주하는 질문 (FAQ)', actionType: 'board' as const, target: 'faq-board' },
+            { id: 'sub-cs-3', label: '1:1 대량 납품 견적 상담', actionType: 'quote' as const, target: 'quote-board' },
+            { id: 'sub-cs-4', label: '사업자 무료 샘플 신청', actionType: 'sample' as const, target: 'sample-board' },
+            { id: 'sub-cs-5', label: '고객센터 유선 전화안내', actionType: 'scroll' as const, target: 'footer-section' }
           ]
         }
       ];
 
-  const handleMenuAction = (actionType?: string, target?: string, fallbackTarget?: string, menuId?: string) => {
+  const handleMenuAction = (
+    actionType?: string, 
+    target?: string, 
+    fallbackTarget?: string, 
+    menuId?: string,
+    subTarget?: string
+  ) => {
     setActiveDropdown(null);
     setMobileMenuOpen(false);
 
     // Route to subpage or tab
-    if (target === 'about' || menuId === 'about' || target?.startsWith('about-')) {
-      if (target?.startsWith('about-')) {
+    if (target === 'about' || target === 'company-about' || menuId === 'about' || target?.startsWith('about-')) {
+      if (subTarget) {
+        setCompanyAboutTab(subTarget);
+      } else if (target?.startsWith('about-')) {
         const tab = target.replace('about-', '');
         setCompanyAboutTab(tab);
       } else {
@@ -145,31 +155,37 @@ export const Header: React.FC = () => {
       return;
     }
 
-    if (target === 'sample-board' || target === 'sample-board-write' || menuId === 'sample-board') {
+    if (target === 'notice-board' || (actionType === 'board' && target === 'notice-board')) {
+      setActivePage('notice-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (target === 'faq-board' || (actionType === 'board' && target === 'faq-board')) {
+      setActivePage('faq-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (target === 'recipe-board' || target === 'event-board' || target === 'posts' || menuId === 'posts') {
+      setActivePage('posts');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (target === 'sample-board' || target === 'sample-board-write' || menuId === 'sample-board' || actionType === 'sample') {
       setActivePage(target || 'sample-board');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    if (target === 'quote-board' || target === 'quote-board-write' || menuId === 'quote-board') {
+    if (target === 'quote-board' || target === 'quote-board-write' || menuId === 'quote-board' || actionType === 'quote' || actionType === 'wholesale') {
       setActivePage(target || 'quote-board');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    if (actionType === 'sample') {
-      setActivePage('sample-board');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (actionType === 'quote' || actionType === 'wholesale') {
-      setActivePage('quote-board');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (actionType === 'url' && target) {
+    if ((actionType === 'url' || actionType === 'external') && target) {
       if (target.startsWith('http')) {
         window.open(target, '_blank');
       } else {
@@ -249,7 +265,7 @@ export const Header: React.FC = () => {
                 onMouseLeave={() => setActiveDropdown(null)}
               >
                 <button
-                  onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id)}
+                  onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id, item.subTarget)}
                   className="text-sm font-bold text-[#332525] group-hover:text-[#872D35] flex items-center gap-1 transition-colors py-2"
                 >
                   <span>{item.name}</span>
@@ -264,7 +280,7 @@ export const Header: React.FC = () => {
                     {item.submenus.map((sub) => (
                       <button
                         key={sub.id}
-                        onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id)}
+                        onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id, sub.subTarget)}
                         className="w-full text-left px-4 py-2.5 text-xs font-semibold text-[#554343] hover:text-[#872D35] hover:bg-[#FAF8F5] transition-colors flex items-center justify-between group/sub"
                       >
                         <span>{sub.label}</span>
@@ -310,7 +326,7 @@ export const Header: React.FC = () => {
           {navMenus.map((item) => (
             <div key={item.id} className="border-b border-[#FAF8F5] pb-2">
               <button
-                onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id)}
+                onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id, item.subTarget)}
                 className="text-xs font-black text-[#872D35] uppercase tracking-wider block mb-1 hover:underline text-left cursor-pointer"
               >
                 {item.name}
@@ -320,7 +336,7 @@ export const Header: React.FC = () => {
                   {item.submenus.map((sub) => (
                     <button
                       key={sub.id}
-                      onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id)}
+                      onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id, sub.subTarget)}
                       className="text-left py-1 text-xs text-[#554343] hover:text-[#872D35] font-medium cursor-pointer"
                     >
                       {sub.label}

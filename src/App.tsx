@@ -26,6 +26,8 @@ import { CompanyAboutPage } from './components/CompanyAboutPage';
 import { ProductsPage } from './components/ProductsPage';
 import { SampleBoardPage } from './components/SampleBoardPage';
 import { QuoteBoardPage } from './components/QuoteBoardPage';
+import { NoticeBoardPage } from './components/NoticeBoardPage';
+import { FaqBoardPage } from './components/FaqBoardPage';
 import { Toast } from './components/Toast';
 import { Sparkles, ArrowUp } from 'lucide-react';
 
@@ -57,6 +59,9 @@ const MainContent: React.FC = () => {
         {activePage === 'sample-board-write' && <SampleBoardPage initialViewMode="write" />}
         {activePage === 'quote-board' && <QuoteBoardPage initialViewMode="list" />}
         {activePage === 'quote-board-write' && <QuoteBoardPage initialViewMode="write" />}
+        {activePage === 'notice-board' && <NoticeBoardPage />}
+        {activePage === 'faq-board' && <FaqBoardPage />}
+        {activePage === 'posts' && <BlogNoticeSection />}
         
         {/* Home Page Flow */}
         {(activePage === 'home' || !activePage) && (

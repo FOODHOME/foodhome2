@@ -13,7 +13,8 @@ import {
   SeoSettings, 
   SocialSettings,
   FacilityMediaItem,
-  NavMenuItem
+  NavMenuItem,
+  FaqItem
 } from '../types';
 import { initialData } from '../data/initialData';
 import { 
@@ -43,6 +44,12 @@ interface AppContextType {
   updatePost: (id: string, post: Partial<PostItem>) => void;
   deletePost: (id: string) => void;
   incrementPostRead: (id: string) => void;
+
+  // FAQ Items
+  addFaqItem: (item: Omit<FaqItem, 'id'>) => void;
+  updateFaqItem: (id: string, updates: Partial<FaqItem>) => void;
+  deleteFaqItem: (id: string) => void;
+  reorderFaqItems: (items: FaqItem[]) => void;
 
   // Inquiries
   addInquiry: (inquiry: Omit<B2BInquiry, 'id' | 'createdAt' | 'status'>) => void;
@@ -352,6 +359,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setState(prev => ({
       ...prev,
       posts: prev.posts.map(p => (p.id === id ? { ...p, readCount: p.readCount + 1 } : p))
+    }));
+  };
+
+  const addFaqItem = (item: Omit<FaqItem, 'id'>) => {
+    const newFaq: FaqItem = {
+      ...item,
+      id: 'faq-' + Date.now(),
+      visible: item.visible !== undefined ? item.visible : true,
+      order: (state.content.faqItems || []).length + 1
+    };
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        faqItems: [...(prev.content.faqItems || []), newFaq]
+      }
+    }));
+    showToast('새 자주하는 질문(FAQ)이 등록되었습니다.');
+  };
+
+  const updateFaqItem = (id: string, updates: Partial<FaqItem>) => {
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        faqItems: (prev.content.faqItems || []).map(f => f.id === id ? { ...f, ...updates } : f)
+      }
+    }));
+    showToast('FAQ 항목이 수정되었습니다.');
+  };
+
+  const deleteFaqItem = (id: string) => {
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        faqItems: (prev.content.faqItems || []).filter(f => f.id !== id)
+      }
+    }));
+    showToast('FAQ 항목이 삭제되었습니다.');
+  };
+
+  const reorderFaqItems = (items: FaqItem[]) => {
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        faqItems: items
+      }
     }));
   };
 
@@ -841,6 +897,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         verifyQuotePassword,
         updateBanners,
         updateFormConfig,
+        addFaqItem,
+        updateFaqItem,
+        deleteFaqItem,
+        reorderFaqItems,
         activeAdminTab,
         setActiveAdminTab,
         isSampleModalOpen,
