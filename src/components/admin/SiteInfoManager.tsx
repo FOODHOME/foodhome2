@@ -10,12 +10,10 @@ export const SiteInfoManager: React.FC = () => {
     businessNumber: state.content.businessNumber,
     mailOrderNumber: state.content.mailOrderNumber,
     factoryAddress: state.content.factoryAddress,
-    hqAddress: state.content.hqAddress,
     phone: state.content.phone,
     fax: state.content.fax,
     email: state.content.email,
     csHours: state.content.csHours,
-    lunchHours: state.content.lunchHours,
     footerNotice: state.content.footerNotice || '본 사이트의 모든 콘텐츠, 이미지, 제품 디자인은 (주)푸드홈의 자산이며 무단 도용을 금합니다.'
   });
 
@@ -101,21 +99,11 @@ export const SiteInfoManager: React.FC = () => {
 
         <div className="space-y-3 pt-2">
           <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">제조공장 및 물류센터 주소</label>
+            <label className="block text-xs font-bold text-stone-700 mb-1">제조공장 및 본사 물류센터 주소</label>
             <input
               type="text"
               value={form.factoryAddress}
               onChange={(e) => setForm({ ...form, factoryAddress: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-stone-200 text-xs focus:outline-none focus:border-[#872D35]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">본사 / 서울 영업본부 주소</label>
-            <input
-              type="text"
-              value={form.hqAddress}
-              onChange={(e) => setForm({ ...form, hqAddress: e.target.value })}
               className="w-full px-3 py-2 rounded-lg border border-stone-200 text-xs focus:outline-none focus:border-[#872D35]"
             />
           </div>
@@ -161,26 +149,15 @@ export const SiteInfoManager: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-          <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">상담 운영시간</label>
-            <input
-              type="text"
-              value={form.csHours}
-              onChange={(e) => setForm({ ...form, csHours: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-stone-200 text-xs"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">점심시간</label>
-            <input
-              type="text"
-              value={form.lunchHours}
-              onChange={(e) => setForm({ ...form, lunchHours: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-stone-200 text-xs"
-            />
-          </div>
+        <div className="pt-2">
+          <label className="block text-xs font-bold text-stone-700 mb-1">고객센터 운영시간</label>
+          <input
+            type="text"
+            value={form.csHours}
+            onChange={(e) => setForm({ ...form, csHours: e.target.value })}
+            placeholder="평일 09:00 ~ 18:00 (주말·공휴일 휴무)"
+            className="w-full px-3 py-2 rounded-lg border border-stone-200 text-xs"
+          />
         </div>
 
         <div className="pt-2">

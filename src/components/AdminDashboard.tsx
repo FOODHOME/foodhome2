@@ -15,6 +15,7 @@ import { DatabaseSqlManager } from './admin/DatabaseSqlManager';
 import { NoticeManager } from './admin/NoticeManager';
 import { FaqManager } from './admin/FaqManager';
 import { GnbMenuManager } from './admin/GnbMenuManager';
+import { SectionContentModal } from './admin/SectionContentModal';
 import { 
   X, 
   LayoutDashboard, 
@@ -58,6 +59,11 @@ import {
   PanelLeftOpen,
   Megaphone,
   HelpCircle,
+  Truck,
+  Building2,
+  Layers,
+  Settings,
+  ChevronLeft,
   Menu as MenuIcon
 } from 'lucide-react';
 
@@ -503,120 +509,342 @@ export const AdminDashboard: React.FC = () => {
 
   const pendingInquiriesCount = state.inquiries.filter(i => i.status === '접수대기').length;
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
+    dashboard: true,
+    design: true,
+    quote_sample: true,
+    products: true,
+    boards: true,
+    settings: true
+  });
+
+  const toggleGroup = (groupId: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupId]: !prev[groupId]
+    }));
+  };
+
+  interface AdminMenuItem {
+    id: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    badge?: number;
+    badgeColor?: string;
+  }
+
+  interface AdminMenuGroup {
+    id: string;
+    title: string;
+    icon: React.ComponentType<{ className?: string }>;
+    items: AdminMenuItem[];
+  }
+
+  const adminMenuGroups: AdminMenuGroup[] = [
+    {
+      id: 'dashboard',
+      title: '대시보드',
+      icon: LayoutDashboard,
+      items: [
+        { id: 'overview', label: '대시보드 개요', icon: LayoutDashboard }
+      ]
+    },
+    {
+      id: 'design',
+      title: '홈페이지 디자인 관리',
+      icon: Palette,
+      items: [
+        { 
+          id: 'banners', 
+          label: '메인 배너 관리', 
+          icon: ImageIcon,
+          badge: (state.content.banners || []).length || undefined 
+        },
+        { id: 'all_content', label: '홈페이지 전체 콘텐츠 관리', icon: Type },
+        { id: 'design', label: '디자인 & 테마', icon: Palette }
+      ]
+    },
+    {
+      id: 'quote_sample',
+      title: '견적 및 샘플 관리',
+      icon: MessageSquareText,
+      items: [
+        { 
+          id: 'quotes', 
+          label: '대량 견적상담 관리', 
+          icon: Truck,
+          badge: (state.quotes || []).filter(q => q.status === '접수완료' || q.status === '상담중').length || undefined,
+          badgeColor: 'bg-[#872D35] text-white'
+        },
+        { 
+          id: 'inquiries', 
+          label: '샘플 게시판 관리', 
+          icon: Sparkles,
+          badge: pendingInquiriesCount > 0 ? pendingInquiriesCount : undefined,
+          badgeColor: 'bg-amber-500 text-white'
+        },
+        { id: 'form_config', label: '견적신청폼 항목 설정', icon: Sliders }
+      ]
+    },
+    {
+      id: 'products',
+      title: '제품 관리',
+      icon: Package,
+      items: [
+        { 
+          id: 'products', 
+          label: '제품 관리', 
+          icon: Package,
+          badge: state.products.length || undefined
+        }
+      ]
+    },
+    {
+      id: 'boards',
+      title: '게시판 관리',
+      icon: FileText,
+      items: [
+        { id: 'notices', label: '공지사항 관리', icon: Megaphone },
+        { id: 'faqs', label: '자주하는 질문(FAQ) 관리', icon: HelpCircle },
+        { id: 'posts', label: '게시글 & 레시피 관리', icon: Layers }
+      ]
+    },
+    {
+      id: 'settings',
+      title: '사이트 설정',
+      icon: Settings,
+      items: [
+        { id: 'menus', label: '상단 메뉴(GNB) 관리', icon: Menu },
+        { id: 'site_info', label: '회사 기본정보 관리', icon: Building2 },
+        { id: 'seo', label: 'SEO 관리', icon: Globe2 },
+        { id: 'admin_security', label: '관리자 보안/계정', icon: ShieldCheck },
+        { id: 'supabase', label: 'Supabase 연동 및 DB', icon: Database },
+        { id: 'backup', label: '데이터 백업/복원', icon: RotateCcw }
+      ]
+    }
+  ];
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200">
       <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden border border-slate-200"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl h-[96vh] flex flex-col overflow-hidden border border-slate-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header */}
-        <div className="bg-[#2A2020] text-white px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-[#2A2020] text-white px-5 sm:px-6 py-3.5 flex items-center justify-between shrink-0 border-b border-[#3D2E2E]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#872D35] flex items-center justify-center font-black text-lg text-white">
+            {/* Mobile Sidebar Hamburger Toggle */}
+            <button
+              onClick={() => setIsMobileSidebarOpen(prev => !prev)}
+              className="lg:hidden p-1.5 rounded-lg bg-stone-800 text-stone-300 hover:text-white cursor-pointer"
+              aria-label="관리자 메뉴 열기"
+            >
+              <MenuIcon className="w-5 h-5" />
+            </button>
+
+            <div className="w-9 h-9 rounded-xl bg-[#872D35] flex items-center justify-center font-black text-lg text-white shadow-xs">
               푸
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-extrabold text-base sm:text-lg">
+                <h2 className="font-extrabold text-sm sm:text-base tracking-tight">
                   푸드홈 통합 관리자 대시보드
                 </h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-stone-200 border border-white/20">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-stone-200 border border-white/20 hidden sm:inline-block">
                   FOODHOME ADMIN v2.5
                 </span>
               </div>
-              <p className="text-xs text-stone-400">
-                콘텐츠·디자인 커스터마이징, 제품 및 게시글 관리, B2B 실시간 견적 접수
+              <p className="text-[11px] text-stone-400 hidden sm:block">
+                홈페이지 콘텐츠·디자인 관리, B2B 대량 견적 및 샘플 게시판 통합 관제
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => setIsAdminOpen(false)}
-              className="px-3.5 py-1.5 rounded-lg bg-stone-800 text-xs font-bold text-stone-300 hover:text-white hover:bg-stone-700 transition-colors flex items-center gap-1 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-stone-800 text-xs font-bold text-stone-300 hover:text-white hover:bg-stone-700 transition-colors flex items-center gap-1 cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5 text-[#B64346]" />
-              <span>사이트 닫기</span>
+              <span className="hidden sm:inline">사이트 닫기</span>
             </button>
             <button
               onClick={() => {
                 handleAdminLogout();
                 setIsAdminOpen(false);
               }}
-              className="px-3.5 py-1.5 rounded-lg bg-stone-800 text-xs font-bold text-red-300 hover:text-white hover:bg-red-800 transition-colors flex items-center gap-1 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-stone-800 text-xs font-bold text-red-300 hover:text-white hover:bg-red-800 transition-colors flex items-center gap-1 cursor-pointer"
               title="관리자 세션 로그아웃"
             >
               <span>로그아웃</span>
             </button>
             <button
               onClick={() => setIsAdminOpen(false)}
-              className="p-2 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Navigation Tabs Bar */}
-        <div className="bg-stone-50 border-b border-stone-200 px-6 py-2 flex items-center gap-1 overflow-x-auto shrink-0 no-scrollbar">
-          {[
-            { id: 'overview', label: '대시보드 개요', icon: LayoutDashboard },
-            { id: 'banners', label: `메인 배너 관리 (${(state.content.banners || []).length})`, icon: ImageIcon },
-            { 
-              id: 'quotes', 
-              label: `대량 견적상담 관리 (${(state.quotes || []).length})`, 
-              icon: MessageSquareText,
-              badge: (state.quotes || []).filter(q => q.status === '접수완료' || q.status === '상담중').length || undefined
-            },
-            { 
-              id: 'inquiries', 
-              label: `샘플 게시판 관리 (${state.inquiries.length})`, 
-              icon: MessageSquareText,
-              badge: pendingInquiriesCount > 0 ? pendingInquiriesCount : undefined
-            },
-            { id: 'all_content', label: '홈페이지 전체내용 직접수정', icon: Type },
-            { id: 'menus', label: '상단 메뉴(GNB) 수정', icon: Menu },
-            { id: 'form_config', label: '견적신청폼 항목 설정', icon: Sliders },
-            { id: 'products', label: `제품 관리 (${state.products.length})`, icon: Package },
-            { id: 'posts', label: `게시글 & 레시피 (${state.posts.length})`, icon: FileText },
-            { id: 'site_info', label: '회사 기본정보 관리', icon: Globe2 },
-            { id: 'design', label: '디자인 & 테마', icon: Palette },
-            { id: 'admin_security', label: '관리자 보안/계정', icon: ShieldCheck },
-            { id: 'supabase', label: 'Supabase 연동 & DB', icon: Database },
-            { id: 'seo', label: 'SEO & 소셜 메타', icon: Globe2 },
-            { id: 'backup', label: '데이터 백업/복원', icon: RotateCcw },
-          ].map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeAdminTab === tab.id;
-            return (
+        {/* Main Body: Left Sidebar + Right Content Area */}
+        <div className="flex-1 flex overflow-hidden min-h-0 relative">
+          
+          {/* Mobile Sidebar Overlay Backdrop */}
+          {isMobileSidebarOpen && (
+            <div 
+              className="lg:hidden fixed inset-0 bg-black/50 z-30 animate-in fade-in"
+              onClick={() => setIsMobileSidebarOpen(false)}
+            />
+          )}
+
+          {/* Left Fixed Vertical Sidebar */}
+          <aside
+            className={`
+              fixed lg:static top-0 bottom-0 left-0 z-40 lg:z-auto
+              bg-stone-50/95 border-r border-stone-200 flex flex-col shrink-0 h-full
+              transition-all duration-200 ease-in-out select-none
+              ${isMobileSidebarOpen ? 'translate-x-0 w-64 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
+              ${isSidebarCollapsed ? 'lg:w-[68px]' : 'lg:w-64'}
+            `}
+          >
+            {/* Sidebar Controls Header */}
+            <div className="p-3 border-b border-stone-200 flex items-center justify-between shrink-0 bg-stone-100/70">
+              {!isSidebarCollapsed ? (
+                <div className="flex items-center gap-2 px-1">
+                  <span className="text-[11px] font-black text-stone-700 tracking-tight">관리 메뉴</span>
+                </div>
+              ) : (
+                <div className="mx-auto">
+                  <span className="w-2 h-2 rounded-full bg-[#872D35] block" />
+                </div>
+              )}
+
+              {/* Collapse/Expand Toggle Button (Desktop) */}
               <button
-                key={tab.id}
-                onClick={() => setActiveAdminTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-                  isActive
-                    ? 'bg-[#872D35] text-white shadow-2xs'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/70'
-                }`}
+                type="button"
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="hidden lg:flex p-1.5 rounded-lg text-stone-500 hover:text-stone-800 hover:bg-stone-200 transition-colors cursor-pointer"
+                title={isSidebarCollapsed ? "사이드바 펼치기" : "사이드바 접기"}
               >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
-                {tab.badge && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                    isActive ? 'bg-white text-[#872D35]' : 'bg-[#B64346] text-white animate-pulse'
-                  }`}>
-                    {tab.badge}
-                  </span>
+                {isSidebarCollapsed ? (
+                  <PanelLeftOpen className="w-4 h-4 text-[#872D35]" />
+                ) : (
+                  <PanelLeftClose className="w-4 h-4" />
                 )}
               </button>
-            );
-          })}
-        </div>
 
-        {/* Tab Content Container */}
-        <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+              {/* Mobile Close Button */}
+              <button
+                type="button"
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="lg:hidden p-1.5 rounded-lg text-stone-500 hover:text-stone-800 hover:bg-stone-200 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-          {/* 1. OVERVIEW TAB */}
-          {activeAdminTab === 'overview' && (
+            {/* Sidebar Navigation Groups (Scrollable) */}
+            <div className="flex-1 overflow-y-auto p-2 space-y-4 no-scrollbar">
+              {adminMenuGroups.map(group => {
+                const isGroupExpanded = expandedGroups[group.id] !== false;
+
+                return (
+                  <div key={group.id} className="space-y-1">
+                    {/* Group Accordion Header */}
+                    {!isSidebarCollapsed ? (
+                      <button
+                        type="button"
+                        onClick={() => toggleGroup(group.id)}
+                        className="w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] font-extrabold text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-200/50 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <group.icon className="w-3.5 h-3.5 text-stone-500" />
+                          <span>{group.title}</span>
+                        </div>
+                        <ChevronDown 
+                          className={`w-3 h-3 text-stone-400 transition-transform duration-150 ${isGroupExpanded ? 'rotate-0' : '-rotate-90'}`} 
+                        />
+                      </button>
+                    ) : (
+                      <div className="pt-2 border-t border-stone-200 first:border-0 first:pt-0" />
+                    )}
+
+                    {/* Group Items */}
+                    {(isGroupExpanded || isSidebarCollapsed) && (
+                      <div className={`space-y-0.5 ${!isSidebarCollapsed ? 'pl-1' : ''}`}>
+                        {group.items.map(item => {
+                          const Icon = item.icon;
+                          const isActive = 
+                            activeAdminTab === item.id || 
+                            (item.id === 'all_content' && activeAdminTab === 'content') ||
+                            (item.id === 'faqs' && (activeAdminTab === 'faqs' || activeAdminTab === 'faq'));
+
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => {
+                                setActiveAdminTab(item.id);
+                                setIsMobileSidebarOpen(false);
+                              }}
+                              title={item.label}
+                              className={`
+                                w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all cursor-pointer group relative
+                                ${isActive 
+                                  ? 'bg-[#872D35] text-white font-extrabold shadow-xs' 
+                                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/70 font-semibold'}
+                                ${isSidebarCollapsed ? 'justify-center px-2' : ''}
+                              `}
+                            >
+                              <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-stone-500 group-hover:text-stone-800'}`} />
+                              
+                              {!isSidebarCollapsed && (
+                                <span className="flex-1 text-left truncate">{item.label}</span>
+                              )}
+
+                              {item.badge !== undefined && (
+                                <span className={`
+                                  text-[10px] font-black rounded-full px-1.5 py-0.5 leading-none shrink-0
+                                  ${isActive ? 'bg-white text-[#872D35]' : (item.badgeColor || 'bg-stone-200 text-stone-700')}
+                                  ${isSidebarCollapsed ? 'absolute -top-1 -right-1 ring-2 ring-white' : ''}
+                                `}>
+                                  {item.badge}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Sidebar Footer */}
+            {!isSidebarCollapsed ? (
+              <div className="p-3 border-t border-stone-200 bg-stone-100/50 text-[11px] text-stone-500 shrink-0">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-stone-700">관리자 인증 모드</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                </div>
+                <p className="text-[10px] text-stone-400 mt-0.5 truncate">FOODHOME Security Active</p>
+              </div>
+            ) : (
+              <div className="p-3 border-t border-stone-200 flex justify-center shrink-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" title="관리자 인증 활성" />
+              </div>
+            )}
+          </aside>
+
+          {/* Right Main Content Area */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50/60 min-w-0">
+
+            {/* 1. OVERVIEW TAB */}
+            {activeAdminTab === 'overview' && (
             <div className="space-y-6 max-w-5xl mx-auto">
               {/* Quick Metrics */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -2011,6 +2239,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
 
+          </main>
         </div>
       </div>
 

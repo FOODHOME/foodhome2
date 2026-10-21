@@ -99,10 +99,6 @@ export const Footer: React.FC = () => {
                 <span>운영시간: {content.csHours}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3.5" />
-                <span>점심시간: {content.lunchHours} (주말·공휴일 휴무)</span>
-              </div>
-              <div className="flex items-center gap-2">
                 <Printer className="w-3.5 h-3.5 text-stone-500 shrink-0" />
                 <span>팩스: {content.fax}</span>
               </div>

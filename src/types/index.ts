@@ -130,16 +130,38 @@ export interface SiteContent {
   facilityItems: FacilityMediaItem[];
   faqItems: FaqItem[];
 
-  // 1. Company About Page Content
+  // 1. Company About Page Content (4 Detailed Subpages)
   aboutBannerImage?: string;
   aboutTitle?: string;
   aboutDescription?: string;
   ceoGreeting?: string;
   ceoImageUrl?: string;
+  ceoSubtitle?: string;
+  ceoTitle?: string;
+  ceoHighlight?: string;
+  ceoRole?: string;
+  ceoSignatureImage?: string;
   historyItems?: HistoryItem[];
+
+  // Subpage 2: Production & System
+  systemTitle?: string;
   systemDescription?: string;
+  systemFacilityImage?: string;
+  systemLogisticsImage?: string;
+  systemSteps?: { step: string; title: string; desc: string; img: string }[];
+
+  // Subpage 3: Permits & Legal
+  permitsTitle?: string;
   permitsDescription?: string;
+  permitsList?: { title: string; issuer: string; number: string; desc: string; status: string }[];
+
+  // Subpage 4: Location & Map
+  locationTitle?: string;
+  locationDescription?: string;
   locationGuide?: string;
+  locationMapEmbed?: string;
+  transitInfo?: string;
+  parkingInfo?: string;
 
   // 2. Manufacturing Process Page Content
   processTitle?: string;

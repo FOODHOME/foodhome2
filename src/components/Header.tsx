@@ -129,18 +129,102 @@ export const Header: React.FC = () => {
     target?: string, 
     fallbackTarget?: string, 
     menuId?: string,
-    subTarget?: string
+    subTarget?: string,
+    label?: string
   ) => {
     setActiveDropdown(null);
     setMobileMenuOpen(false);
 
-    // Route to subpage or tab
-    if (target === 'about' || target === 'company-about' || menuId === 'about' || target?.startsWith('about-')) {
+    const checkLabel = (label || '').toLowerCase();
+    const checkTarget = (target || '').toLowerCase();
+
+    // 1. Notice Board
+    if (
+      checkTarget === 'notice-board' || 
+      checkTarget === 'notices' || 
+      checkTarget === 'notice' || 
+      subTarget === 'notice-board' ||
+      checkLabel.includes('공지') ||
+      (actionType === 'board' && (checkTarget.includes('notice') || checkLabel.includes('공지')))
+    ) {
+      setActivePage('notice-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 2. FAQ Board
+    if (
+      checkTarget === 'faq-board' || 
+      checkTarget === 'faq' || 
+      checkTarget === 'faqs' || 
+      subTarget === 'faq-board' ||
+      checkLabel.includes('자주') ||
+      checkLabel.includes('faq') ||
+      (actionType === 'board' && (checkTarget.includes('faq') || checkLabel.includes('자주') || checkLabel.includes('faq')))
+    ) {
+      setActivePage('faq-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 3. Quote Board
+    if (
+      checkTarget === 'quote-board' || 
+      checkTarget === 'quote-board-write' || 
+      actionType === 'quote' ||
+      checkLabel.includes('대량') ||
+      checkLabel.includes('견적')
+    ) {
+      setActivePage(checkTarget === 'quote-board-write' ? 'quote-board-write' : 'quote-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 4. Sample Board
+    if (
+      checkTarget === 'sample-board' || 
+      checkTarget === 'sample-board-write' || 
+      actionType === 'sample' ||
+      checkLabel.includes('샘플')
+    ) {
+      setActivePage(checkTarget === 'sample-board-write' ? 'sample-board-write' : 'sample-board');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 5. Posts & Recipes
+    if (checkTarget === 'recipe-board' || checkTarget === 'event-board' || checkTarget === 'posts' || checkLabel.includes('레시피')) {
+      setActivePage('posts');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 6. Company About Page & Sub-tabs Routing
+    if (
+      checkTarget === 'about' || 
+      checkTarget === 'company-about' || 
+      checkTarget.startsWith('about-') ||
+      checkLabel.includes('회사소개') ||
+      checkLabel.includes('인사말') ||
+      checkLabel.includes('생산') ||
+      checkLabel.includes('인허가') ||
+      checkLabel.includes('오시는') ||
+      subTarget === 'intro' ||
+      subTarget === 'system' ||
+      subTarget === 'permits' ||
+      subTarget === 'location'
+    ) {
       if (subTarget) {
         setCompanyAboutTab(subTarget);
-      } else if (target?.startsWith('about-')) {
-        const tab = target.replace('about-', '');
+      } else if (checkTarget.startsWith('about-')) {
+        const tab = checkTarget.replace('about-', '');
         setCompanyAboutTab(tab);
+      } else if (checkLabel.includes('생산') || checkLabel.includes('물류')) {
+        setCompanyAboutTab('system');
+      } else if (checkLabel.includes('인허가') || checkLabel.includes('인증')) {
+        setCompanyAboutTab('permits');
+      } else if (checkLabel.includes('오시는') || checkLabel.includes('위치')) {
+        setCompanyAboutTab('location');
       } else {
         setCompanyAboutTab('intro');
       }
@@ -149,42 +233,14 @@ export const Header: React.FC = () => {
       return;
     }
 
-    if (target === 'products' || menuId === 'products') {
+    // 7. Products Page Routing
+    if (checkTarget === 'products' || checkLabel.includes('제품')) {
       setActivePage('products');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    if (target === 'notice-board' || (actionType === 'board' && target === 'notice-board')) {
-      setActivePage('notice-board');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (target === 'faq-board' || (actionType === 'board' && target === 'faq-board')) {
-      setActivePage('faq-board');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (target === 'recipe-board' || target === 'event-board' || target === 'posts' || menuId === 'posts') {
-      setActivePage('posts');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (target === 'sample-board' || target === 'sample-board-write' || menuId === 'sample-board' || actionType === 'sample') {
-      setActivePage(target || 'sample-board');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (target === 'quote-board' || target === 'quote-board-write' || menuId === 'quote-board' || actionType === 'quote' || actionType === 'wholesale') {
-      setActivePage(target || 'quote-board');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
+    // 8. External URL
     if ((actionType === 'url' || actionType === 'external') && target) {
       if (target.startsWith('http')) {
         window.open(target, '_blank');
@@ -265,7 +321,7 @@ export const Header: React.FC = () => {
                 onMouseLeave={() => setActiveDropdown(null)}
               >
                 <button
-                  onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id, item.subTarget)}
+                  onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id, item.subTarget, item.name)}
                   className="text-sm font-bold text-[#332525] group-hover:text-[#872D35] flex items-center gap-1 transition-colors py-2"
                 >
                   <span>{item.name}</span>
@@ -280,7 +336,7 @@ export const Header: React.FC = () => {
                     {item.submenus.map((sub) => (
                       <button
                         key={sub.id}
-                        onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id, sub.subTarget)}
+                        onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id, sub.subTarget, sub.label)}
                         className="w-full text-left px-4 py-2.5 text-xs font-semibold text-[#554343] hover:text-[#872D35] hover:bg-[#FAF8F5] transition-colors flex items-center justify-between group/sub"
                       >
                         <span>{sub.label}</span>
@@ -326,7 +382,7 @@ export const Header: React.FC = () => {
           {navMenus.map((item) => (
             <div key={item.id} className="border-b border-[#FAF8F5] pb-2">
               <button
-                onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id, item.subTarget)}
+                onClick={() => handleMenuAction(item.actionType, item.target, undefined, item.id, item.subTarget, item.name)}
                 className="text-xs font-black text-[#872D35] uppercase tracking-wider block mb-1 hover:underline text-left cursor-pointer"
               >
                 {item.name}
@@ -336,7 +392,7 @@ export const Header: React.FC = () => {
                   {item.submenus.map((sub) => (
                     <button
                       key={sub.id}
-                      onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id, sub.subTarget)}
+                      onClick={() => handleMenuAction(sub.actionType, sub.target, undefined, item.id, sub.subTarget, sub.label)}
                       className="text-left py-1 text-xs text-[#554343] hover:text-[#872D35] font-medium cursor-pointer"
                     >
                       {sub.label}

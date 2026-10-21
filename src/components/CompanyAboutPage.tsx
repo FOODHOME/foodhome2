@@ -37,7 +37,7 @@ export const CompanyAboutPage: React.FC = () => {
       {/* Top Hero Banner with Glass Architecture Background (Image 6 style) */}
       <section className="relative h-[280px] sm:h-[340px] flex items-center justify-center overflow-hidden bg-slate-900">
         <img
-          src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80"
+          src={content.aboutBannerImage || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80"}
           alt="푸드홈 본사 전경"
           className="absolute inset-0 w-full h-full object-cover opacity-35"
         />
@@ -49,10 +49,10 @@ export const CompanyAboutPage: React.FC = () => {
             <span>FOOD HOME CORPORATE</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight drop-shadow-md">
-            FOOD HOME 회사소개
+            {content.aboutTitle || 'FOOD HOME 회사소개'}
           </h1>
           <p className="mt-3 text-sm sm:text-lg text-stone-200 font-medium max-w-2xl mx-auto drop-shadow-sm">
-            우리 가족이 먹을 수 있는 안전한 푸드를 제공하는 푸드홈 입니다.
+            {content.aboutDescription || '우리 가족이 먹을 수 있는 안전한 푸드를 제공하는 푸드홈 입니다.'}
           </p>
         </div>
       </section>
@@ -106,13 +106,13 @@ export const CompanyAboutPage: React.FC = () => {
                 <div className="lg:col-span-5">
                   <div className="relative rounded-2xl overflow-hidden shadow-lg border border-stone-200">
                     <img
-                      src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80"
+                      src={content.ceoImageUrl || "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80"}
                       alt="푸드홈 김치 장인 정신"
                       className="w-full h-80 object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 text-white">
-                      <p className="text-xs font-bold text-amber-300">SINCE 1996 · 30년의 고집</p>
-                      <p className="text-lg font-black">"안전하고 정직한 김치만 만듭니다"</p>
+                      <p className="text-xs font-bold text-amber-300">{content.ceoSubtitle || 'SINCE 1996 · 30년의 고집'}</p>
+                      <p className="text-lg font-black">"{content.ceoHighlight || '안전하고 정직한 김치만 만듭니다'}"</p>
                     </div>
                   </div>
                 </div>
@@ -121,33 +121,43 @@ export const CompanyAboutPage: React.FC = () => {
                   <div className="inline-block px-3 py-1 rounded bg-[#872D35]/10 text-[#872D35] text-xs font-bold">
                     CEO 인사말
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-stone-900 leading-snug">
-                    우리 가족이 먹는다는 마음으로,<br />
-                    <span className="text-[#872D35]">끝까지 아삭하고 정직한 맛</span>을 지켜갑니다.
+                  <h2 className="text-2xl sm:text-3xl font-black text-stone-900 leading-snug whitespace-pre-line">
+                    {content.ceoTitle || '우리 가족이 먹는다는 마음으로,\n끝까지 아삭하고 정직한 맛을 지켜갑니다.'}
                   </h2>
                   <div className="space-y-3 text-stone-600 text-sm sm:text-base leading-relaxed">
-                    <p>
-                      안녕하십니까, 주식회사 푸드홈 대표이사 김진성입니다.
-                    </p>
-                    <p>
-                      푸드홈은 지난 30년간 전국 480여 개 외식 프랜차이즈 및 유명 보쌈·족발 맛집의 든든한 식자재 파트너로 성장해 왔습니다.
-                    </p>
-                    <p>
-                      외식업 대표님들의 가장 큰 고충인 ‘시간 경과에 따른 물 생김’과 ‘계절별 무의 편차’를 해결하기 위해, 푸드홈은 독자적인 특허 수분제어 절임 공법을 개발하여 언제나 꼬들꼬들하고 청량한 김치를 균일하게 공급하고 있습니다.
-                    </p>
-                    <p className="font-semibold text-stone-800">
-                      원가와 타협하지 않는 100% 국산 농산물 계약재배와 청결한 위생 관리로, 대표님의 매장이 손님들에게 언제나 찬사를 받을 수 있도록 최고의 파트너가 되겠습니다.
-                    </p>
+                    {content.ceoGreeting ? (
+                      content.ceoGreeting.split('\n\n').map((paragraph, pIdx) => (
+                        <p key={pIdx} className={pIdx === content.ceoGreeting!.split('\n\n').length - 1 ? "font-semibold text-stone-800" : ""}>
+                          {paragraph.split('\n').map((line, lIdx) => (
+                            <React.Fragment key={lIdx}>
+                              {line}
+                              {lIdx < paragraph.split('\n').length - 1 && <br />}
+                            </React.Fragment>
+                          ))}
+                        </p>
+                      ))
+                    ) : (
+                      <>
+                        <p>안녕하십니까, 주식회사 푸드홈 대표이사 김진성입니다.</p>
+                        <p>푸드홈은 지난 30년간 전국 480여 개 외식 프랜차이즈 및 유명 보쌈·족발 맛집의 든든한 식자재 파트너로 성장해 왔습니다.</p>
+                        <p>외식업 대표님들의 가장 큰 고충인 ‘시간 경과에 따른 물 생김’과 ‘계절별 무의 편차’를 해결하기 위해, 푸드홈은 독자적인 특허 수분제어 절임 공법을 개발하여 언제나 꼬들꼬들하고 청량한 김치를 균일하게 공급하고 있습니다.</p>
+                        <p className="font-semibold text-stone-800">원가와 타협하지 않는 100% 국산 농산물 계약재배와 청결한 위생 관리로, 대표님의 매장이 손님들에게 언제나 찬사를 받을 수 있도록 최고의 파트너가 되겠습니다.</p>
+                      </>
+                    )}
                   </div>
 
                   <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-stone-500">주식회사 푸드홈 대표이사</p>
+                      <p className="text-xs text-stone-500">{content.companyName || '주식회사 푸드홈'} {content.ceoRole || '대표이사'}</p>
                       <p className="text-base font-black text-stone-900">{content.ceoName || '김진성'}</p>
                     </div>
-                    <div className="text-right">
-                      <span className="text-xs text-stone-400 font-serif italic">FOOD HOME Co., Ltd.</span>
-                    </div>
+                    {content.ceoSignatureImage ? (
+                      <img src={content.ceoSignatureImage} alt="서명" className="h-10 object-contain" />
+                    ) : (
+                      <div className="text-right">
+                        <span className="text-xs text-stone-400 font-serif italic">FOOD HOME Co., Ltd.</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -186,11 +196,7 @@ export const CompanyAboutPage: React.FC = () => {
                   <span className="font-bold text-stone-800">{content.haccpNumber}</span>
                 </div>
                 <div className="flex border-b border-stone-100 pb-3 md:col-span-2">
-                  <span className="w-32 font-bold text-stone-500 shrink-0">서울 사업본부</span>
-                  <span className="font-medium text-stone-800">{content.hqAddress}</span>
-                </div>
-                <div className="flex border-b border-stone-100 pb-3 md:col-span-2">
-                  <span className="w-32 font-bold text-stone-500 shrink-0">진천 제조공장</span>
+                  <span className="w-32 font-bold text-stone-500 shrink-0">본사 및 제조공장</span>
                   <span className="font-medium text-stone-800">{content.factoryAddress}</span>
                 </div>
                 <div className="flex pb-3 md:col-span-2">
@@ -249,15 +255,15 @@ export const CompanyAboutPage: React.FC = () => {
               <div className="max-w-2xl mb-8">
                 <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">PRODUCTION SYSTEM</span>
                 <h3 className="text-2xl font-black text-stone-900 mt-1">
-                  스마트 자동화 생산 공정 프로세스
+                  {content.systemTitle || '스마트 자동화 생산 공정 프로세스'}
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                  산지 직송부터 매장 주방 도착까지, 푸드홈만의 6단계 안심 품질 관리 시스템을 운영합니다.
+                  {content.systemDescription || '산지 직송부터 매장 주방 도착까지, 푸드홈만의 6단계 안심 품질 관리 시스템을 운영합니다.'}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[
+                {(content.systemSteps && content.systemSteps.length > 0 ? content.systemSteps : [
                   {
                     step: 'STEP 01',
                     title: '계약재배 산지 원료 입고',
@@ -294,7 +300,7 @@ export const CompanyAboutPage: React.FC = () => {
                     desc: '0~5℃ 정온 유지 전용 특장차량으로 발송되어 주문 다음 날 전국 매장 주방까지 가장 신선한 상태로 직배송됩니다.',
                     img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80'
                   }
-                ].map((item, idx) => (
+                ]).map((item, idx) => (
                   <div key={idx} className="rounded-2xl border border-stone-200 overflow-hidden bg-stone-50/50 hover:shadow-md transition-shadow">
                     <div className="h-40 overflow-hidden relative">
                       <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
@@ -340,15 +346,15 @@ export const CompanyAboutPage: React.FC = () => {
               <div className="max-w-2xl mb-8">
                 <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">LEGAL & CERTIFICATIONS</span>
                 <h3 className="text-2xl font-black text-stone-900 mt-1">
-                  공식 영업등록 및 품질 안전 인허가
+                  {content.permitsTitle || '공식 영업등록 및 품질 안전 인허가'}
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                  식품위생법 및 관련 법령에 따른 엄격한 정식 인허가를 필하여 안심하고 납품받으실 수 있습니다.
+                  {content.permitsDescription || '식품위생법 및 관련 법령에 따른 엄격한 정식 인허가를 필하여 안심하고 납품받으실 수 있습니다.'}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {[
+                {(content.permitsList && content.permitsList.length > 0 ? content.permitsList : [
                   {
                     title: '식품제조가공업 영업등록',
                     issuer: '충청북도 진천군청',
@@ -391,7 +397,7 @@ export const CompanyAboutPage: React.FC = () => {
                     desc: '100% 국산 농산물 원료 수급 증명 및 잔류농약 불검출 검사 확인서',
                     status: '계약 체결 완료'
                   }
-                ].map((cert, idx) => (
+                ]).map((cert, idx) => (
                   <div key={idx} className="p-5 rounded-2xl border border-stone-200 bg-stone-50/60 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -418,59 +424,89 @@ export const CompanyAboutPage: React.FC = () => {
         {/* TAB 4: 오시는 길 */}
         {companyAboutTab === 'location' && (
           <div className="space-y-8 animate-in fade-in duration-200">
-            {/* Headquarters Card */}
+            {/* Manufacturing Center / Main Headquarters Card */}
             <div className="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
-                  <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">HEADQUARTERS</span>
-                  <h3 className="text-2xl font-black text-stone-900 mt-1">서울 B2B 사업본부</h3>
+                  <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">MANUFACTURING & HEADQUARTERS</span>
+                  <h3 className="text-2xl font-black text-stone-900 mt-1">
+                    {content.locationTitle || '충북 진천 제1·2 식품가공공장 및 제조물류센터'}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1">
+                    {content.locationDescription || '푸드홈의 전 제품이 청결한 안심 위생 라인에서 제조·출하되는 중심 거점입니다.'}
+                  </p>
                 </div>
                 <button
-                  onClick={() => copyToClipboard(content.hqAddress)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-50 cursor-pointer"
+                  onClick={() => copyToClipboard(content.factoryAddress)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-50 cursor-pointer shadow-2xs"
                 >
-                  <Copy className="w-3.5 h-3.5" />
+                  <Copy className="w-3.5 h-3.5 text-[#872D35]" />
                   <span>주소 복사</span>
                 </button>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 <div className="lg:col-span-7 space-y-4">
-                  <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-2 text-sm">
-                    <div className="flex items-start gap-2">
+                  <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3 text-sm">
+                    <div className="flex items-start gap-2.5">
                       <MapPin className="w-4 h-4 text-[#872D35] shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-bold text-stone-900">{content.hqAddress}</p>
-                        <p className="text-xs text-stone-500 mt-0.5">(지번: 서울특별시 송파구 삼전동 49-11)</p>
+                        <p className="font-black text-stone-900">{content.factoryAddress}</p>
+                        <p className="text-xs text-stone-500 mt-0.5">
+                          {content.locationGuide || '충청북도 진천군 덕산읍 신척산단로 128 (신척일반산업단지 내 식품전용블록)'}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 pt-2 border-t border-stone-200/70 text-xs">
-                      <Phone className="w-3.5 h-3.5 text-stone-400" />
-                      <span className="font-bold">대표전화: {content.phone}</span>
-                      <span className="text-stone-300">|</span>
-                      <span>팩스: {content.fax}</span>
+
+                    <div className="flex flex-wrap items-center gap-4 pt-3 border-t border-stone-200 text-xs text-stone-600">
+                      <div className="flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-stone-400" />
+                        <span className="font-bold text-stone-900">대표전화: {content.phone}</span>
+                      </div>
+                      {content.fax && (
+                        <div className="flex items-center gap-1.5">
+                          <span>팩스: {content.fax}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-stone-400" />
+                        <span>운영시간: {content.csHours}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <Clock className="w-3.5 h-3.5 text-stone-400" />
-                      <span>{content.csHours}</span>
-                    </div>
+
+                    {(content.transitInfo || content.parkingInfo) && (
+                      <div className="pt-3 border-t border-stone-200 text-xs space-y-1">
+                        {content.transitInfo && (
+                          <p className="text-stone-600">
+                            <span className="font-bold text-stone-800">교통 안내: </span>
+                            {content.transitInfo}
+                          </p>
+                        )}
+                        {content.parkingInfo && (
+                          <p className="text-stone-600">
+                            <span className="font-bold text-stone-800">주차 안내: </span>
+                            {content.parkingInfo}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap gap-2 pt-2">
                     <a
-                      href="https://map.naver.com"
+                      href={`https://map.naver.com/v5/search/${encodeURIComponent(content.factoryAddress)}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-4 py-2 rounded-lg bg-[#03C75A] text-white text-xs font-bold hover:opacity-90 inline-flex items-center gap-1.5"
+                      className="px-4 py-2.5 rounded-xl bg-[#03C75A] text-white text-xs font-bold hover:opacity-90 inline-flex items-center gap-1.5 shadow-2xs"
                     >
                       <span>네이버 지도에서 보기</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                     <a
-                      href="https://map.kakao.com"
+                      href={`https://map.kakao.com/link/search/${encodeURIComponent(content.factoryAddress)}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-4 py-2 rounded-lg bg-[#FEE500] text-[#191919] text-xs font-bold hover:opacity-90 inline-flex items-center gap-1.5"
+                      className="px-4 py-2.5 rounded-xl bg-[#FEE500] text-[#191919] text-xs font-bold hover:opacity-90 inline-flex items-center gap-1.5 shadow-2xs"
                     >
                       <span>카카오맵에서 보기</span>
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -478,65 +514,16 @@ export const CompanyAboutPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 h-56 rounded-2xl overflow-hidden border border-stone-200 shadow-inner relative">
-                  <img
-                    src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=800&q=80"
-                    alt="서울 본사 약도"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-stone-900/40 flex items-center justify-center p-4 text-center">
-                    <div className="bg-white/95 px-4 py-2 rounded-xl shadow-lg border border-stone-300">
-                      <p className="font-black text-xs text-stone-900">푸드홈 서울 본사</p>
-                      <p className="text-[11px] text-stone-600">송파구 백제고분로 38길 19</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Factory Card */}
-            <div className="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div>
-                  <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">MANUFACTURING PLANT</span>
-                  <h3 className="text-2xl font-black text-stone-900 mt-1">충북 진천 제1·2 식품가공공장</h3>
-                </div>
-                <button
-                  onClick={() => copyToClipboard(content.factoryAddress)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-50 cursor-pointer"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>주소 복사</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-7 space-y-4">
-                  <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-2 text-sm">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-[#872D35] shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-bold text-stone-900">{content.factoryAddress}</p>
-                        <p className="text-xs text-stone-500 mt-0.5">신척일반산업단지 내 식품전용블록</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 pt-2 border-t border-stone-200/70 text-xs">
-                      <Phone className="w-3.5 h-3.5 text-stone-400" />
-                      <span className="font-bold">공장 관리팀: {content.phone}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-5 h-56 rounded-2xl overflow-hidden border border-stone-200 shadow-inner relative">
+                <div className="lg:col-span-5 h-64 rounded-2xl overflow-hidden border border-stone-200 shadow-inner relative">
                   <img
                     src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?auto=format&fit=crop&w=800&q=80"
-                    alt="진천 공장 전경"
+                    alt="진천 제조공장 전경"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-stone-900/40 flex items-center justify-center p-4 text-center">
-                    <div className="bg-white/95 px-4 py-2 rounded-xl shadow-lg border border-stone-300">
-                      <p className="font-black text-xs text-stone-900">푸드홈 충북 진천 공장</p>
-                      <p className="text-[11px] text-stone-600">신척산단로 128</p>
+                    <div className="bg-white/95 px-5 py-3 rounded-2xl shadow-xl border border-stone-200">
+                      <p className="font-black text-sm text-stone-900">{content.companyName || '주식회사 푸드홈'}</p>
+                      <p className="text-xs text-stone-600 mt-0.5">{content.factoryAddress}</p>
                     </div>
                   </div>
                 </div>

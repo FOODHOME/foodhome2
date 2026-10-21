@@ -66,9 +66,11 @@ export const initialData: AppState = {
         actionType: 'scroll',
         target: 'footer-section',
         submenus: [
-          { id: 'sub-cs-1', label: '사업자 무료 샘플 신청', actionType: 'page', target: 'sample-board' },
-          { id: 'sub-cs-2', label: '1:1 대량 납품 견적 상담', actionType: 'page', target: 'quote-board' },
-          { id: 'sub-cs-3', label: '고객센터 유선 전화안내', actionType: 'scroll', target: 'footer-section' }
+          { id: 'sub-cs-1', label: '공지사항', actionType: 'board', target: 'notice-board' },
+          { id: 'sub-cs-2', label: '자주하는 질문 (FAQ)', actionType: 'board', target: 'faq-board' },
+          { id: 'sub-cs-3', label: '1:1 대량 납품 견적 상담', actionType: 'quote', target: 'quote-board' },
+          { id: 'sub-cs-4', label: '사업자 무료 샘플 신청', actionType: 'sample', target: 'sample-board' },
+          { id: 'sub-cs-5', label: '고객센터 유선 전화안내', actionType: 'scroll', target: 'footer-section' }
         ]
       }
     ],
@@ -253,21 +255,123 @@ export const initialData: AppState = {
       }
     ],
 
-    // 1. Company About Page Content
+    // 1. Company About Page Content (4 Detailed Subpages)
     aboutBannerImage: './images/banner_bossam.jpg',
     aboutTitle: '안전하고 정직한 먹거리, 푸드홈 이야기',
     aboutDescription: '우리 가족이 안심하고 먹을 수 있는 프리미엄 보쌈무김치와 비법 김칫속을 정직한 원재료로 빚어냅니다.',
-    ceoGreeting: '안녕하십니까, 주식회사 푸드홈 대표이사 김진성입니다. 30년 전 어머니의 손맛으로 시작하여 오늘날 전국 480여 개 외식 매장의 든든한 파트너가 되기까지, 저희 푸드홈의 기준은 단 하나였습니다. "우리 가족이 안심하고 먹을 수 있는 음식만을 만든다." 고객의 식탁에 올라가는 순간까지 최고의 아삭함과 감칠맛을 약속드립니다.',
-    ceoImageUrl: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=600&q=80',
+    ceoGreeting: '안녕하십니까, 주식회사 푸드홈 대표이사 김진성입니다.\n\n푸드홈은 지난 30년간 전국 480여 개 외식 프랜차이즈 및 유명 보쌈·족발 맛집의 든든한 식자재 파트너로 성장해 왔습니다.\n\n외식업 대표님들의 가장 큰 고충인 ‘시간 경과에 따른 물 생김’과 ‘계절별 무의 편차’를 해결하기 위해, 푸드홈은 독자적인 특허 수분제어 절임 공법을 개발하여 언제나 꼬들꼬들하고 청량한 김치를 균일하게 공급하고 있습니다.\n\n원가와 타협하지 않는 100% 국산 농산물 계약재배와 청결한 위생 관리로, 대표님의 매장이 손님들에게 언제나 찬사를 받을 수 있도록 최고의 파트너가 되겠습니다.',
+    ceoImageUrl: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80',
+    ceoSubtitle: 'SINCE 1996 · 30년의 고집',
+    ceoTitle: '우리 가족이 먹는다는 마음으로, 끝까지 아삭하고 정직한 맛을 지켜갑니다.',
+    ceoHighlight: '안전하고 정직한 김치만 만듭니다',
+    ceoRole: '대표이사',
+    ceoSignatureImage: '',
     historyItems: [
       { year: '1996', title: '푸드홈 식품연구소 설립', desc: '전통 비법 김치 양념 및 절임 공법 연구 개시' },
       { year: '2010', title: '특허 수분제어 삼투압 절임공법 등록', desc: '물이 생기지 않는 꼬들꼬들 보쌈무김치 기술 특허 취득' },
       { year: '2018', title: '충북 진천 스마트 클린 제조센터 준공', desc: '일일 4.2톤 규모의 안심 위생 자동화 생산 라인 가동' },
       { year: '2023', title: '전국 480개 외식 파트너사 돌파', desc: '콜드체인 전국 익일 직배송 물류망 확장' }
     ],
-    systemDescription: '최신 자동 세척설비, 3D X-ray 이물검출기, 항온항습 클린룸 시스템을 갖춘 충북 진천 제1·2공장에서 생산 후 전국 냉장 콜드체인으로 배송합니다.',
-    permitsDescription: '식품제조가공업 정식 영업등록, 영업배상책임보험 5억원 가입, 전 공정 잔류농약 및 미생물 정밀 검사 완료.',
+
+    // Subpage 2: Production & Logistics
+    systemTitle: '스마트 자동화 생산 공정 프로세스',
+    systemDescription: '산지 직송부터 매장 주방 도착까지, 푸드홈만의 6단계 안심 품질 관리 시스템을 운영합니다.',
+    systemFacilityImage: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+    systemLogisticsImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80',
+    systemSteps: [
+      {
+        step: 'STEP 01',
+        title: '계약재배 산지 원료 입고',
+        desc: '강원도 평창 고랭지무(여름) 및 제주 서귀포 청정 월동무(겨울) 산지에서 당일 수확된 최상급 원무만을 선별 입고합니다.',
+        img: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=600&q=80'
+      },
+      {
+        step: 'STEP 02',
+        title: '3단 마이크로 버블 세척',
+        desc: '고압 미세 기포 발생 장치를 통해 잔류 농약과 흙, 미세 이물질을 3단계에 걸쳐 완벽하게 세척 정단합니다.',
+        img: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80'
+      },
+      {
+        step: 'STEP 03',
+        title: '특허 수분제어 절임 공정',
+        desc: '신안 천일염의 정확한 염도 비율과 푸드홈 특허 공법을 적용하여, 시간이 흘러도 물러짐 없는 꼬들꼬들함을 완성합니다.',
+        img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80'
+      },
+      {
+        step: 'STEP 04',
+        title: '황금 배합비 비법 버무림',
+        desc: '30년 전통 엿기름과 청결 태양초 고춧가루로 저온 숙성된 특제 양념을 매일 새벽 황금 비율로 균일하게 버무립니다.',
+        img: 'https://images.unsplash.com/photo-1583032015879-67990c74900a?auto=format&fit=crop&w=600&q=80'
+      },
+      {
+        step: 'STEP 05',
+        title: '금속검출기 & 정밀 검수',
+        desc: '포장 직전 고감도 금속 검출기와 중량 체크기를 전량 통과시켜 단 0.1%의 규격 미달 및 이물 유입도 철저히 차단합니다.',
+        img: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80'
+      },
+      {
+        step: 'STEP 06',
+        title: '냉장 콜드체인 익일 직배송',
+        desc: '0~5℃ 정온 유지 전용 특장차량으로 발송되어 주문 다음 날 전국 매장 주방까지 가장 신선한 상태로 직배송됩니다.',
+        img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80'
+      }
+    ],
+
+    // Subpage 3: Permits & Certifications
+    permitsTitle: '공식 영업등록 및 품질 안전 인허가',
+    permitsDescription: '식품위생법 및 관련 법령에 따른 엄격한 정식 인허가를 필하여 안심하고 납품받으실 수 있습니다.',
+    permitsList: [
+      {
+        title: '식품제조가공업 영업등록',
+        issuer: '충청북도 진천군청',
+        number: '제 2021-04-9218호',
+        desc: '식품위생법 제37조에 따른 정식 식품가공 및 반찬류 제조 시설 적합 인가',
+        status: '정상 등록 유지'
+      },
+      {
+        title: '사업자등록증',
+        issuer: '국세청 (동청주세무서)',
+        number: '312-81-94821',
+        desc: '주식회사 푸드홈 정식 법인 사업자등록 (업태: 제조업 / 종목: 김치 및 절임식품)',
+        status: '법인 정식 인가'
+      },
+      {
+        title: '통신판매업 신고증',
+        issuer: '진천군 일자리경제과',
+        number: '제 2023-충북진천-0145호',
+        desc: '전자상거래 등에서의 소비자보호에 관한 법률에 따른 통신판매 정식 신고',
+        status: '정식 신고 완료'
+      },
+      {
+        title: '자가품질위탁시험 성적서',
+        issuer: '공인 식품위생검사기관',
+        number: '정기 분기별 시험 전항목 적합',
+        desc: '대장균군, 타르색소, 납, 카드뮴, 보존료 일체 불검출 규격 적합 판정',
+        status: '적합 판정'
+      },
+      {
+        title: '생산물 배상책임보험 (PL보험)',
+        issuer: '현대해상화재보험',
+        number: '보상한도 1억원 가입',
+        desc: '푸드홈에서 생산·공급한 식품으로 인한 사고 발생 시 전액 배상 보장',
+        status: '가입 유지 중'
+      },
+      {
+        title: '원산지 증명 및 계약재배 협약서',
+        issuer: '농협 및 산지 영농조합',
+        number: '강원도 평창 / 제주 서귀포',
+        desc: '100% 국산 농산물 원료 수급 증명 및 잔류농약 불검출 검사 확인서',
+        status: '계약 체결 완료'
+      }
+    ],
+
+    // Subpage 4: Location & Facilities
+    locationTitle: '오시는 길 & 제조 가공 센터',
+    locationDescription: '충북 진천 식품제조가공 공장 및 물류센터 안내입니다.',
     locationGuide: '충청북도 진천군 덕산읍 신척산단로 128 (신척산업단지 내 푸드홈 식품가공센터)',
+    locationMapEmbed: '',
+    transitInfo: '중부고속도로 진천IC에서 차량 10분, 신척일반산업단지 메인 진입로',
+    parkingInfo: '방문객 전용 무료 주차장 완비 (대형 화물트럭 및 냉장 탑차 동시 주차 가능)',
 
     // 2. Manufacturing Process Page Content
     processTitle: '푸드홈만의 4단계 안심 제조공정',
