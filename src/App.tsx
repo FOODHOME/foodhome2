@@ -24,6 +24,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { CompanyAboutPage } from './components/CompanyAboutPage';
 import { ProductsPage } from './components/ProductsPage';
+import { ProductDetailPage } from './components/ProductDetailPage';
 import { SampleBoardPage } from './components/SampleBoardPage';
 import { QuoteBoardPage } from './components/QuoteBoardPage';
 import { NoticeBoardPage } from './components/NoticeBoardPage';
@@ -102,8 +103,13 @@ const MainContent: React.FC = () => {
 
       {/* Main Sections or Dedicated Subpages */}
       <main className="flex-1">
-        {activePage === 'about' && <CompanyAboutPage />}
+        {activePage === 'about' && <CompanyAboutPage targetTab="intro" />}
+        {activePage === 'about-intro' && <CompanyAboutPage targetTab="intro" />}
+        {activePage === 'about-system' && <CompanyAboutPage targetTab="system" />}
+        {activePage === 'about-permits' && <CompanyAboutPage targetTab="permits" />}
+        {activePage === 'about-location' && <CompanyAboutPage targetTab="location" />}
         {activePage === 'products' && <ProductsPage />}
+        {(activePage === 'product-detail' || activePage?.startsWith('product:')) && <ProductDetailPage />}
         {activePage === 'sample-board' && <SampleBoardPage initialViewMode="list" />}
         {activePage === 'sample-board-write' && <SampleBoardPage initialViewMode="write" />}
         {activePage === 'quote-board' && <QuoteBoardPage initialViewMode="list" />}

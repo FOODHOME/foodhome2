@@ -79,6 +79,9 @@ interface AppContextType {
   // UI State & Subpages
   activePage: string;
   setActivePage: (page: string) => void;
+  selectedProductId: string;
+  setSelectedProductId: (id: string) => void;
+  navigateToProductDetail: (productId: string) => void;
   companyAboutTab: string;
   setCompanyAboutTab: (tab: string) => void;
   isAdminOpen: boolean;
@@ -236,7 +239,83 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return initialData;
   });
 
-  const [activePage, setActivePage] = useState<string>('home');
+  const [activePage, setActivePage] = useState<string>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.location.hash) {
+        const hash = window.location.hash.replace('#', '');
+        if (hash.startsWith('product/')) return 'product-detail';
+        if (hash) return hash;
+      }
+    } catch {}
+    return 'home';
+  });
+
+  const [selectedProductId, setSelectedProductId] = useState<string>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        if (window.location.hash.startsWith('#product/')) {
+          return window.location.hash.replace('#product/', '');
+        }
+        const saved = sessionStorage.getItem('foodhome_selected_product_id');
+        if (saved) return saved;
+      }
+    } catch {}
+    return 'prod-1';
+  });
+
+  const navigateToProductDetail = (productId: string) => {
+    setSelectedProductId(productId);
+    setActivePage('product-detail');
+    try {
+      sessionStorage.setItem('foodhome_selected_product_id', productId);
+      if (typeof window !== 'undefined') {
+        window.location.hash = `product/${productId}`;
+      }
+    } catch {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSetActivePage = (page: string) => {
+    if (page.startsWith('product:')) {
+      const pId = page.replace('product:', '');
+      navigateToProductDetail(pId);
+      return;
+    }
+    setActivePage(page);
+    try {
+      if (typeof window !== 'undefined') {
+        if (page === 'product-detail') {
+          window.location.hash = `product/${selectedProductId}`;
+        } else if (page === 'home') {
+          window.location.hash = '';
+        } else {
+          window.location.hash = page;
+        }
+      }
+    } catch {}
+  };
+
+  // Sync hashchange to activePage and selectedProductId
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (!hash || hash === 'home') {
+        setActivePage('home');
+      } else if (hash.startsWith('product/')) {
+        const pId = hash.replace('product/', '');
+        setSelectedProductId(pId);
+        setActivePage('product-detail');
+      } else {
+        setActivePage(hash);
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('hashchange', handleHashChange);
+      return () => window.removeEventListener('hashchange', handleHashChange);
+    }
+  }, []);
+
   const [companyAboutTab, setCompanyAboutTab] = useState<string>('intro');
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
@@ -961,7 +1040,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         resetToDefaults,
         importData,
         activePage,
-        setActivePage,
+        setActivePage: handleSetActivePage,
+        selectedProductId,
+        setSelectedProductId,
+        navigateToProductDetail,
         companyAboutTab,
         setCompanyAboutTab,
         isAdminOpen,

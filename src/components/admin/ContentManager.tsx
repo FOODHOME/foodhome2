@@ -1164,6 +1164,58 @@ export const ContentManager: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* 상세페이지 스펙 추가 설정 (원산지, 포장형태, 최소발주, 배송안내) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-stone-100">
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        원산지 정보
+                      </label>
+                      <input
+                        type="text"
+                        value={currentProduct.origin || ''}
+                        onChange={(e) => handleUpdateCurrentProduct({ origin: e.target.value })}
+                        placeholder="예: 절임무(국내산), 고춧가루(국내산)"
+                        className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        포장 형태
+                      </label>
+                      <input
+                        type="text"
+                        value={currentProduct.packagingType || ''}
+                        onChange={(e) => handleUpdateCurrentProduct({ packagingType: e.target.value })}
+                        placeholder="예: 2중 안심 진공 실링백"
+                        className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        최소 발주 단위
+                      </label>
+                      <input
+                        type="text"
+                        value={currentProduct.minOrder || ''}
+                        onChange={(e) => handleUpdateCurrentProduct({ minOrder: e.target.value })}
+                        placeholder="예: 1박스 (10kg) 이상"
+                        className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        배송 조건
+                      </label>
+                      <input
+                        type="text"
+                        value={currentProduct.deliveryInfo || ''}
+                        onChange={(e) => handleUpdateCurrentProduct({ deliveryInfo: e.target.value })}
+                        placeholder="예: 전국 익일 냉장 콜드체인 직배송"
+                        className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white"
+                      />
+                    </div>
+                  </div>
+
                   {/* ⑮ 제품 표시/숨김 설정 */}
                   <div className="flex items-center gap-4 pt-2 border-t border-stone-100">
                     <label className="flex items-center gap-2 text-xs font-bold text-stone-700 cursor-pointer">

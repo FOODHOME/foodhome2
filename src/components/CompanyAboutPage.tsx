@@ -16,9 +16,15 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-export const CompanyAboutPage: React.FC = () => {
+interface CompanyAboutPageProps {
+  targetTab?: 'intro' | 'system' | 'permits' | 'location';
+}
+
+export const CompanyAboutPage: React.FC<CompanyAboutPageProps> = ({ targetTab }) => {
   const { state, companyAboutTab, setCompanyAboutTab, setActivePage } = useApp();
   const { content } = state;
+
+  const currentTab = targetTab || companyAboutTab || 'intro';
 
   const subpages = content.companySubpages || [];
   const getSubpage = (id: string) => subpages.find(s => s.id === id);
@@ -28,12 +34,43 @@ export const CompanyAboutPage: React.FC = () => {
   const permitsSub = getSubpage('permits');
   const locationSub = getSubpage('location');
 
+  const subpageMeta: Record<string, { bannerTitle: string; bannerDesc: string; breadcrumb: string }> = {
+    intro: {
+      bannerTitle: introSub?.title || '회사소개 & CEO 인사말',
+      bannerDesc: introSub?.description || content.aboutDescription || '우리 가족이 먹을 수 있는 안전한 푸드를 제공하는 푸드홈 입니다.',
+      breadcrumb: introSub?.menuLabel || 'CEO 인사말'
+    },
+    system: {
+      bannerTitle: systemSub?.title || content.systemTitle || '생산 & 물류시스템',
+      bannerDesc: systemSub?.description || content.systemDescription || '원료 입고부터 3단 마이크로 버블세척, 특허 절임, 0~5℃ 콜드체인 직배송까지',
+      breadcrumb: systemSub?.menuLabel || '생산 & 물류시스템'
+    },
+    permits: {
+      bannerTitle: permitsSub?.title || content.permitsTitle || '인허가사항 & 품질인증',
+      bannerDesc: permitsSub?.description || content.permitsDescription || '식품제조가공업 영업등록 및 공인 안전 위생 시험성적서 적합 인증',
+      breadcrumb: permitsSub?.menuLabel || '인허가사항'
+    },
+    location: {
+      bannerTitle: locationSub?.title || '오시는 길 (본사 / 제조공장)',
+      bannerDesc: locationSub?.description || `${content.factoryAddress || '충청북도 진천군 덕산읍 산수로 482'} 푸드홈 스마트팩토리`,
+      breadcrumb: locationSub?.menuLabel || '오시는 길'
+    }
+  };
+
+  const currentMeta = subpageMeta[currentTab] || subpageMeta.intro;
+
   const tabs = [
-    { id: 'intro', label: introSub?.menuLabel || 'CEO 인사말', icon: Building2, visible: introSub?.visible !== false },
+    { id: 'intro', label: introSub?.menuLabel || '회사소개 & CEO 인사말', icon: Building2, visible: introSub?.visible !== false },
     { id: 'system', label: systemSub?.menuLabel || '생산 & 물류시스템', icon: Truck, visible: systemSub?.visible !== false },
     { id: 'permits', label: permitsSub?.menuLabel || '인허가사항', icon: Award, visible: permitsSub?.visible !== false },
     { id: 'location', label: locationSub?.menuLabel || '오시는 길', icon: MapPin, visible: locationSub?.visible !== false },
   ].filter(t => t.visible);
+
+  const handleTabClick = (tabId: string) => {
+    setCompanyAboutTab(tabId);
+    setActivePage('about-' + tabId);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -43,7 +80,7 @@ export const CompanyAboutPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-stone-50 text-[#2A2020] animate-in fade-in duration-200">
       {/* Top Hero Banner with Glass Architecture Background (Image 6 style) */}
-      <section className="relative h-[280px] sm:h-[340px] flex items-center justify-center overflow-hidden bg-slate-900">
+      <section className="relative h-[260px] sm:h-[320px] flex items-center justify-center overflow-hidden bg-slate-900">
         <img
           src={content.aboutBannerImage || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80"}
           alt="푸드홈 본사 전경"
@@ -54,13 +91,13 @@ export const CompanyAboutPage: React.FC = () => {
         <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#872D35]/80 text-white text-xs font-bold mb-3 backdrop-blur-xs border border-white/20">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>FOOD HOME CORPORATE</span>
+            <span>FOOD HOME CORPORATE · {currentMeta.breadcrumb.toUpperCase()}</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight drop-shadow-md">
-            {content.aboutTitle || 'FOOD HOME 회사소개'}
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md">
+            {currentMeta.bannerTitle}
           </h1>
-          <p className="mt-3 text-sm sm:text-lg text-stone-200 font-medium max-w-2xl mx-auto drop-shadow-sm">
-            {content.aboutDescription || '우리 가족이 먹을 수 있는 안전한 푸드를 제공하는 푸드홈 입니다.'}
+          <p className="mt-3 text-xs sm:text-base text-stone-200 font-medium max-w-2xl mx-auto drop-shadow-sm">
+            {currentMeta.bannerDesc}
           </p>
         </div>
       </section>
@@ -71,11 +108,11 @@ export const CompanyAboutPage: React.FC = () => {
           <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = companyAboutTab === tab.id;
+              const isActive = currentTab === tab.id;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setCompanyAboutTab(tab.id)}
+                  onClick={() => handleTabClick(tab.id)}
                   className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all border-b-2 cursor-pointer ${
                     isActive
                       ? 'border-[#872D35] text-[#872D35] bg-stone-50/70'
@@ -97,7 +134,14 @@ export const CompanyAboutPage: React.FC = () => {
               홈
             </span>
             <span>›</span>
-            <span className="font-bold text-stone-700">회사소개</span>
+            <span 
+              onClick={() => setActivePage('about-intro')}
+              className="hover:text-stone-700 cursor-pointer"
+            >
+              회사소개
+            </span>
+            <span>›</span>
+            <span className="font-bold text-[#872D35]">{currentMeta.breadcrumb}</span>
           </div>
         </div>
       </div>
@@ -106,7 +150,7 @@ export const CompanyAboutPage: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
 
         {/* TAB 1: 회사소개 & CEO 인사말 */}
-        {companyAboutTab === 'intro' && (
+        {currentTab === 'intro' && (
           <div className="space-y-12 animate-in fade-in duration-200">
             {/* CEO Greeting Card */}
             <div className="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm">
@@ -256,7 +300,7 @@ export const CompanyAboutPage: React.FC = () => {
         )}
 
         {/* TAB 2: 생산 & 물류시스템 */}
-        {companyAboutTab === 'system' && (
+        {currentTab === 'system' && (
           <div className="space-y-10 animate-in fade-in duration-200">
             {/* Manufacturing Flow */}
             <div className="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm">
@@ -348,7 +392,7 @@ export const CompanyAboutPage: React.FC = () => {
         )}
 
         {/* TAB 3: 인허가사항 */}
-        {companyAboutTab === 'permits' && (
+        {currentTab === 'permits' && (
           <div className="space-y-8 animate-in fade-in duration-200">
             <div className="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm">
               <div className="max-w-2xl mb-8">
@@ -430,7 +474,7 @@ export const CompanyAboutPage: React.FC = () => {
         )}
 
         {/* TAB 4: 오시는 길 */}
-        {companyAboutTab === 'location' && (
+        {currentTab === 'location' && (
           <div className="space-y-8 animate-in fade-in duration-200">
             {/* Manufacturing Center / Main Headquarters Card */}
             <div className="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm">

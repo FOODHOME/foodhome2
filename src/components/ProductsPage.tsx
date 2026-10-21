@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 export const ProductsPage: React.FC = () => {
-  const { state, setSelectedProductForDetail, setActivePage, setIsWholesaleModalOpen } = useApp();
+  const { state, navigateToProductDetail, setActivePage, setIsWholesaleModalOpen } = useApp();
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -115,7 +115,10 @@ export const ProductsPage: React.FC = () => {
               className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col group"
             >
               {/* Product Image */}
-              <div className="relative h-60 overflow-hidden bg-stone-100 cursor-pointer" onClick={() => setSelectedProductForDetail(product)}>
+              <div 
+                className="relative h-60 overflow-hidden bg-stone-100 cursor-pointer" 
+                onClick={() => navigateToProductDetail(product.id)}
+              >
                 <img
                   src={product.imageUrl}
                   alt={product.name}
@@ -149,7 +152,7 @@ export const ProductsPage: React.FC = () => {
                     {product.category}
                   </span>
                   <h3 
-                    onClick={() => setSelectedProductForDetail(product)}
+                    onClick={() => navigateToProductDetail(product.id)}
                     className="font-black text-lg sm:text-xl text-stone-900 group-hover:text-[#872D35] transition-colors cursor-pointer leading-snug mb-1"
                   >
                     {product.name}
@@ -180,10 +183,10 @@ export const ProductsPage: React.FC = () => {
                 {/* Actions */}
                 <div className="pt-2 border-t border-stone-100 flex items-center gap-2">
                   <button
-                    onClick={() => setSelectedProductForDetail(product)}
-                    className="flex-1 py-2.5 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-50 text-xs font-bold transition-colors cursor-pointer"
+                    onClick={() => navigateToProductDetail(product.id)}
+                    className="flex-1 py-2.5 rounded-xl border border-stone-300 hover:border-[#872D35] text-stone-700 hover:text-[#872D35] hover:bg-stone-50 text-xs font-bold transition-colors cursor-pointer"
                   >
-                    상세 규격서
+                    상세페이지 보기 →
                   </button>
                   <button
                     onClick={() => setActivePage('sample-board-write')}

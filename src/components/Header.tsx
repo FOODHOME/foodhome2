@@ -22,7 +22,8 @@ export const Header: React.FC = () => {
     setIsWholesaleModalOpen,
     setActivePage,
     activePage,
-    setCompanyAboutTab
+    setCompanyAboutTab,
+    navigateToProductDetail
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -78,10 +79,10 @@ export const Header: React.FC = () => {
           actionType: 'page' as const,
           target: 'products',
           submenus: [
-            { id: 'sub-prod-1', label: '명품 보쌈무김치', actionType: 'page' as const, target: 'products' },
-            { id: 'sub-prod-2', label: '비법 보쌈김칫속', actionType: 'page' as const, target: 'products' },
-            { id: 'sub-prod-3', label: '업소용 대용량 (10kg)', actionType: 'page' as const, target: 'products' },
-            { id: 'sub-prod-4', label: '소포장 & 밀키트 (500g)', actionType: 'page' as const, target: 'products' }
+            { id: 'sub-prod-1', label: '명품 보쌈무김치', actionType: 'page' as const, target: 'product-detail', subTarget: 'prod-1' },
+            { id: 'sub-prod-2', label: '비법 보쌈겉절이', actionType: 'page' as const, target: 'product-detail', subTarget: 'prod-2' },
+            { id: 'sub-prod-3', label: '업소용 대용량 (10kg)', actionType: 'page' as const, target: 'product-detail', subTarget: 'prod-4' },
+            { id: 'sub-prod-4', label: '소포장 & 밀키트 (500g)', actionType: 'page' as const, target: 'product-detail', subTarget: 'prod-5' }
           ]
         },
         {
@@ -214,26 +215,65 @@ export const Header: React.FC = () => {
       subTarget === 'permits' ||
       subTarget === 'location'
     ) {
-      if (subTarget) {
-        setCompanyAboutTab(subTarget);
+      let selectedTab: 'intro' | 'system' | 'permits' | 'location' = 'intro';
+      if (subTarget && ['intro', 'system', 'permits', 'location'].includes(subTarget)) {
+        selectedTab = subTarget as any;
       } else if (checkTarget.startsWith('about-')) {
-        const tab = checkTarget.replace('about-', '');
-        setCompanyAboutTab(tab);
+        const t = checkTarget.replace('about-', '');
+        if (['intro', 'system', 'permits', 'location'].includes(t)) {
+          selectedTab = t as any;
+        }
       } else if (checkLabel.includes('생산') || checkLabel.includes('물류')) {
-        setCompanyAboutTab('system');
+        selectedTab = 'system';
       } else if (checkLabel.includes('인허가') || checkLabel.includes('인증')) {
-        setCompanyAboutTab('permits');
+        selectedTab = 'permits';
       } else if (checkLabel.includes('오시는') || checkLabel.includes('위치')) {
-        setCompanyAboutTab('location');
-      } else {
-        setCompanyAboutTab('intro');
+        selectedTab = 'location';
       }
-      setActivePage('about');
+
+      setCompanyAboutTab(selectedTab);
+      setActivePage('about-' + selectedTab);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    // 7. Products Page Routing
+    // 7. Individual Product Detail Page Routing
+    if (
+      checkTarget === 'product-detail' ||
+      checkTarget.startsWith('product:') ||
+      (checkTarget === 'products' && subTarget && subTarget !== 'all') ||
+      subTarget?.startsWith('prod-') ||
+      checkLabel.includes('명품 보쌈무김치') ||
+      checkLabel.includes('보쌈김칫속') ||
+      checkLabel.includes('보쌈겉절이') ||
+      checkLabel.includes('대용량') ||
+      checkLabel.includes('소포장') ||
+      checkLabel.includes('밀키트')
+    ) {
+      let targetProdId = '';
+      if (checkTarget.startsWith('product:')) {
+        targetProdId = target!.replace(/^product:/i, '');
+      } else if (subTarget && subTarget.startsWith('prod-')) {
+        targetProdId = subTarget;
+      } else if (checkLabel.includes('명품 보쌈무김치') || subTarget === 'bossam') {
+        targetProdId = 'prod-1';
+      } else if (checkLabel.includes('보쌈김칫속') || checkLabel.includes('보쌈겉절이') || subTarget === 'seasoning') {
+        targetProdId = 'prod-2';
+      } else if (checkLabel.includes('대용량') || subTarget === 'bulk') {
+        targetProdId = 'prod-4';
+      } else if (checkLabel.includes('소포장') || checkLabel.includes('밀키트') || subTarget === 'pouch') {
+        targetProdId = 'prod-5';
+      } else if (subTarget && state.products.some(p => p.id === subTarget)) {
+        targetProdId = subTarget;
+      }
+
+      if (targetProdId) {
+        navigateToProductDetail(targetProdId);
+        return;
+      }
+    }
+
+    // 8. General Products Catalog Routing
     if (checkTarget === 'products' || checkLabel.includes('제품')) {
       setActivePage('products');
       window.scrollTo({ top: 0, behavior: 'smooth' });

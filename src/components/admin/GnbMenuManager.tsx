@@ -25,7 +25,12 @@ import {
 // Predefined page and subTarget options
 export const AVAILABLE_PAGES = [
   { id: 'about', label: '회사소개 (Company About)' },
-  { id: 'products', label: '제품소개 (Products)' },
+  { id: 'about-intro', label: '회사소개 & CEO 인사말 (독립 페이지)' },
+  { id: 'about-system', label: '생산 & 물류시스템 (독립 페이지)' },
+  { id: 'about-permits', label: '인허가사항 (독립 페이지)' },
+  { id: 'about-location', label: '오시는 길 (독립 페이지)' },
+  { id: 'products', label: '제품소개 (전체 제품 목록)' },
+  { id: 'product-detail', label: '제품별 상세페이지 (개별 제품)' },
   { id: 'wholesale-guide', label: '납품안내 (Wholesale Guide)' },
   { id: 'posts', label: '소식 & 레시피 (Posts/Recipes)' },
   { id: 'home', label: '메인 홈 (Main Home)' }
@@ -39,11 +44,19 @@ export const SUB_MENU_OPTIONS: Record<string, { id: string; label: string }[]> =
     { id: 'location', label: '오시는 길 (본사/공장 위치)' }
   ],
   products: [
-    { id: 'all', label: '전체 제품 카탈로그' },
-    { id: 'bossam', label: '명품 보쌈무김치' },
-    { id: 'seasoning', label: '비법 보쌈김칫속' },
-    { id: 'bulk', label: '업소용 대용량 (10kg)' },
-    { id: 'pouch', label: '소포장 & 밀키트 (500g)' }
+    { id: 'all', label: '전체 제품 카탈로그 목록' },
+    { id: 'prod-1', label: '명품 보쌈무김치 상세페이지' },
+    { id: 'prod-2', label: '비법 보쌈겉절이 상세페이지' },
+    { id: 'prod-4', label: '업소용 대용량 (10kg) 상세페이지' },
+    { id: 'prod-5', label: '소포장 & 밀키트 (500g) 상세페이지' }
+  ],
+  'product-detail': [
+    { id: 'prod-1', label: '명품 보쌈무김치 (업소용)' },
+    { id: 'prod-2', label: '비법 보쌈겉절이 (보쌈김칫속)' },
+    { id: 'prod-3', label: '남도식 꼬들 무말랭이 무김치' },
+    { id: 'prod-4', label: '업소용 대용량 (10kg)' },
+    { id: 'prod-5', label: '소포장 & 밀키트 (500g)' },
+    { id: 'prod-6', label: '알타리 총각무김치 (업소용)' }
   ],
   'wholesale-guide': [
     { id: 'steps', label: 'B2B 대량공급 절차 안내' },
@@ -82,6 +95,23 @@ export const GnbMenuManager: React.FC = () => {
   });
 
   const [showAdvancedSectionInput, setShowAdvancedSectionInput] = useState(false);
+
+  const getSubOptions = (targetPage: string) => {
+    if (targetPage === 'product-detail' || targetPage === 'products') {
+      const productItems = state.products.map(p => ({
+        id: p.id,
+        label: p.name + (targetPage === 'product-detail' ? ' (상세페이지)' : '')
+      }));
+      if (targetPage === 'products') {
+        return [
+          { id: 'all', label: '전체 제품 카탈로그 목록' },
+          ...productItems
+        ];
+      }
+      return productItems;
+    }
+    return SUB_MENU_OPTIONS[targetPage] || [];
+  };
 
   useEffect(() => {
     if (state.content.navMenus && state.content.navMenus.length > 0) {
@@ -365,7 +395,11 @@ export const GnbMenuManager: React.FC = () => {
                       <label className="text-[10px] font-bold text-slate-400 block mb-0.5">이동할 페이지</label>
                       <select
                         value={menu.target || 'about'}
-                        onChange={(e) => handleUpdateTopMenu(menu.id, { target: e.target.value, subTarget: SUB_MENU_OPTIONS[e.target.value]?.[0]?.id || '' })}
+                        onChange={(e) => {
+                          const newTarget = e.target.value;
+                          const subOpts = getSubOptions(newTarget);
+                          handleUpdateTopMenu(menu.id, { target: newTarget, subTarget: subOpts[0]?.id || '' });
+                        }}
                         className="text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white"
                       >
                         {AVAILABLE_PAGES.map(p => (
@@ -374,16 +408,16 @@ export const GnbMenuManager: React.FC = () => {
                       </select>
                     </div>
 
-                    {SUB_MENU_OPTIONS[menu.target || 'about'] && (
+                    {getSubOptions(menu.target || 'about').length > 0 && (
                       <div>
-                        <label className="text-[10px] font-bold text-slate-400 block mb-0.5">이동할 세부 메뉴</label>
+                        <label className="text-[10px] font-bold text-slate-400 block mb-0.5">이동할 세부 메뉴 / 제품</label>
                         <select
                           value={menu.subTarget || ''}
                           onChange={(e) => handleUpdateTopMenu(menu.id, { subTarget: e.target.value })}
                           className="text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-[#872D35] font-bold"
                         >
                           <option value="">(기본 첫 화면)</option>
-                          {SUB_MENU_OPTIONS[menu.target || 'about'].map(opt => (
+                          {getSubOptions(menu.target || 'about').map(opt => (
                             <option key={opt.id} value={opt.id}>{opt.label}</option>
                           ))}
                         </select>
@@ -579,7 +613,11 @@ export const GnbMenuManager: React.FC = () => {
                           <>
                             <select
                               value={sub.target || 'about'}
-                              onChange={(e) => handleUpdateSubmenu(menu.id, sub.id, { target: e.target.value, subTarget: SUB_MENU_OPTIONS[e.target.value]?.[0]?.id || '' })}
+                              onChange={(e) => {
+                                const newTarget = e.target.value;
+                                const subOpts = getSubOptions(newTarget);
+                                handleUpdateSubmenu(menu.id, sub.id, { target: newTarget, subTarget: subOpts[0]?.id || '' });
+                              }}
                               className="text-[11px] px-2 py-1.5 border border-slate-200 rounded-lg bg-white"
                             >
                               {AVAILABLE_PAGES.map(p => (
@@ -587,14 +625,14 @@ export const GnbMenuManager: React.FC = () => {
                               ))}
                             </select>
 
-                            {SUB_MENU_OPTIONS[sub.target || 'about'] && (
+                            {getSubOptions(sub.target || 'about').length > 0 && (
                               <select
                                 value={sub.subTarget || ''}
                                 onChange={(e) => handleUpdateSubmenu(menu.id, sub.id, { subTarget: e.target.value })}
                                 className="text-[11px] px-2 py-1.5 border border-slate-300 rounded-lg bg-white text-[#872D35] font-bold"
                               >
                                 <option value="">(기본 첫 화면)</option>
-                                {SUB_MENU_OPTIONS[sub.target || 'about'].map(opt => (
+                                {getSubOptions(sub.target || 'about').map(opt => (
                                   <option key={opt.id} value={opt.id}>{opt.label}</option>
                                 ))}
                               </select>

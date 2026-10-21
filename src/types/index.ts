@@ -275,6 +275,11 @@ export interface ProductItem {
   description: string;
   imageUrl: string;
   detailImageUrl?: string;
+  detailImages?: string[];
+  origin?: string;
+  packagingType?: string;
+  minOrder?: string;
+  deliveryInfo?: string;
   isPopular?: boolean;
   isRecommended?: boolean;
   order?: number;

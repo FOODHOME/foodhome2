@@ -29,10 +29,10 @@ export const initialData: AppState = {
         actionType: 'page',
         target: 'products',
         submenus: [
-          { id: 'sub-prod-1', label: '명품 보쌈무김치', actionType: 'page', target: 'products' },
-          { id: 'sub-prod-2', label: '비법 보쌈김칫속', actionType: 'page', target: 'products' },
-          { id: 'sub-prod-3', label: '업소용 대용량 (10kg)', actionType: 'page', target: 'products' },
-          { id: 'sub-prod-4', label: '소포장 & 밀키트 (500g)', actionType: 'page', target: 'products' }
+          { id: 'sub-prod-1', label: '명품 보쌈무김치', actionType: 'page', target: 'product-detail', subTarget: 'prod-1' },
+          { id: 'sub-prod-2', label: '비법 보쌈김칫속', actionType: 'page', target: 'product-detail', subTarget: 'prod-2' },
+          { id: 'sub-prod-3', label: '업소용 대용량 (10kg)', actionType: 'page', target: 'product-detail', subTarget: 'prod-4' },
+          { id: 'sub-prod-4', label: '소포장 & 밀키트 (500g)', actionType: 'page', target: 'product-detail', subTarget: 'prod-5' }
         ]
       },
       {
