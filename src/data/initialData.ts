@@ -402,7 +402,211 @@ export const initialData: AppState = {
     csNoticeTitle: '푸드홈 B2B 파트너 고객센터',
     csNoticeDesc: '주문, 배송, 대량 견적 및 OEM 상담은 푸드홈 전담팀이 빠르고 친절하게 안내해 드립니다.',
     sampleGuideText: '외식업 사업자등록증이 있으신 대표님께 1kg 무료 샘플팩(배송비 전액 지원)을 보내드립니다.',
-    quoteGuideText: '월 100kg 이상 정기 납품 및 프랜차이즈 PB/OEM 전용 단가 상담을 지원합니다.'
+    quoteGuideText: '월 100kg 이상 정기 납품 및 프랜차이즈 PB/OEM 전용 단가 상담을 지원합니다.',
+
+    // 5. FAQ Dynamic Categories
+    faqCategories: [
+      { id: 'cat-sample', name: '샘플신청', order: 1, visible: true },
+      { id: 'cat-wholesale', name: '납품·단가', order: 2, visible: true },
+      { id: 'cat-storage', name: '보관·유통', order: 3, visible: true },
+      { id: 'cat-delivery', name: '배송안내', order: 4, visible: true },
+      { id: 'cat-safety', name: '위생·안전', order: 5, visible: true },
+      { id: 'cat-etc', name: '기타문의', order: 6, visible: true }
+    ],
+
+    // 6. Product Dynamic Categories
+    productCategoriesList: [
+      {
+        id: 'cat-bossam',
+        name: '보쌈무김치',
+        englishName: 'BOSSAM RADISH KIMCHI',
+        description: '물 생김 없이 끝까지 아삭하고 꼬들한 특허 절임 공법의 푸드홈 대표 시그니처',
+        imageUrl: './images/prod_bossam_mu.jpg',
+        features: ['특허 수분제어 공법', '100% 국내산 제철무', '안심 위생시설 제조'],
+        order: 1,
+        visible: true
+      },
+      {
+        id: 'cat-seasoning',
+        name: '김칫속/양념',
+        englishName: 'ARTISAN KIMCHI PASTE',
+        description: '국내산 배·양파 생과일의 천연 단맛과 광천 토굴 젓갈의 깊은 감칠맛을 품은 속양념',
+        imageUrl: './images/prod_kimchi_sok.jpg',
+        features: ['생과일 천연 단맛', '광천 토굴 새우젓', '수육·생굴 최상의 궁합'],
+        order: 2,
+        visible: true
+      },
+      {
+        id: 'cat-bulk',
+        name: '업소용 대용량',
+        englishName: 'B2B BULK PACKAGE',
+        description: '전국 480개 외식 가맹점 공급용 경제형 규격. 특수 진공 실링으로 신선도 완벽 유지',
+        imageUrl: './images/prod_bulk_10kg.jpg',
+        features: ['10kg 진공 안심포장', '정기 직배송 단가 혜택', '프랜차이즈 맞춤 납품'],
+        order: 3,
+        visible: true
+      },
+      {
+        id: 'cat-pouch',
+        name: '소포장/밀키트',
+        englishName: 'POUCH & MEAL KIT',
+        description: '배달전문점, 밀키트 세트용 위생 실링팩. 재포장 없는 간편한 서빙 및 가정용 소포장',
+        imageUrl: './images/prod_pouch_500g.jpg',
+        features: ['500g 신선 위생 파우치', '소형 매장 적합', '네이버 스마트스토어 판매'],
+        order: 4,
+        visible: true
+      }
+    ],
+
+    // 7. Company About Subpages Configuration
+    companySubpages: [
+      {
+        id: 'intro',
+        menuLabel: 'CEO 인사말',
+        badgeTitle: 'CEO 인사말',
+        title: '우리 가족이 먹는다는 마음으로,\n끝까지 아삭하고 정직한 맛을 지켜갑니다.',
+        subtitle: 'SINCE 1996 · 30년의 고집',
+        description: '원가와 타협하지 않는 100% 국산 농산물과 특허 수분제어 공법으로 최고의 파트너가 되겠습니다.',
+        visible: true,
+        order: 1
+      },
+      {
+        id: 'history',
+        menuLabel: '회사 연혁',
+        badgeTitle: 'HISTORY',
+        title: '30년 전통 푸드홈의 발자취',
+        subtitle: 'TRADITION & INNOVATION',
+        description: '1996년 설립 이래 대한민국 대표 김치 전문 제조업체로 성장해 온 역사입니다.',
+        visible: true,
+        order: 2
+      },
+      {
+        id: 'system',
+        menuLabel: '생산 & 물류시스템',
+        badgeTitle: 'PRODUCTION SYSTEM',
+        title: '스마트 자동화 생산 공정 프로세스',
+        subtitle: 'CLEAN AUTOMATION',
+        description: '산지 직송부터 매장 주방 도착까지, 푸드홈만의 6단계 안심 품질 관리 시스템을 운영합니다.',
+        visible: true,
+        order: 3
+      },
+      {
+        id: 'permits',
+        menuLabel: '인허가사항',
+        badgeTitle: 'LEGAL & CERTIFICATIONS',
+        title: '공식 영업등록 및 품질 안전 인허가',
+        subtitle: 'SAFETY & TRUST',
+        description: '식품위생법 및 관련 법령에 따른 엄격한 정식 인허가를 필하여 안심하고 납품받으실 수 있습니다.',
+        visible: true,
+        order: 4
+      },
+      {
+        id: 'location',
+        menuLabel: '오시는 길',
+        badgeTitle: 'LOCATION',
+        title: '오시는 길 & 제조 가공 센터',
+        subtitle: 'HEADQUARTERS & FACTORY',
+        description: '충청북도 진천군 덕산읍 신척산단로 128 (신척산업단지 내 푸드홈 식품가공센터)',
+        visible: true,
+        order: 5
+      }
+    ],
+
+    // 8. Main Page Sections Configuration
+    mainSections: [
+      {
+        id: 'hero',
+        name: '메인 상단 슬라이드 배너',
+        badge: 'HERO BANNER',
+        title: '메인 비주얼 배너',
+        description: '메인 화면 최상단 롤링 배너 슬라이더',
+        visible: true,
+        order: 1
+      },
+      {
+        id: 'productSlider',
+        name: '대표 제품 슬라이더',
+        badge: 'SIGNATURE PRODUCT SLIDER',
+        title: '푸드홈 대표 제품 둘러보기',
+        description: '30년 전통 비법과 특허 수분제어 공법으로 빚어낸 명품 보쌈무김치 & 비법 김칫속',
+        visible: true,
+        order: 2
+      },
+      {
+        id: 'sampleRealtimeStatus',
+        name: '실시간 샘플 접수 현황 바',
+        badge: 'REALTIME STATUS',
+        title: '전국 외식업소 실시간 무료 샘플 접수 현황',
+        description: '매일 아침 갓 담근 신선한 김치만을 보내드립니다',
+        visible: true,
+        order: 3
+      },
+      {
+        id: 'actionBanners',
+        name: 'B2B 퀵 서비스 액션 배너',
+        badge: 'B2B QUICK ACTIONS',
+        title: '외식업 대표님을 위한 푸드홈 전용 지원 서비스',
+        description: '안심 샘플 신청부터 대량 정기 납품까지 원스톱으로 지원합니다',
+        visible: true,
+        order: 4
+      },
+      {
+        id: 'productCategories',
+        name: '제품 카테고리 안내',
+        badge: 'FOOD CATEGORIES',
+        title: '전문 외식업소를 위한 4대 제품 라인업',
+        description: '업종과 주방 운영 형태에 맞춰 최적화된 패키지와 레시피를 제안합니다.',
+        visible: true,
+        order: 5
+      },
+      {
+        id: 'products',
+        name: '대표 제품 카탈로그 목록',
+        badge: 'PRODUCT CATALOG',
+        title: '푸드홈 전체 제품 카탈로그',
+        description: '원재료 타협 없이 100% 국산 농산물로 정직하게 제조합니다.',
+        visible: true,
+        order: 6
+      },
+      {
+        id: 'features',
+        name: '30년 전통 비법 & 브랜드 스토리',
+        badge: 'BRAND HERITAGE & PHILOSOPHY',
+        title: '30년 전통 비법과 타협 없는 원칙',
+        description: '시간이 흘러도 물 생김 없는 특허 수분제어 절임 공법',
+        visible: true,
+        order: 7
+      },
+      {
+        id: 'process',
+        name: '안심 위생 제조 공정',
+        badge: 'CLEAN AUTOMATION PROCESS',
+        title: '엄격한 기준의 스마트 클린 제조 시스템',
+        description: '산지 계약재배 입고부터 에어샤워, 금속검출기 통과까지 철저하게 관리합니다.',
+        visible: true,
+        order: 8
+      },
+      {
+        id: 'reviews',
+        name: '외식업 파트너 후기 & 신뢰 지표',
+        badge: 'PARTNER STORIES',
+        title: '전국 480여 개 외식 파트너의 생생한 찬사',
+        description: '고기 맛을 살려주는 보쌈무김치와 김칫속으로 매장 객단가가 상승했습니다.',
+        visible: true,
+        order: 9
+      },
+      {
+        id: 'inquiry',
+        name: '하단 1kg 무료 샘플 간편 신청',
+        badge: 'FREE 1KG SAMPLE',
+        title: '직접 맛을 보시고 결정하세요. 1kg 무료 샘플팩 신청 접수 중',
+        description: '사업자등록증을 보유하신 모든 외식업 대표님께 푸드홈 시그니처 보쌈무김치를 무료로 발송해 드립니다.',
+        buttonText: '무료 샘플 1kg 신청하기',
+        buttonLink: 'sample-board-write',
+        visible: true,
+        order: 10
+      }
+    ]
   },
   theme: {
     primaryColor: '#872D35', // Main Deep Burgundy

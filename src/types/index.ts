@@ -26,6 +26,49 @@ export interface FacilityMediaItem {
   category: '클린룸' | '세척라인' | '품질검사' | '포장·물류';
 }
 
+export interface FaqCategoryItem {
+  id: string;
+  name: string;
+  order: number;
+  visible: boolean;
+}
+
+export interface ProductCategoryItem {
+  id: string;
+  name: string;
+  englishName?: string;
+  description?: string;
+  imageUrl?: string;
+  features?: string[];
+  order: number;
+  visible: boolean;
+}
+
+export interface CompanySubpageItem {
+  id: 'intro' | 'history' | 'system' | 'permits' | 'location' | string;
+  menuLabel: string;
+  badgeTitle?: string;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface MainSectionConfig {
+  id: string;
+  name: string;
+  badge?: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  imageUrl?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  visible: boolean;
+  order: number;
+}
+
 export interface FaqItem {
   id: string;
   question: string;
@@ -185,6 +228,12 @@ export interface SiteContent {
   csNoticeDesc?: string;
   sampleGuideText?: string;
   quoteGuideText?: string;
+
+  // 5. Dynamic Categories & Subpages
+  faqCategories?: FaqCategoryItem[];
+  productCategoriesList?: ProductCategoryItem[];
+  companySubpages?: CompanySubpageItem[];
+  mainSections?: MainSectionConfig[];
 }
 
 export interface ThemeSettings {
@@ -225,6 +274,7 @@ export interface ProductItem {
   ingredients: string;
   description: string;
   imageUrl: string;
+  detailImageUrl?: string;
   isPopular?: boolean;
   isRecommended?: boolean;
   order?: number;
@@ -232,6 +282,9 @@ export interface ProductItem {
   features?: string[];
   specs?: string;
   bulkPriceGuide: string;
+  contactPhone?: string;
+  buttonText?: string;
+  buttonAction?: string;
 }
 
 export interface PostItem {

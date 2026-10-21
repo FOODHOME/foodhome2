@@ -14,7 +14,11 @@ import {
   SocialSettings,
   FacilityMediaItem,
   NavMenuItem,
-  FaqItem
+  FaqItem,
+  FaqCategoryItem,
+  ProductCategoryItem,
+  CompanySubpageItem,
+  MainSectionConfig
 } from '../types';
 import { initialData } from '../data/initialData';
 import { 
@@ -45,11 +49,18 @@ interface AppContextType {
   deletePost: (id: string) => void;
   incrementPostRead: (id: string) => void;
 
-  // FAQ Items
+  // FAQ Items & Categories
   addFaqItem: (item: Omit<FaqItem, 'id'>) => void;
   updateFaqItem: (id: string, updates: Partial<FaqItem>) => void;
   deleteFaqItem: (id: string) => void;
   reorderFaqItems: (items: FaqItem[]) => void;
+  updateFaqCategories: (categories: FaqCategoryItem[]) => void;
+
+  // Categories & Subpages
+  updateProductCategories: (categories: ProductCategoryItem[]) => void;
+  updateCompanySubpages: (subpages: CompanySubpageItem[]) => void;
+  updateMainSections: (sections: MainSectionConfig[]) => void;
+  reorderProducts: (products: ProductItem[]) => void;
 
   // Inquiries
   addInquiry: (inquiry: Omit<B2BInquiry, 'id' | 'createdAt' | 'status'>) => void;
@@ -165,7 +176,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                   : initialData.content.facilityItems,
                 faqItems: Array.isArray(parsed.content?.faqItems) && parsed.content.faqItems.length > 0 
                   ? parsed.content.faqItems 
-                  : initialData.content.faqItems
+                  : initialData.content.faqItems,
+                faqCategories: Array.isArray(parsed.content?.faqCategories) && parsed.content.faqCategories.length > 0
+                  ? parsed.content.faqCategories
+                  : initialData.content.faqCategories,
+                productCategoriesList: Array.isArray(parsed.content?.productCategoriesList) && parsed.content.productCategoriesList.length > 0
+                  ? parsed.content.productCategoriesList
+                  : initialData.content.productCategoriesList,
+                companySubpages: Array.isArray(parsed.content?.companySubpages) && parsed.content.companySubpages.length > 0
+                  ? parsed.content.companySubpages
+                  : initialData.content.companySubpages,
+                mainSections: Array.isArray(parsed.content?.mainSections) && parsed.content.mainSections.length > 0
+                  ? parsed.content.mainSections
+                  : initialData.content.mainSections
               },
               theme: { 
                 ...initialData.theme, 
@@ -409,6 +432,68 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         faqItems: items
       }
     }));
+  };
+
+  const updateFaqCategories = (categories: FaqCategoryItem[]) => {
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        faqCategories: categories
+      }
+    }));
+    showToast('FAQ 카테고리가 성공적으로 저장되었습니다.');
+  };
+
+  const updateProductCategories = (categories: ProductCategoryItem[]) => {
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        productCategoriesList: categories
+      }
+    }));
+    showToast('제품 카테고리가 성공적으로 저장되었습니다.');
+  };
+
+  const updateCompanySubpages = (subpages: CompanySubpageItem[]) => {
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        companySubpages: subpages
+      }
+    }));
+    showToast('회사소개 하위 메뉴 설정이 저장되었습니다.');
+  };
+
+  const updateMainSections = (sections: MainSectionConfig[]) => {
+    setState(prev => {
+      const updatedVisible: Record<string, boolean> = { ...prev.theme.sectionsVisible };
+      sections.forEach(sec => {
+        updatedVisible[sec.id] = sec.visible;
+      });
+      return {
+        ...prev,
+        content: {
+          ...prev.content,
+          mainSections: sections
+        },
+        theme: {
+          ...prev.theme,
+          sectionsVisible: updatedVisible as any
+        }
+      };
+    });
+    showToast('메인페이지 섹션 설정이 성공적으로 저장되었습니다.');
+  };
+
+  const reorderProducts = (products: ProductItem[]) => {
+    setState(prev => ({
+      ...prev,
+      products
+    }));
+    showToast('제품 순서가 변경되었습니다.');
   };
 
   const addInquiry = (inquiryData: Omit<B2BInquiry, 'id' | 'createdAt' | 'status'>) => {
@@ -901,6 +986,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateFaqItem,
         deleteFaqItem,
         reorderFaqItems,
+        updateFaqCategories,
+        updateProductCategories,
+        updateCompanySubpages,
+        updateMainSections,
+        reorderProducts,
         activeAdminTab,
         setActiveAdminTab,
         isSampleModalOpen,

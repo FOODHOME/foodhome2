@@ -30,14 +30,20 @@ export const FaqBoardPage: React.FC = () => {
 
   const rawFaqs = state.content.faqItems || [];
 
-  // Extract unique categories
+  // Extract configured categories from state or fallback to unique categories
   const categories = useMemo(() => {
+    if (state.content.faqCategories && state.content.faqCategories.length > 0) {
+      return state.content.faqCategories
+        .filter(c => c.visible !== false)
+        .sort((a, b) => a.order - b.order)
+        .map(c => c.name);
+    }
     const set = new Set<string>();
     rawFaqs.forEach(f => {
       if (f.category) set.add(f.category);
     });
     return Array.from(set);
-  }, [rawFaqs]);
+  }, [rawFaqs, state.content.faqCategories]);
 
   // Filter FAQs by visibility, category, and search query
   const filteredFaqs = useMemo(() => {

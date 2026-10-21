@@ -20,12 +20,20 @@ export const CompanyAboutPage: React.FC = () => {
   const { state, companyAboutTab, setCompanyAboutTab, setActivePage } = useApp();
   const { content } = state;
 
+  const subpages = content.companySubpages || [];
+  const getSubpage = (id: string) => subpages.find(s => s.id === id);
+
+  const introSub = getSubpage('intro');
+  const systemSub = getSubpage('system');
+  const permitsSub = getSubpage('permits');
+  const locationSub = getSubpage('location');
+
   const tabs = [
-    { id: 'intro', label: '회사소개 & CEO 인사말', icon: Building2 },
-    { id: 'system', label: '생산 & 물류시스템', icon: Truck },
-    { id: 'permits', label: '인허가사항', icon: Award },
-    { id: 'location', label: '오시는 길', icon: MapPin },
-  ];
+    { id: 'intro', label: introSub?.menuLabel || 'CEO 인사말', icon: Building2, visible: introSub?.visible !== false },
+    { id: 'system', label: systemSub?.menuLabel || '생산 & 물류시스템', icon: Truck, visible: systemSub?.visible !== false },
+    { id: 'permits', label: permitsSub?.menuLabel || '인허가사항', icon: Award, visible: permitsSub?.visible !== false },
+    { id: 'location', label: locationSub?.menuLabel || '오시는 길', icon: MapPin, visible: locationSub?.visible !== false },
+  ].filter(t => t.visible);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -119,10 +127,10 @@ export const CompanyAboutPage: React.FC = () => {
 
                 <div className="lg:col-span-7 space-y-4">
                   <div className="inline-block px-3 py-1 rounded bg-[#872D35]/10 text-[#872D35] text-xs font-bold">
-                    CEO 인사말
+                    {introSub?.badgeTitle || introSub?.menuLabel || 'CEO 인사말'}
                   </div>
                   <h2 className="text-2xl sm:text-3xl font-black text-stone-900 leading-snug whitespace-pre-line">
-                    {content.ceoTitle || '우리 가족이 먹는다는 마음으로,\n끝까지 아삭하고 정직한 맛을 지켜갑니다.'}
+                    {introSub?.title || content.ceoTitle || '우리 가족이 먹는다는 마음으로,\n끝까지 아삭하고 정직한 맛을 지켜갑니다.'}
                   </h2>
                   <div className="space-y-3 text-stone-600 text-sm sm:text-base leading-relaxed">
                     {content.ceoGreeting ? (
@@ -253,12 +261,12 @@ export const CompanyAboutPage: React.FC = () => {
             {/* Manufacturing Flow */}
             <div className="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm">
               <div className="max-w-2xl mb-8">
-                <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">PRODUCTION SYSTEM</span>
+                <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">{systemSub?.badgeTitle || 'PRODUCTION SYSTEM'}</span>
                 <h3 className="text-2xl font-black text-stone-900 mt-1">
-                  {content.systemTitle || '스마트 자동화 생산 공정 프로세스'}
+                  {systemSub?.title || content.systemTitle || '스마트 자동화 생산 공정 프로세스'}
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                  {content.systemDescription || '산지 직송부터 매장 주방 도착까지, 푸드홈만의 6단계 안심 품질 관리 시스템을 운영합니다.'}
+                  {systemSub?.description || content.systemDescription || '산지 직송부터 매장 주방 도착까지, 푸드홈만의 6단계 안심 품질 관리 시스템을 운영합니다.'}
                 </p>
               </div>
 
@@ -344,12 +352,12 @@ export const CompanyAboutPage: React.FC = () => {
           <div className="space-y-8 animate-in fade-in duration-200">
             <div className="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm">
               <div className="max-w-2xl mb-8">
-                <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">LEGAL & CERTIFICATIONS</span>
+                <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">{permitsSub?.badgeTitle || 'LEGAL & CERTIFICATIONS'}</span>
                 <h3 className="text-2xl font-black text-stone-900 mt-1">
-                  {content.permitsTitle || '공식 영업등록 및 품질 안전 인허가'}
+                  {permitsSub?.title || content.permitsTitle || '공식 영업등록 및 품질 안전 인허가'}
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                  {content.permitsDescription || '식품위생법 및 관련 법령에 따른 엄격한 정식 인허가를 필하여 안심하고 납품받으실 수 있습니다.'}
+                  {permitsSub?.description || content.permitsDescription || '식품위생법 및 관련 법령에 따른 엄격한 정식 인허가를 필하여 안심하고 납품받으실 수 있습니다.'}
                 </p>
               </div>
 
@@ -428,12 +436,12 @@ export const CompanyAboutPage: React.FC = () => {
             <div className="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
-                  <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">MANUFACTURING & HEADQUARTERS</span>
+                  <span className="text-xs font-bold text-[#872D35] uppercase tracking-wider">{locationSub?.badgeTitle || 'MANUFACTURING & HEADQUARTERS'}</span>
                   <h3 className="text-2xl font-black text-stone-900 mt-1">
-                    {content.locationTitle || '충북 진천 제1·2 식품가공공장 및 제조물류센터'}
+                    {locationSub?.title || content.locationTitle || '충북 진천 제1·2 식품가공공장 및 제조물류센터'}
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-500 mt-1">
-                    {content.locationDescription || '푸드홈의 전 제품이 청결한 안심 위생 라인에서 제조·출하되는 중심 거점입니다.'}
+                    {locationSub?.description || content.locationDescription || '푸드홈의 전 제품이 청결한 안심 위생 라인에서 제조·출하되는 중심 거점입니다.'}
                   </p>
                 </div>
                 <button

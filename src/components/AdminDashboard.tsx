@@ -16,9 +16,11 @@ import { NoticeManager } from './admin/NoticeManager';
 import { FaqManager } from './admin/FaqManager';
 import { GnbMenuManager } from './admin/GnbMenuManager';
 import { SectionContentModal } from './admin/SectionContentModal';
+import { MainSectionsManager } from './admin/MainSectionsManager';
 import { 
   X, 
   LayoutDashboard, 
+  Layout,
   Type, 
   Palette, 
   Package, 
@@ -513,10 +515,9 @@ export const AdminDashboard: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     dashboard: true,
-    design: true,
-    quote_sample: true,
-    products: true,
+    main_banner: true,
     boards: true,
+    homepage: true,
     settings: true
   });
 
@@ -548,56 +549,19 @@ export const AdminDashboard: React.FC = () => {
       title: '대시보드',
       icon: LayoutDashboard,
       items: [
-        { id: 'overview', label: '대시보드 개요', icon: LayoutDashboard }
+        { id: 'overview', label: '대시보드', icon: LayoutDashboard }
       ]
     },
     {
-      id: 'design',
-      title: '홈페이지 디자인 관리',
-      icon: Palette,
+      id: 'main_banner',
+      title: '메인 배너 관리',
+      icon: ImageIcon,
       items: [
         { 
           id: 'banners', 
           label: '메인 배너 관리', 
           icon: ImageIcon,
           badge: (state.content.banners || []).length || undefined 
-        },
-        { id: 'all_content', label: '홈페이지 전체 콘텐츠 관리', icon: Type },
-        { id: 'design', label: '디자인 & 테마', icon: Palette }
-      ]
-    },
-    {
-      id: 'quote_sample',
-      title: '견적 및 샘플 관리',
-      icon: MessageSquareText,
-      items: [
-        { 
-          id: 'quotes', 
-          label: '대량 견적상담 관리', 
-          icon: Truck,
-          badge: (state.quotes || []).filter(q => q.status === '접수완료' || q.status === '상담중').length || undefined,
-          badgeColor: 'bg-[#872D35] text-white'
-        },
-        { 
-          id: 'inquiries', 
-          label: '샘플 게시판 관리', 
-          icon: Sparkles,
-          badge: pendingInquiriesCount > 0 ? pendingInquiriesCount : undefined,
-          badgeColor: 'bg-amber-500 text-white'
-        },
-        { id: 'form_config', label: '견적신청폼 항목 설정', icon: Sliders }
-      ]
-    },
-    {
-      id: 'products',
-      title: '제품 관리',
-      icon: Package,
-      items: [
-        { 
-          id: 'products', 
-          label: '제품 관리', 
-          icon: Package,
-          badge: state.products.length || undefined
         }
       ]
     },
@@ -606,9 +570,35 @@ export const AdminDashboard: React.FC = () => {
       title: '게시판 관리',
       icon: FileText,
       items: [
+        { 
+          id: 'inquiries', 
+          label: '샘플 게시판 관리', 
+          icon: Sparkles,
+          badge: pendingInquiriesCount > 0 ? pendingInquiriesCount : undefined,
+          badgeColor: 'bg-amber-500 text-white'
+        },
+        { 
+          id: 'quotes', 
+          label: '대량 견적상담 관리', 
+          icon: Truck,
+          badge: (state.quotes || []).filter(q => q.status === '접수완료' || q.status === '상담중').length || undefined,
+          badgeColor: 'bg-[#872D35] text-white'
+        },
+        { id: 'form_config', label: '견적신청폼 항목 설정', icon: Sliders },
         { id: 'notices', label: '공지사항 관리', icon: Megaphone },
-        { id: 'faqs', label: '자주하는 질문(FAQ) 관리', icon: HelpCircle },
-        { id: 'posts', label: '게시글 & 레시피 관리', icon: Layers }
+        { id: 'faqs', label: '자주하는 질문(FAQ) 관리', icon: HelpCircle }
+      ]
+    },
+    {
+      id: 'homepage',
+      title: '홈페이지 관리',
+      icon: Layers,
+      items: [
+        { id: 'menus', label: '상단 메뉴 관리', icon: Menu },
+        { id: 'all_content', label: '상단 메뉴 콘텐츠 관리', icon: Type },
+        { id: 'main_sections', label: '메인페이지 섹션 관리', icon: Layout },
+        { id: 'site_info', label: '회사 기본 정보 관리', icon: Building2 },
+        { id: 'design', label: '디자인 & 테마', icon: Palette }
       ]
     },
     {
@@ -616,12 +606,10 @@ export const AdminDashboard: React.FC = () => {
       title: '사이트 설정',
       icon: Settings,
       items: [
-        { id: 'menus', label: '상단 메뉴(GNB) 관리', icon: Menu },
-        { id: 'site_info', label: '회사 기본정보 관리', icon: Building2 },
         { id: 'seo', label: 'SEO 관리', icon: Globe2 },
-        { id: 'admin_security', label: '관리자 보안/계정', icon: ShieldCheck },
+        { id: 'admin_security', label: '관리자 보안 / 계정', icon: ShieldCheck },
         { id: 'supabase', label: 'Supabase 연동 및 DB', icon: Database },
-        { id: 'backup', label: '데이터 백업/복원', icon: RotateCcw }
+        { id: 'backup', label: '데이터 백업 / 복원', icon: RotateCcw }
       ]
     }
   ];
@@ -779,7 +767,7 @@ export const AdminDashboard: React.FC = () => {
                           const Icon = item.icon;
                           const isActive = 
                             activeAdminTab === item.id || 
-                            (item.id === 'all_content' && activeAdminTab === 'content') ||
+                            (item.id === 'all_content' && (activeAdminTab === 'content' || activeAdminTab === 'products')) ||
                             (item.id === 'faqs' && (activeAdminTab === 'faqs' || activeAdminTab === 'faq'));
 
                           return (
@@ -1027,9 +1015,16 @@ export const AdminDashboard: React.FC = () => {
           )}
 
           {/* ALL PAGES CONTENT MANAGER TAB */}
-          {activeAdminTab === 'all_content' && (
+          {(activeAdminTab === 'all_content' || activeAdminTab === 'content' || activeAdminTab === 'products') && (
             <div className="max-w-6xl mx-auto">
               <ContentManager />
+            </div>
+          )}
+
+          {/* MAIN PAGE SECTIONS CONFIG TAB */}
+          {activeAdminTab === 'main_sections' && (
+            <div className="max-w-6xl mx-auto">
+              <MainSectionsManager />
             </div>
           )}
 
@@ -1754,82 +1749,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* 5. POSTS & RECIPES MANAGEMENT TAB */}
-          {activeAdminTab === 'posts' && (
-            <div className="max-w-5xl mx-auto space-y-6">
-              <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">게시글, 공지사항 & 레시피 가이드</h3>
-                  <p className="text-xs text-slate-500">외식업 노하우, 제품 소식, 공지사항 글을 등록 및 편집합니다.</p>
-                </div>
-                <button
-                  onClick={handleOpenAddPost}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700 transition-colors cursor-pointer shadow-xs"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>+ 새 게시글 작성</span>
-                </button>
-              </div>
 
-              {/* Posts Table */}
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
-                    <tr>
-                      <th className="p-3 pl-4">카테고리</th>
-                      <th className="p-3">제목</th>
-                      <th className="p-3">작성자</th>
-                      <th className="p-3">등록일</th>
-                      <th className="p-3">조회수</th>
-                      <th className="p-3 text-right pr-4">관리</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {state.posts.map((post) => (
-                      <tr key={post.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="p-3 pl-4">
-                          <span className="font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
-                            {post.category}
-                          </span>
-                        </td>
-                        <td className="p-3 font-semibold text-slate-800">
-                          {post.title}
-                          {post.isPinned && (
-                            <span className="ml-1 text-[10px] text-amber-600 font-bold">★고정</span>
-                          )}
-                        </td>
-                        <td className="p-3 text-slate-600">{post.author}</td>
-                        <td className="p-3 text-slate-500">{post.date}</td>
-                        <td className="p-3 text-slate-500">{post.readCount}회</td>
-                        <td className="p-3 text-right pr-4">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              onClick={() => handleEditPost(post)}
-                              className="p-1 rounded text-slate-500 hover:text-blue-600 hover:bg-blue-50"
-                              title="수정"
-                            >
-                              <Edit3 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (confirm(`"${post.title}" 글을 삭제하시겠습니까?`)) {
-                                  deletePost(post.id);
-                                }
-                              }}
-                              className="p-1 rounded text-slate-500 hover:text-red-600 hover:bg-red-50"
-                              title="삭제"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
 
           {/* 6. B2B INQUIRIES MANAGEMENT TAB */}
           {activeAdminTab === 'inquiries' && (
