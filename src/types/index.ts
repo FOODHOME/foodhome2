@@ -44,6 +44,40 @@ export interface ProductCategoryItem {
   visible: boolean;
 }
 
+export type SectionType = 
+  | 'heading'        // 1. 제목
+  | 'text'           // 2. 일반 텍스트
+  | 'image'          // 3. 이미지
+  | 'image_text'     // 4. 이미지 + 텍스트
+  | 'multi_image'    // 5. 여러 개의 이미지
+  | 'info_list'      // 6. 정보 목록
+  | 'feature_cards'  // 7. 특징 소개 카드
+  | 'button_cta'     // 8. 버튼 / 안내 배너
+  | 'divider';       // 9. 구분선 및 여백
+
+export interface CustomSectionItem {
+  id: string;
+  type: SectionType;
+  title?: string;
+  subtitle?: string;
+  badge?: string;
+  content?: string;
+  imageUrl?: string;
+  images?: string[];
+  imagePosition?: 'left' | 'right' | 'top';
+  layout?: '1-col' | '2-col' | '3-col' | '4-col';
+  infoItems?: { label: string; value: string }[];
+  cardItems?: { title: string; desc: string; icon?: string; badge?: string; imageUrl?: string }[];
+  buttonText?: string;
+  buttonLink?: string;
+  buttonAction?: string;
+  secondaryButtonText?: string;
+  secondaryButtonLink?: string;
+  secondaryButtonAction?: string;
+  visible: boolean;
+  order: number;
+}
+
 export interface CompanySubpageItem {
   id: 'intro' | 'history' | 'system' | 'permits' | 'location' | string;
   menuLabel: string;
@@ -234,6 +268,7 @@ export interface SiteContent {
   productCategoriesList?: ProductCategoryItem[];
   companySubpages?: CompanySubpageItem[];
   mainSections?: MainSectionConfig[];
+  pageSections?: Record<string, CustomSectionItem[]>;
 }
 
 export interface ThemeSettings {
@@ -290,6 +325,8 @@ export interface ProductItem {
   contactPhone?: string;
   buttonText?: string;
   buttonAction?: string;
+  categories?: string[];
+  customSections?: CustomSectionItem[];
 }
 
 export interface PostItem {

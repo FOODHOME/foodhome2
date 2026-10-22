@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { ProductItem } from '../types';
+import { DynamicSectionRenderer } from './DynamicSectionRenderer';
+import { getDefaultProductSections } from '../data/defaultPageSections';
 import { 
   Package, 
   Sparkles, 
@@ -51,7 +53,6 @@ export const ProductDetailPage: React.FC = () => {
   }, [product]);
 
   const [activeImage, setActiveImage] = useState<string>(product?.imageUrl || '');
-  const [activeTab, setActiveTab] = useState<'info' | 'specs' | 'wholesale'>('info');
 
   useEffect(() => {
     if (product) {
@@ -377,235 +378,14 @@ export const ProductDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Detailed Information & Tabs Section */}
+      {/* 3. Detailed Modular Content Sections (Universal Dynamic Blocks) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
-          
-          {/* Navigation Tab Bar */}
-          <div className="flex border-b border-stone-200 bg-stone-50/50 overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => setActiveTab('info')}
-              className={`flex-1 py-4 px-6 text-xs sm:text-sm font-black transition-colors border-b-2 text-center whitespace-nowrap cursor-pointer ${
-                activeTab === 'info'
-                  ? 'border-[#872D35] text-[#872D35] bg-white'
-                  : 'border-transparent text-stone-500 hover:text-stone-900'
-              }`}
-            >
-              1. 제품 상세 특징 및 비법 노하우
-            </button>
-            <button
-              onClick={() => setActiveTab('specs')}
-              className={`flex-1 py-4 px-6 text-xs sm:text-sm font-black transition-colors border-b-2 text-center whitespace-nowrap cursor-pointer ${
-                activeTab === 'specs'
-                  ? 'border-[#872D35] text-[#872D35] bg-white'
-                  : 'border-transparent text-stone-500 hover:text-stone-900'
-              }`}
-            >
-              2. 공인 규격 및 영양·품질 표시사항
-            </button>
-            <button
-              onClick={() => setActiveTab('wholesale')}
-              className={`flex-1 py-4 px-6 text-xs sm:text-sm font-black transition-colors border-b-2 text-center whitespace-nowrap cursor-pointer ${
-                activeTab === 'wholesale'
-                  ? 'border-[#872D35] text-[#872D35] bg-white'
-                  : 'border-transparent text-stone-500 hover:text-stone-900'
-              }`}
-            >
-              3. B2B 대량공급 & 정기 배송 절차
-            </button>
-          </div>
-
-          {/* Tab 1: Detailed Story & Description */}
-          {activeTab === 'info' && (
-            <div className="p-6 sm:p-10 space-y-8 animate-in fade-in duration-200">
-              
-              {/* Product Detailed Story */}
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8E2DC] text-[11px] font-bold text-[#872D35]">
-                  <span>CHEF'S ARTISAN CRAFT</span>
-                </div>
-                <h3 className="text-xl sm:text-2xl font-black text-stone-900">
-                  {product.name}만의 압도적인 차별화 포인트
-                </h3>
-                <p className="text-stone-700 text-sm sm:text-base leading-relaxed whitespace-pre-line font-normal">
-                  {product.description}
-                </p>
-              </div>
-
-              {/* 3 Value Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
-                <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#872D35] text-white flex items-center justify-center font-black text-xs">
-                    01
-                  </div>
-                  <h4 className="font-bold text-sm text-stone-900">특허받은 수분제어 절임 공법</h4>
-                  <p className="text-xs text-stone-600 leading-relaxed">
-                    수육이나 족발과 함께 손님 상에 나간 뒤 1시간이 지나도 무에 물이 생기지 않아, 고기 접시가 흥건해지지 않고 끝까지 꼬들꼬들한 식감이 살아있습니다.
-                  </p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#872D35] text-white flex items-center justify-center font-black text-xs">
-                    02
-                  </div>
-                  <h4 className="font-bold text-sm text-stone-900">인위적이지 않은 생과일 천연 단맛</h4>
-                  <p className="text-xs text-stone-600 leading-relaxed">
-                    단맛을 내기 위한 합성 감미료를 최소화하고, 국내산 배와 양파를 듬뿍 갈아 넣어 뒷맛이 텁텁하지 않고 입안 가득 시원하고 청량한 감칠맛을 남깁니다.
-                  </p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#872D35] text-white flex items-center justify-center font-black text-xs">
-                    03
-                  </div>
-                  <h4 className="font-bold text-sm text-stone-900">주방 인건비 절감 & 음식물 손실 ZERO</h4>
-                  <p className="text-xs text-stone-600 leading-relaxed">
-                    매일 아침 무를 채 썰고 절여 버무리는 주방의 고된 노동을 완전히 해결해 드립니다. 개봉 후 즉시 서빙 가능하며 일정한 맛과 규격을 1년 365일 유지합니다.
-                  </p>
-                </div>
-              </div>
-
-              {/* Recommended Stores */}
-              <div className="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E8E2DC]">
-                <h4 className="font-black text-sm text-stone-900 mb-3 flex items-center gap-2">
-                  <Store className="w-4 h-4 text-[#872D35]" />
-                  <span>이런 외식 매장에 강력 추천합니다</span>
-                </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                  <div className="p-3 bg-white rounded-xl border border-stone-200 font-bold text-stone-800 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[#872D35]" />
-                    <span>보쌈 & 족발 전문점</span>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-stone-200 font-bold text-stone-800 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[#872D35]" />
-                    <span>수육국밥 & 칼국수 전문점</span>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-stone-200 font-bold text-stone-800 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[#872D35]" />
-                    <span>굴요리 & 계절 포차</span>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-stone-200 font-bold text-stone-800 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[#872D35]" />
-                    <span>배달 & 밀키트 가맹 본부</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* Tab 2: Full Specifications Table */}
-          {activeTab === 'specs' && (
-            <div className="p-6 sm:p-10 space-y-6 animate-in fade-in duration-200">
-              <div>
-                <h3 className="text-lg font-black text-stone-900 mb-2">식품위생법에 따른 제품 정보고시</h3>
-                <p className="text-xs text-stone-500">
-                  식품 제조가공업 정식 영업등록(제 2021-04-9218호) 시설에서 엄격한 자가품질검사를 거쳐 생산됩니다.
-                </p>
-              </div>
-
-              <div className="overflow-x-auto rounded-xl border border-stone-200">
-                <table className="w-full text-xs text-left border-collapse">
-                  <tbody>
-                    <tr className="border-b border-stone-200 bg-stone-50">
-                      <th className="py-3 px-4 font-bold text-stone-600 w-36 border-r border-stone-200">제품명</th>
-                      <td className="py-3 px-4 font-extrabold text-stone-900">{product.name}</td>
-                      <th className="py-3 px-4 font-bold text-stone-600 w-36 border-r border-stone-200">식품의 유형</th>
-                      <td className="py-3 px-4 text-stone-800">김치류 (비살균 식품)</td>
-                    </tr>
-                    <tr className="border-b border-stone-200">
-                      <th className="py-3 px-4 font-bold text-stone-600 border-r border-stone-200 bg-stone-50">내용량 / 포장규격</th>
-                      <td className="py-3 px-4 font-bold text-stone-900">{product.weight}</td>
-                      <th className="py-3 px-4 font-bold text-stone-600 border-r border-stone-200 bg-stone-50">포장재질</th>
-                      <td className="py-3 px-4 text-stone-800">{product.packagingType || '폴리에틸렌(내면)'}</td>
-                    </tr>
-                    <tr className="border-b border-stone-200">
-                      <th className="py-3 px-4 font-bold text-stone-600 border-r border-stone-200 bg-stone-50">보관방법</th>
-                      <td className="py-3 px-4 font-bold text-stone-900">{product.storage}</td>
-                      <th className="py-3 px-4 font-bold text-stone-600 border-r border-stone-200 bg-stone-50">유통 / 소비기한</th>
-                      <td className="py-3 px-4 text-stone-800">{product.shelfLife}</td>
-                    </tr>
-                    <tr className="border-b border-stone-200">
-                      <th className="py-3 px-4 font-bold text-stone-600 border-r border-stone-200 bg-stone-50">제조원 및 판매원</th>
-                      <td className="py-3 px-4 text-stone-800">주식회사 푸드홈 / 충청북도 진천군 덕산읍 산수로 482</td>
-                      <th className="py-3 px-4 font-bold text-stone-600 border-r border-stone-200 bg-stone-50">품목보고번호</th>
-                      <td className="py-3 px-4 font-mono text-stone-800">2021049218-142</td>
-                    </tr>
-                    <tr>
-                      <th className="py-3 px-4 font-bold text-stone-600 border-r border-stone-200 bg-stone-50">원재료명 및 함량</th>
-                      <td colSpan={3} className="py-3 px-4 text-stone-800 leading-relaxed">
-                        {product.ingredients}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Tab 3: Wholesale & Logistics Procedure */}
-          {activeTab === 'wholesale' && (
-            <div className="p-6 sm:p-10 space-y-6 animate-in fade-in duration-200">
-              <div>
-                <h3 className="text-lg font-black text-stone-900 mb-2">B2B 대량 납품 및 정기 공급 프로세스</h3>
-                <p className="text-xs text-stone-500">
-                  전국 480여 개 외식 프랜차이즈와 동일한 안정적인 콜드체인 물류망을 통해 매일 아침 공급받으실 수 있습니다.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
-                  <span className="text-[11px] font-black text-[#872D35] block">STEP 01</span>
-                  <h4 className="font-bold text-sm text-stone-900">무료 샘플 1kg 맛 테스트</h4>
-                  <p className="text-xs text-stone-600">
-                    사업자등록증 접수 시 무료 발송되는 샘플을 주방에서 직접 고기와 매칭해 보시고 결정하세요.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
-                  <span className="text-[11px] font-black text-[#872D35] block">STEP 02</span>
-                  <h4 className="font-bold text-sm text-stone-900">월 발주량 & 납품 단가 협의</h4>
-                  <p className="text-xs text-stone-600">
-                    주방의 일일/월간 소진량에 맞춰 가장 유리한 도매 단가와 배송 주기를 전담 상담원이 조율합니다.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
-                  <span className="text-[11px] font-black text-[#872D35] block">STEP 03</span>
-                  <h4 className="font-bold text-sm text-stone-900">당일 생산 & 품질 검수</h4>
-                  <p className="text-xs text-stone-600">
-                    발주 스케줄에 맞춰 매일 새벽 갓 담근 신선한 김치만을 엄선하여 금속검출기 전수 검사 후 출고합니다.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
-                  <span className="text-[11px] font-black text-[#872D35] block">STEP 04</span>
-                  <h4 className="font-bold text-sm text-stone-900">0~5℃ 콜드체인 매장 도착</h4>
-                  <p className="text-xs text-stone-600">
-                    온도 편차 없는 전국 냉장 물류망을 통해 다음 날 오전 매장 주방까지 신선하게 직배송됩니다.
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-[#872D35] text-white">
-                <div>
-                  <h4 className="text-base font-black">월 300kg 이상 프랜차이즈 전용 OEM 맞춤 상담</h4>
-                  <p className="text-xs text-stone-200 mt-0.5">
-                    가맹 브랜드 고유의 맛과 규격에 맞춘 OEM/PB 개발 및 전용 라벨링 포장을 지원합니다.
-                  </p>
-                </div>
-                <button
-                  onClick={handleRequestQuote}
-                  className="px-5 py-2.5 rounded-xl bg-white text-[#872D35] text-xs font-black hover:bg-stone-100 transition-colors shrink-0 cursor-pointer shadow-md"
-                >
-                  프랜차이즈 견적 문의
-                </button>
-              </div>
-            </div>
-          )}
-
-        </div>
+        <DynamicSectionRenderer 
+          sections={product.customSections || []} 
+          fallbackSections={getDefaultProductSections(product)} 
+        />
       </div>
+
 
       {/* 4. Other Products Quick Selection Carousel */}
       {otherProducts.length > 0 && (

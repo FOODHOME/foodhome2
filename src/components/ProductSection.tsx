@@ -17,6 +17,7 @@ export const ProductSection: React.FC = () => {
   const { 
     state, 
     setSelectedProductForDetail, 
+    navigateToProductDetail,
     setActivePage,
     setIsWholesaleModalOpen,
     setIsAdminOpen,
@@ -119,7 +120,7 @@ export const ProductSection: React.FC = () => {
                 {/* Image & Badges */}
                 <div 
                   className="relative aspect-4/3 overflow-hidden bg-stone-100 cursor-pointer"
-                  onClick={() => setSelectedProductForDetail(product)}
+                  onClick={() => navigateToProductDetail(product.id)}
                 >
                   <img 
                     src={product.imageUrl} 
@@ -181,7 +182,7 @@ export const ProductSection: React.FC = () => {
               <div className="p-4 pt-0">
                 <div className="grid grid-cols-2 gap-2 pt-3 border-t border-[#F0EBE6]">
                   <button
-                    onClick={() => setSelectedProductForDetail(product)}
+                    onClick={() => navigateToProductDetail(product.id)}
                     className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[#E8E2DC] text-xs font-bold text-[#332525] bg-stone-50 hover:bg-stone-100 transition-colors cursor-pointer"
                   >
                     <Eye className="w-3.5 h-3.5 text-slate-500" />

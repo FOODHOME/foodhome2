@@ -9,6 +9,8 @@ import {
   WholesaleStepItem 
 } from '../../types';
 import { uploadImageToStorage } from '../../lib/supabase';
+import { SectionManager } from './SectionManager';
+import { getDefaultPageSections, getDefaultProductSections } from '../../data/defaultPageSections';
 import { 
   Building, 
   Package, 
@@ -53,6 +55,7 @@ export const ContentManager: React.FC = () => {
     reorderProducts,
     updateProductCategories,
     updateCompanySubpages,
+    updatePageSections,
     showToast 
   } = useApp();
 
@@ -67,6 +70,7 @@ export const ContentManager: React.FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<string>(state.products[0]?.id || '');
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [productPreviewMode, setProductPreviewMode] = useState<'none' | 'card' | 'modal'>('card');
+  const [productSubTab, setProductSubTab] = useState<'items' | 'categories'>('items');
 
   // Local form for general site content
   const [contentForm, setContentForm] = useState(state.content);
@@ -794,6 +798,26 @@ export const ContentManager: React.FC = () => {
               </div>
             )}
 
+            {/* Subpage Specific Data Editors */}
+            {/* Modular Universal Section Manager for this Subpage */}
+            <div className="pt-6 border-t border-stone-200">
+              <SectionManager
+                title={`'${currentSubpage.menuLabel}' 본문 섹션 블록 관리`}
+                subtitle="페이지에 노출되는 이미지, 소개글, 특징 카드, 프로세스, CTA 안내 블록을 자유롭게 추가·수정·순서변경합니다."
+                sections={contentForm.pageSections?.[`about-${currentSubpage.id}`] || contentForm.pageSections?.[currentSubpage.id] || []}
+                fallbackSections={getDefaultPageSections(`about-${currentSubpage.id}`, contentForm)}
+                onChange={(newSecs) => {
+                  const updatedSections = {
+                    ...(contentForm.pageSections || {}),
+                    [`about-${currentSubpage.id}`]: newSecs,
+                    [currentSubpage.id]: newSecs
+                  };
+                  handleFieldChange('pageSections', updatedSections);
+                  updatePageSections(`about-${currentSubpage.id}`, newSecs);
+                }}
+              />
+            </div>
+
             <div className="flex justify-end pt-3 border-t border-stone-100">
               <button
                 onClick={handleSaveAllContent}
@@ -812,43 +836,67 @@ export const ContentManager: React.FC = () => {
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {activeMainMenu === 'products' && (
         <div className="space-y-6">
-          {/* Top Bar for Products */}
-          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h4 className="text-sm font-black text-stone-900 flex items-center gap-2">
-                <Package className="w-4 h-4 text-[#872D35]" />
-                <span>제품소개 하위 메뉴 통합 관리 ({state.products.length}종 등록됨)</span>
-              </h4>
-              <p className="text-xs text-stone-500 mt-0.5">
-                각 제품별 독립 콘텐츠(이미지, 규격, 단가안내, 버튼)를 수정하며 카드와 상세 팝업에 동시 반영됩니다.
-              </p>
+          {/* Sub-Navigation: Products vs Categories */}
+          <div className="bg-white p-3 sm:p-4 rounded-2xl border border-stone-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <button
+                type="button"
+                onClick={() => setProductSubTab('items')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
+                  productSubTab === 'items'
+                    ? 'bg-[#872D35] text-white shadow-2xs font-black ring-2 ring-[#872D35]/20'
+                    : 'bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-200'
+                }`}
+              >
+                <Package className="w-4 h-4" />
+                <span>1. 개별 제품 콘텐츠 & 블록 관리</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  productSubTab === 'items' ? 'bg-white text-[#872D35]' : 'bg-stone-200 text-stone-700'
+                }`}>
+                  {state.products.length}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setProductSubTab('categories')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
+                  productSubTab === 'categories'
+                    ? 'bg-[#872D35] text-white shadow-2xs font-black ring-2 ring-[#872D35]/20'
+                    : 'bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-200'
+                }`}
+              >
+                <Sliders className="w-4 h-4" />
+                <span>2. 제품 카테고리 관리</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  productSubTab === 'categories' ? 'bg-white text-[#872D35]' : 'bg-stone-200 text-stone-700'
+                }`}>
+                  {productCategories.length}
+                </span>
+              </button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={() => setIsCategoryModalOpen(true)}
-                className="px-3.5 py-2 rounded-xl border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-              >
-                <Sliders className="w-3.5 h-3.5 text-[#872D35]" />
-                <span>제품 카테고리 관리</span>
-              </button>
-              <button
+                type="button"
                 onClick={handleCreateNewProduct}
-                className="px-4 py-2 rounded-xl bg-[#872D35] hover:bg-[#6D242B] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-[#872D35] hover:bg-[#6D242B] text-white text-xs font-black flex items-center gap-1.5 shadow-2xs cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-4 h-4" />
                 <span>새 제품 추가</span>
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left: 제품 목록 (하위 메뉴 네비게이션) */}
-            <div className="lg:col-span-4 bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-2xs space-y-3">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-2">
-                <span className="text-xs font-black text-stone-800">등록 제품 선택</span>
-                <span className="text-[11px] text-stone-400 font-mono">총 {state.products.length}개</span>
-              </div>
+          {/* SubTab 1: Product Items & Detail Page Editor */}
+          {productSubTab === 'items' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Left: 제품 목록 (하위 메뉴 네비게이션) */}
+              <div className="lg:col-span-4 bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-2xs space-y-3">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-2">
+                  <span className="text-xs font-black text-stone-800">등록 제품 선택</span>
+                  <span className="text-[11px] text-stone-400 font-mono">총 {state.products.length}개</span>
+                </div>
 
               <div className="space-y-2 max-h-[600px] overflow-y-auto no-scrollbar">
                 {state.products.map((prod, idx) => {
@@ -970,17 +1018,65 @@ export const ContentManager: React.FC = () => {
 
                     <div>
                       <label className="block text-xs font-bold text-stone-700 mb-1">
-                        ③ 제품 카테고리 <span className="text-red-500">*</span>
+                        ③ 대표 카테고리 <span className="text-red-500">*</span>
                       </label>
                       <select
                         value={currentProduct.category}
-                        onChange={(e) => handleUpdateCurrentProduct({ category: e.target.value })}
+                        onChange={(e) => {
+                          const newPrimary = e.target.value;
+                          const curCats = currentProduct.categories || [currentProduct.category];
+                          const merged = curCats.includes(newPrimary) ? curCats : [newPrimary, ...curCats];
+                          handleUpdateCurrentProduct({ category: newPrimary, categories: merged });
+                        }}
                         className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs font-bold bg-white focus:border-[#872D35]"
                       >
                         {productCategories.map(c => (
                           <option key={c.id} value={c.name}>{c.name}</option>
                         ))}
                       </select>
+                    </div>
+                  </div>
+
+                  {/* Multi-category Checkbox Group (Requirement 1-6 & 1-7) */}
+                  <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-stone-800">
+                        소속 카테고리 다중 지정 (하나의 제품을 여러 카테고리에 동시 노출 가능)
+                      </label>
+                      <span className="text-[10px] text-stone-400">클릭하여 선택/해제</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {productCategories.map(cat => {
+                        const curCats = currentProduct.categories || [currentProduct.category];
+                        const isChecked = curCats.includes(cat.name);
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => {
+                              let nextCats = [...curCats];
+                              if (isChecked) {
+                                nextCats = nextCats.filter(c => c !== cat.name);
+                                if (nextCats.length === 0) nextCats = [cat.name]; // keep at least 1
+                              } else {
+                                nextCats.push(cat.name);
+                              }
+                              handleUpdateCurrentProduct({
+                                categories: nextCats,
+                                category: nextCats.includes(currentProduct.category) ? currentProduct.category : nextCats[0]
+                              });
+                            }}
+                            className={`px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                              isChecked
+                                ? 'bg-[#872D35] text-white border-[#872D35] shadow-2xs'
+                                : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-100'
+                            }`}
+                          >
+                            <span>{isChecked ? '✓' : '+'}</span>
+                            <span>{cat.name}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -1230,6 +1326,17 @@ export const ContentManager: React.FC = () => {
                   </div>
                 </div>
 
+                {/* ⑯ Modular Universal Section Manager for Product Detail Page */}
+                <div className="pt-6 border-t border-stone-200">
+                  <SectionManager
+                    title={`"${currentProduct.name}" 상세페이지 맞춤 콘텐츠 블록 관리`}
+                    subtitle="상세페이지 하단에 표시될 특징 카드, 공인 규격표, B2B 납품 절차, CTA 배너를 자유롭게 추가·편집·순서변경합니다."
+                    sections={currentProduct.customSections || []}
+                    fallbackSections={getDefaultProductSections(currentProduct)}
+                    onChange={(newSecs) => handleUpdateCurrentProduct({ customSections: newSecs })}
+                  />
+                </div>
+
                 {/* 3. Live Preview Section (Card & Detail Popup) */}
                 <div className="pt-6 border-t border-stone-200 space-y-3">
                   <div className="flex items-center justify-between">
@@ -1345,6 +1452,216 @@ export const ContentManager: React.FC = () => {
               </div>
             )}
           </div>
+          )}
+
+          {/* SubTab 2: Product Categories Management (Requirement 1-1 ~ 1-8) */}
+          {productSubTab === 'categories' && (
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-stone-200 shadow-2xs space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="p-1 rounded-md bg-[#872D35]/10 text-[#872D35]">
+                      <Sliders className="w-4 h-4" />
+                    </span>
+                    <h4 className="text-base font-black text-stone-900">
+                      제품 분류 카테고리 관리 ({productCategories.length}개)
+                    </h4>
+                  </div>
+                  <p className="text-xs text-stone-500">
+                    홈페이지 상단 카테고리 탭 및 제품 필터를 관리합니다. 카테고리를 삭제하더라도 소속된 제품은 삭제되지 않고 안전하게 유지됩니다.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveCategories}
+                    className="px-5 py-2.5 rounded-xl bg-[#872D35] hover:bg-[#6D242B] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>카테고리 변경사항 저장</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Add Category Input */}
+              <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 flex flex-col sm:flex-row items-center gap-2.5">
+                <input
+                  type="text"
+                  value={newCatName}
+                  onChange={(e) => setNewCatName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (!newCatName.trim()) return;
+                      const newCat: ProductCategoryItem = {
+                        id: 'cat-' + Date.now(),
+                        name: newCatName.trim(),
+                        order: editableCats.length + 1,
+                        visible: true
+                      };
+                      const updated = [...editableCats, newCat];
+                      setEditableCats(updated);
+                      updateProductCategories(updated);
+                      handleFieldChange('productCategoriesList', updated);
+                      setNewCatName('');
+                      showToast(`'${newCat.name}' 카테고리가 추가되었습니다.`);
+                    }
+                  }}
+                  placeholder="추가할 새 카테고리명을 입력하세요 (예: 계절 한정 김치, 선물세트, 반찬류)"
+                  className="flex-1 px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-bold bg-white focus:border-[#872D35]"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!newCatName.trim()) {
+                      alert('카테고리 이름을 입력하세요.');
+                      return;
+                    }
+                    const newCat: ProductCategoryItem = {
+                      id: 'cat-' + Date.now(),
+                      name: newCatName.trim(),
+                      order: editableCats.length + 1,
+                      visible: true
+                    };
+                    const updated = [...editableCats, newCat];
+                    setEditableCats(updated);
+                    updateProductCategories(updated);
+                    handleFieldChange('productCategoriesList', updated);
+                    setNewCatName('');
+                    showToast(`'${newCat.name}' 카테고리가 추가되었습니다.`);
+                  }}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer shrink-0 shadow-2xs"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>새 카테고리 등록</span>
+                </button>
+              </div>
+
+              {/* Category Items List */}
+              <div className="space-y-2.5">
+                {editableCats.map((cat, idx) => {
+                  const matchCount = state.products.filter(p => (p.categories || [p.category]).includes(cat.name)).length;
+                  const isHidden = cat.visible === false;
+
+                  return (
+                    <div
+                      key={cat.id}
+                      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border transition-all ${
+                        isHidden 
+                          ? 'bg-stone-50/70 border-stone-200 opacity-60' 
+                          : 'bg-white border-stone-200 hover:border-stone-300 shadow-2xs'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="w-6 h-6 rounded-md bg-stone-100 flex items-center justify-center font-mono font-bold text-xs text-stone-600 shrink-0">
+                          {idx + 1}
+                        </span>
+
+                        <input
+                          type="text"
+                          value={cat.name}
+                          onChange={(e) => {
+                            const updated = [...editableCats];
+                            updated[idx].name = e.target.value;
+                            setEditableCats(updated);
+                            updateProductCategories(updated);
+                            handleFieldChange('productCategoriesList', updated);
+                          }}
+                          className="flex-1 px-3 py-1.5 text-xs font-black border border-stone-300 rounded-lg bg-stone-50/50 focus:bg-white focus:border-[#872D35]"
+                        />
+
+                        <span className="px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-[11px] font-bold shrink-0">
+                          {matchCount}개 제품 연결됨
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = [...editableCats];
+                            updated[idx].visible = !updated[idx].visible;
+                            setEditableCats(updated);
+                            updateProductCategories(updated);
+                            handleFieldChange('productCategoriesList', updated);
+                          }}
+                          className={`p-1.5 rounded-lg cursor-pointer ${
+                            !isHidden ? 'text-emerald-600 hover:bg-emerald-50' : 'text-stone-300 hover:bg-stone-100'
+                          }`}
+                          title={!isHidden ? '홈페이지 노출 중' : '숨김 상태'}
+                        >
+                          {!isHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => {
+                            const updated = [...editableCats];
+                            const [moved] = updated.splice(idx, 1);
+                            updated.splice(idx - 1, 0, moved);
+                            const reordered = updated.map((c, i) => ({ ...c, order: i + 1 }));
+                            setEditableCats(reordered);
+                            updateProductCategories(reordered);
+                            handleFieldChange('productCategoriesList', reordered);
+                          }}
+                          className="p-1.5 rounded-lg text-stone-400 hover:text-stone-800 hover:bg-stone-100 disabled:opacity-20 cursor-pointer text-xs"
+                          title="위로 이동"
+                        >
+                          ▲
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={idx === editableCats.length - 1}
+                          onClick={() => {
+                            const updated = [...editableCats];
+                            const [moved] = updated.splice(idx, 1);
+                            updated.splice(idx + 1, 0, moved);
+                            const reordered = updated.map((c, i) => ({ ...c, order: i + 1 }));
+                            setEditableCats(reordered);
+                            updateProductCategories(reordered);
+                            handleFieldChange('productCategoriesList', reordered);
+                          }}
+                          className="p-1.5 rounded-lg text-stone-400 hover:text-stone-800 hover:bg-stone-100 disabled:opacity-20 cursor-pointer text-xs"
+                          title="아래로 이동"
+                        >
+                          ▼
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`'${cat.name}' 카테고리를 정말 삭제하시겠습니까?\n\n※ 안전 보장: 카테고리를 삭제하더라도 해당 카테고리에 속한 모든 제품은 절대 삭제되지 않고 유지됩니다.`)) {
+                              const updated = editableCats.filter((_, i) => i !== idx);
+                              const reordered = updated.map((c, i) => ({ ...c, order: i + 1 }));
+                              setEditableCats(reordered);
+                              updateProductCategories(reordered);
+                              handleFieldChange('productCategoriesList', reordered);
+                              showToast(`'${cat.name}' 카테고리가 삭제되었습니다. (제품은 안전하게 유지됩니다)`);
+                            }
+                          }}
+                          className="p-1.5 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 cursor-pointer"
+                          title="카테고리 삭제"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Safety notice info card */}
+              <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>
+                  <strong>데이터 안전 보장:</strong> 카테고리를 삭제하거나 수정하더라도 기존에 등록된 제품의 이름, 상세스펙, 이미지 및 데이터는 100% 안전하게 유지됩니다.
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -18,7 +18,8 @@ import {
   FaqCategoryItem,
   ProductCategoryItem,
   CompanySubpageItem,
-  MainSectionConfig
+  MainSectionConfig,
+  CustomSectionItem
 } from '../types';
 import { initialData } from '../data/initialData';
 import { 
@@ -60,6 +61,7 @@ interface AppContextType {
   updateProductCategories: (categories: ProductCategoryItem[]) => void;
   updateCompanySubpages: (subpages: CompanySubpageItem[]) => void;
   updateMainSections: (sections: MainSectionConfig[]) => void;
+  updatePageSections: (pageId: string, sections: CustomSectionItem[]) => void;
   reorderProducts: (products: ProductItem[]) => void;
 
   // Inquiries
@@ -567,6 +569,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('메인페이지 섹션 설정이 성공적으로 저장되었습니다.');
   };
 
+  const updatePageSections = (pageId: string, sections: CustomSectionItem[]) => {
+    setState(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        pageSections: {
+          ...(prev.content.pageSections || {}),
+          [pageId]: sections
+        }
+      }
+    }));
+    showToast('페이지 섹션 구성 및 내용이 성공적으로 저장되었습니다.');
+  };
+
   const reorderProducts = (products: ProductItem[]) => {
     setState(prev => ({
       ...prev,
@@ -1072,6 +1088,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateProductCategories,
         updateCompanySubpages,
         updateMainSections,
+        updatePageSections,
         reorderProducts,
         activeAdminTab,
         setActiveAdminTab,

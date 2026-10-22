@@ -8,6 +8,7 @@ export const ProductSliderSection: React.FC<{ config?: MainSectionConfig }> = ({
   const { 
     state, 
     setSelectedProductForDetail, 
+    navigateToProductDetail,
     setActivePage 
   } = useApp();
 
@@ -94,7 +95,7 @@ export const ProductSliderSection: React.FC<{ config?: MainSectionConfig }> = ({
               {/* Product Image */}
               <div 
                 className="relative aspect-4/3 overflow-hidden bg-stone-100 cursor-pointer"
-                onClick={() => setSelectedProductForDetail(product)}
+                onClick={() => navigateToProductDetail(product.id)}
               >
                 <img
                   src={product.imageUrl}
@@ -129,7 +130,7 @@ export const ProductSliderSection: React.FC<{ config?: MainSectionConfig }> = ({
                   </div>
 
                   <h3 
-                    onClick={() => setSelectedProductForDetail(product)}
+                    onClick={() => navigateToProductDetail(product.id)}
                     className="text-base font-bold text-[#2A2020] group-hover:text-[#872D35] transition-colors line-clamp-1 cursor-pointer"
                     title={product.name}
                   >
@@ -153,7 +154,7 @@ export const ProductSliderSection: React.FC<{ config?: MainSectionConfig }> = ({
                 {/* Card CTA Actions */}
                 <div className="mt-3.5 grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => setSelectedProductForDetail(product)}
+                    onClick={() => navigateToProductDetail(product.id)}
                     className="flex items-center justify-center gap-1 px-3 py-2 text-xs font-bold rounded-lg border border-[#E8E2DC] text-[#332525] bg-stone-50 hover:bg-stone-100 transition-colors cursor-pointer"
                   >
                     <Eye className="w-3.5 h-3.5 text-slate-600" />

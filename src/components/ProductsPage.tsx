@@ -18,20 +18,34 @@ export const ProductsPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const categories = [
-    '전체',
-    '보쌈무김치',
-    '비법김칫속',
-    '업소용 대용량 (10kg)',
-    '소포장 & 밀키트'
-  ];
+  const categories = React.useMemo(() => {
+    if (state.content.productCategoriesList && state.content.productCategoriesList.length > 0) {
+      const activeCats = state.content.productCategoriesList
+        .filter(c => c.visible !== false)
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+        .map(c => c.name);
+      return ['전체', ...activeCats.filter(name => name !== '전체')];
+    }
+    return [
+      '전체',
+      '보쌈무김치',
+      '비빔김치소스',
+      '업소용 대용량(10kg)',
+      '소포장 & 밀키트'
+    ];
+  }, [state.content.productCategoriesList]);
 
   const filteredProducts = state.products.filter(product => {
+    if (product.visible === false) return false;
+
     const matchesCategory = 
       selectedCategory === '전체' ||
       product.category === selectedCategory ||
-      (selectedCategory === '업소용 대용량 (10kg)' && (product.weight.includes('10kg') || product.name.includes('대용량'))) ||
-      (selectedCategory === '소포장 & 밀키트' && (product.weight.includes('500g') || product.weight.includes('1kg') || product.category.includes('밀키트')));
+      (product.categories && product.categories.includes(selectedCategory)) ||
+      (selectedCategory.includes('보쌈무') && product.category.includes('보쌈무')) ||
+      (selectedCategory.includes('비빔') && (product.category.includes('김칫속') || product.name.includes('김칫속') || product.category.includes('양념'))) ||
+      (selectedCategory.includes('10kg') && (product.weight?.includes('10kg') || product.name?.includes('대용량') || product.category.includes('대용량'))) ||
+      (selectedCategory.includes('소포장') && (product.weight?.includes('500g') || product.name?.includes('소포장') || product.category.includes('소포장') || product.category.includes('밀키트')));
 
     const matchesSearch = 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -112,7 +126,8 @@ export const ProductsPage: React.FC = () => {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col group"
+              onClick={() => navigateToProductDetail(product.id)}
+              className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col group cursor-pointer"
             >
               {/* Product Image */}
               <div 
@@ -189,7 +204,10 @@ export const ProductsPage: React.FC = () => {
                     상세페이지 보기 →
                   </button>
                   <button
-                    onClick={() => setActivePage('sample-board-write')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActivePage('sample-board-write');
+                    }}
                     className="flex-1 py-2.5 rounded-xl bg-[#872D35] hover:bg-[#9E2A2B] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-amber-300" />
